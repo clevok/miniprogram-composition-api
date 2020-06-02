@@ -17,7 +17,7 @@ export interface ISetRef<T> {
     (value: T): void
 }
 export interface ISetRef<T> {
-    (value: () => T): void;
+    (value: (params: T) => T): void;
 }
 
 export function isRef<T> (r: IRef<T> | unknown): r is IRef<T>
@@ -65,8 +65,6 @@ function createRef<T>(rawValue: T): IUseRef<T> {
         }
     });
 
-    function setRef(value: T): void
-    function setRef(value: () => T): void
     function setRef(value: any) {
         let result: T;
         if (isFunction(value)) {

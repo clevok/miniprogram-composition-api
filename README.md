@@ -11,6 +11,8 @@ setup触发 是一开始小程序加载就触发,用来初始化数据,还是 on
 ### 差异
 1. setup this执行是组件的实例
 2. 自定义组件setup执行是在attached, 尽管create更早, 但是为了获取props, 所以就采用了attached了, props接下来需要ref化
+3. useCompute, useEffect, 因为采用 Object.defineProperty 做依赖收集, 由开发者手动做依赖收集
+4. 
 
 ```js
 import { defineComponent } from '';

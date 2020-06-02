@@ -9,6 +9,7 @@ export function useComputed<T> (callback: () => T, refs: IRef[]): IRef<T>{
 
 	useEffect(() => {
 		setRef(callback())
-	}, refs)
+    }, refs)
+    
 	return ref
 }

@@ -13,7 +13,7 @@ export interface ISetRef<T> {
     (value: T): void;
 }
 export interface ISetRef<T> {
-    (value: () => T): void;
+    (value: (params: T) => T): void;
 }
 export declare function isRef<T>(r: IRef<T> | unknown): r is IRef<T>;
 export declare type IUseRef<T> = [IRef<T>, ISetRef<T>];

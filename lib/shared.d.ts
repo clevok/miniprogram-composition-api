@@ -1,4 +1,4 @@
-export declare function deepToRaw(x: unknown): unknown;
+export declare const deepToRaw: (x: unknown) => any;
 /**
  * Page/Component 与 watch 中转
  */

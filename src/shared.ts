@@ -2,9 +2,10 @@ import { isRef, IRef } from './ref'
 import { useEffect, isObserve } from './watch'
 import { isPlainObject, isArray } from './utils'
 import { diff } from './diff'
+import { overCloneDeep } from './over'
 
-export function deepToRaw (x: unknown): unknown{
-	if (isRef(x)) {
+export const deepToRaw = overCloneDeep(function (x: unknown) {
+    if (isRef(x)) {
 		return x.value
 	}
 	if (isArray(x)) {
@@ -19,16 +20,20 @@ export function deepToRaw (x: unknown): unknown{
 	}
 
 	return x
-}
+})
 
 /**
  * Page/Component 与 watch 中转
  */
 export function deepWatch(target: any, key: string, value: any) {
+
+    /**
+     * 提取可被响应的数据
+     */
     const deepEffects: IRef[] = [];
     (function observerEffects(x: any) {
         /**
-         * isObserve必须是在最前面
+         * isObserve必须是在最前面,因为会被isPlainObject解析
          */
         if (isObserve(x)) {
             return void deepEffects.push(x);
@@ -55,7 +60,7 @@ export function deepWatch(target: any, key: string, value: any) {
                         [key]: deepToRaw(value)
                     },
                     {
-                        [key]: this.data[key]
+                        [key]: target.data[key]
                     }
                 )
             )
