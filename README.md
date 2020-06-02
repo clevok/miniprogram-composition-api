@@ -11,8 +11,9 @@ setup触发 是一开始小程序加载就触发,用来初始化数据,还是 on
 ### 差异
 1. setup this执行是组件的实例
 2. 自定义组件setup执行是在attached, 尽管create更早, 但是为了获取props, 所以就采用了attached了, props接下来需要ref化
-3. useCompute, useEffect, 因为采用 Object.defineProperty 做依赖收集, 由开发者手动做依赖收集
-4. 
+3. useCompute, useEffect, 没有采用 Object.defineProperty 做依赖收集, 由开发者手动做依赖收集
+4. 其实可以尝试用 Object.defineProperty, 针对array, object 等提供特殊方法, 只是别忘记就好
+
 
 ```js
 import { defineComponent } from '';
@@ -52,6 +53,7 @@ defineComponent({
 ### 解决的问题
 1. 为了解决mixins问题
 示例 searchList
+
 ```js
 function useSearchList () {
     const pageStatus = ref({
@@ -108,4 +110,5 @@ createComponent({
         }
     }
 })
+
 ```

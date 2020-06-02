@@ -22,7 +22,6 @@ export {
     onPullDownRefresh,
     onShareAppMessage,
     onReachBottom,
-
     attached,
     ready,
     detached
