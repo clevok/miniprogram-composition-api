@@ -1,4 +1,4 @@
-export declare function deepToValue(x: unknown): unknown;
+export declare function deepToRaw(x: unknown): unknown;
 /**
  * Page/Component 与 watch 中转
  */
