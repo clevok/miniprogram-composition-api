@@ -1,5 +1,5 @@
 import { isFunction } from './utils'
-import { deepToValue, deepWatch } from './shared'
+import { deepToRaw, deepWatch } from './shared'
 import { overCurrentPage, PageLifecycle } from './lifecycle'
 
 export function definePage (
@@ -47,7 +47,7 @@ export function definePage (
             }
 
             this.setData({
-                [key]: deepToValue(value)
+                [key]: deepToRaw(value)
             })
 
             deepWatch(this, key, value);

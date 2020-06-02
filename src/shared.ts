@@ -1,19 +1,19 @@
 import { isRef, IRef } from './ref'
-import { useEffect } from './watch'
+import { useEffect, isObserve } from './watch'
 import { isPlainObject, isArray } from './utils'
 import { diff } from './diff'
 
-export function deepToValue (x: unknown): unknown{
+export function deepToRaw (x: unknown): unknown{
 	if (isRef(x)) {
 		return x.value
 	}
 	if (isArray(x)) {
-		return x.map((item) => deepToValue(item))
+		return x.map((item) => deepToRaw(item))
 	}
 	if (isPlainObject(x)) {
 		const obj: { [key: string]: unknown } = {}
 		Object.keys(x).forEach((key) => {
-			obj[key] = deepToValue(x[key])
+			obj[key] = deepToRaw(x[key])
 		})
 		return obj
 	}
@@ -27,6 +27,12 @@ export function deepToValue (x: unknown): unknown{
 export function deepWatch(target: any, key: string, value: any) {
     const deepEffects: IRef[] = [];
     (function observerEffects(x: any) {
+        /**
+         * isObserve必须是在最前面
+         */
+        if (isObserve(x)) {
+            return void deepEffects.push(x);
+        }
         if (isArray(x)) {
             return void x.map((item) => observerEffects(item))
         }
@@ -34,9 +40,6 @@ export function deepWatch(target: any, key: string, value: any) {
             return void Object.keys(x).forEach((key) => {
                 observerEffects(x[key])
             })
-        }
-        if (isRef(x)) {
-            return void deepEffects.push(x);
         }
     })(value);
 
@@ -49,7 +52,7 @@ export function deepWatch(target: any, key: string, value: any) {
             target.setData(
                 diff(
                     {
-                        [key]: deepToValue(value)
+                        [key]: deepToRaw(value)
                     },
                     {
                         [key]: this.data[key]
