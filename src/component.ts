@@ -1,4 +1,4 @@
-import { isFunction } from './utils'
+import { isFunction, wrapFun } from './utils'
 import { deepToRaw, deepWatch } from './shared'
 import { ComponentLifecycle, overCurrentComponent } from './lifecycle'
 
@@ -9,21 +9,19 @@ export function defineComponent (
 				setup?: Function
 			}
 		| Function
-): any {
-
+): any{
 	/**
      * setup, 将在onLoad执行
      */
-	let setup: Function
+	let setupFun: Function
 
 	/**
      * 构建componets基本参数
      */
 	let options: Object
 
-
 	if (isFunction(optionsOrSetup)) {
-		setup = optionsOrSetup
+		setupFun = optionsOrSetup
 		options = {}
 	} else {
 		if (optionsOrSetup.setup === void 0) {
@@ -31,33 +29,45 @@ export function defineComponent (
 		}
 
 		const { setup: setupOption, ...otherOptions } = optionsOrSetup
-		setup = setupOption
+		setupFun = setupOption
 		options = otherOptions
 	}
-
 
 	/**
      * 属性赋值
      * 在attached里调用setup是因为props原因
      * 下一个版本将props转化为ref对象,进行监听
      */
-    options[ComponentLifecycle.ATTACHED] = overCurrentComponent(function () {
-        const binding = setup.call(this, this.properties);
+	options[ComponentLifecycle.ATTACHED] = wrapFun(
+		options[ComponentLifecycle.ATTACHED],
+        overCurrentComponent(function () {
+			setup.call(this, setupFun, this.properties)
+		})
+	)
 
-		Object.keys(binding).forEach((key) => {
-			const value = binding[key]
-            if (isFunction(value)) {
-                this[key] = value
-				return
-            }
+	return Component(options)
+}
 
-            this.setData({
-                [key]: deepToRaw(value)
-            })
 
-            deepWatch(this, key, value);
-        })
-    })
+/**
+ * 绑定函数
+ * @param callback 回调
+ * @param props props内容
+ */
+export function setup (callback: Function, props: unknown){
+	const binding = callback.call(this, props)
 
-    return Component(options);
+	Object.keys(binding).forEach((key) => {
+		const value = binding[key]
+		if (isFunction(value)) {
+			this[key] = value
+			return
+		}
+
+		this.setData({
+			[key]: deepToRaw(value)
+		})
+
+		deepWatch(this, key, value)
+	})
 }

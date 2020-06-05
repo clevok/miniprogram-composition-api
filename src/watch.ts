@@ -11,8 +11,9 @@ export function isObserve (value) {
 
 /**
  * 监听ref做出回应
+ * @return {function} 丢弃监听
  */
-export function useEffect(callback: (newValue: any) => any, refs: IRef[]) {
+export function useEffect<T>(callback: (newValue: T) => any, refs: IRef<T>[]) {
     if (!isFunction(callback)) {
         return void console.warn(`
         callback must be functions

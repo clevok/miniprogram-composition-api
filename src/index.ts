@@ -7,7 +7,8 @@ export {
 } from './ref';
 
 export {
-    defineComponent
+    defineComponent,
+    setup
 } from './component';
 
 export {
@@ -29,7 +30,8 @@ export {
 
 export {
     provide,
-    inject
+    inject,
+    injectAsync
 } from './inject';
 
 export {
