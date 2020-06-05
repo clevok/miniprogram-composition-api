@@ -81,7 +81,7 @@ defineComponent({
 
 ```js
 function useSearchList () {
-    const pageStatus = ref({
+    const [ pageStatus, setPageStatus] = useRef({
         page: 1,
         pageSize: 10,
         loadStatus: {
@@ -93,14 +93,27 @@ function useSearchList () {
     });
 
     const searchList = async function (api, params, options) {
-        pageStatus.value.loadStatus.isLoading = true;
+        setPageStatus(status => {
+            status.loadStatus.isLoading = true;
+            return status
+        });
+
         try {
             await api(Object.assign({ page: pageStatus.value.page, pageSize: pageStatus.value.pageSize }, params));
-            pageStatus.value.page++;
+            setPageStatus(status => {
+                status.page += 1;
+                return status
+            });
         } catch (e) {
-            pageStatus.value.loadStatus.isError = true;
+            setPageStatus(status => {
+                status.loadStatus.isError = true;
+                return status
+            });
         } finally {
-            pageStatus.value.loadStatus.isLoading = false;
+            setPageStatus(status => {
+                status.loadStatus.isLoading = false;
+                return status
+            });
         }
     }
 

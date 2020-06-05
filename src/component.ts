@@ -1,6 +1,5 @@
 import { isFunction, wrapFun } from './utils'
-import { deepToRaw, deepWatch } from './shared'
-import { ComponentLifecycle, overCurrentComponent } from './lifecycle'
+import { ComponentLifecycle, setup } from './lifecycle'
 
 export function defineComponent (
 	optionsOrSetup:
@@ -33,41 +32,27 @@ export function defineComponent (
 		options = otherOptions
 	}
 
+	/** setup 回调句柄, 用于清除监听 */
+	let __setup_handle: Function
+
 	/**
-     * 属性赋值
+     * 通过合并方法的方式, 调用setup
      * 在attached里调用setup是因为props原因
      * 下一个版本将props转化为ref对象,进行监听
      */
 	options[ComponentLifecycle.ATTACHED] = wrapFun(
 		options[ComponentLifecycle.ATTACHED],
-        overCurrentComponent(function () {
-			setup.call(this, setupFun, this.properties)
-		})
+		function (){
+			__setup_handle = setup(this, setupFun, this.properties)
+		}
+	)
+
+	options[ComponentLifecycle.DETACHED] = wrapFun(
+		options[ComponentLifecycle.DETACHED],
+		function (){
+			__setup_handle && __setup_handle()
+		}
 	)
 
 	return Component(options)
-}
-
-
-/**
- * 绑定函数
- * @param callback 回调
- * @param props props内容
- */
-export function setup (callback: Function, props: unknown){
-	const binding = callback.call(this, props)
-
-	Object.keys(binding).forEach((key) => {
-		const value = binding[key]
-		if (isFunction(value)) {
-			this[key] = value
-			return
-		}
-
-		this.setData({
-			[key]: deepToRaw(value)
-		})
-
-		deepWatch(this, key, value)
-	})
 }

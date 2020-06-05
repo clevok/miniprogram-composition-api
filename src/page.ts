@@ -1,6 +1,5 @@
-import { isFunction } from './utils'
-import { deepToRaw, deepWatch } from './shared'
-import { PageLifecycle, overCurrentPage } from './lifecycle'
+import { isFunction, wrapFun } from './utils'
+import { PageLifecycle, setup } from './lifecycle'
 
 export function definePage (
 	optionsOrSetup:
@@ -13,7 +12,7 @@ export function definePage (
 	/**
      * setup, 将在onLoad执行
      */
-	let setup: Function
+	let setupFun: Function
 
 	/**
      * 构建componets基本参数
@@ -21,7 +20,7 @@ export function definePage (
 	let options: Object
 
 	if (isFunction(optionsOrSetup)) {
-		setup = optionsOrSetup
+		setupFun = optionsOrSetup
 		options = {}
 	} else {
 		if (optionsOrSetup.setup === void 0) {
@@ -29,26 +28,19 @@ export function definePage (
 		}
 
 		const { setup: setupOption, ...otherOptions } = optionsOrSetup
-		setup = setupOption
+		setupFun = setupOption
 		options = otherOptions
 	}
 
-	options[PageLifecycle.ON_LOAD] = overCurrentPage(function (props){
-		const binding = setup.call(this, props)
+	/** setup 回调句柄, 用于清除监听 */
+	let __setup_handle: Function
 
-		Object.keys(binding).forEach((key) => {
-			const value = binding[key]
-			if (isFunction(value)) {
-				this[key] = value
-				return
-			}
+	options[PageLifecycle.ON_LOAD] = wrapFun(options[PageLifecycle.ON_LOAD], function (){
+		__setup_handle = setup(this, setupFun, this.properties)
+	})
 
-			this.setData({
-				[key]: deepToRaw(value)
-			})
-
-			deepWatch(this, key, value)
-		})
+	options[PageLifecycle.ON_UNLOAD] = wrapFun(options[PageLifecycle.ON_UNLOAD], function (){
+		__setup_handle && __setup_handle()
 	})
 
 	return Page(options)

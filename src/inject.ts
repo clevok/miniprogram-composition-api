@@ -1,12 +1,10 @@
-import { Dep } from './dep';
+import { Dep } from './dep'
 
 const provides = Object.create(null)
-const dep = new Dep();
-
+const dep = new Dep()
 
 // @ts-ignore
 export interface InjectionKey<T> extends Symbol {}
-
 
 /**
  * 注册
@@ -15,10 +13,9 @@ export interface InjectionKey<T> extends Symbol {}
  */
 export function useProvide<T> (key: InjectionKey<T> | string, value: T): void{
 	// TS doesn't allow symbol as index type
-    provides[key as string] = value;
-    dep.notify(key, value);
+	provides[key as string] = value
+	dep.notify(key, value)
 }
-
 
 /**
  * 注入
@@ -44,18 +41,18 @@ export function useInject (key: InjectionKey<any> | string, defaultValue?: unkno
  * 异步注入, 等待注册
  * @param key 
  */
-export async function useInjectAsync<T>(key: InjectionKey<T> | string): Promise<T> {
-    if (key in provides) {
+export async function useInjectAsync<T> (key: InjectionKey<T> | string): Promise<T>{
+	if (key in provides) {
 		// TS doesn't allow symbol as index type
 		return provides[key as string]
-    }
+	}
 
-    return new Promise((resolve, reject) => {
-        const clearHandle = dep.depend((notifyKey, notifyValue) => {
-            if (notifyKey === key) {
-                clearHandle && clearHandle();
-                return resolve(notifyValue);
-            }
-        })
-    });
+	return new Promise((resolve, reject) => {
+		const clearHandle = dep.depend((notifyKey, notifyValue) => {
+			if (notifyKey === key) {
+				clearHandle && clearHandle()
+				return resolve(notifyValue)
+			}
+		})
+	})
 }

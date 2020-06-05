@@ -1,3 +1,6 @@
+import { deepToRaw, deepWatch } from './shared'
+import { isFunction } from './utils'
+
 export const enum ComponentLifecycle {
 	CREATED = 'created',
 	ATTACHED = 'attached',
@@ -19,116 +22,108 @@ export const enum PageLifecycle {
 	ON_TAB_ITEM_TAP = 'onTabItemTap'
 }
 
-export type PageInstance = WechatMiniprogram.Page.InstanceProperties &
-	WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>>
-
-export type ComponentInstance = WechatMiniprogram.Component.InstanceProperties &
-	WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>>
+export type CurrentModuleInstance =
+	| WechatMiniprogram.Component.InstanceProperties &
+			WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>>
+	| WechatMiniprogram.Page.InstanceProperties &
+			WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>>
 
 /**
  * 执行期间的页面
  */
-export let currentPage: PageInstance | null = null
+export let currentModule: CurrentModuleInstance | null = null
+
+export function overCurrentModule<T extends Function> (callback: T): T{
+	// @ts-ignore
+	return function (...arg: any[]){
+		currentModule = this
+
+		const reuslt = callback.apply(this, arg)
+
+		currentModule = null
+
+		return reuslt
+	}
+}
 
 /**
- * 执行期间的组件
+ * 
+ * 绑定函数, 基于target对象绑定实例
+ * @param target - 页面/组件 实例
+ * @param callback - 执行方法
+ * @param props - props内容
+ * @return {function} - 停止内部所有依赖的监听
  */
-export let currentComponent: ComponentInstance | null = null
+export const setup = overCurrentModule(function (target, callback: Function, props: unknown = {}){
+	const binding = callback.call(target, props)
+	const stopHandels = Object.keys(binding).map((key) => {
+		const value = binding[key]
 
-export function setCurrentPage (page: PageInstance | null): void{
-	currentPage = page
-}
-export function overCurrentPage (callback){
-	return function (){
-		setCurrentPage(this)
+		if (isFunction(value)) {
+			target[key] = value
+			return
+		}
 
-		callback.call(this)
+		target.setData({
+			[key]: deepToRaw(value)
+		})
 
-		setCurrentPage(null)
+		return deepWatch(target, key, value)
+	})
+
+	return () => {
+		stopHandels.forEach((stopHandle) => {
+			stopHandle && stopHandle()
+		})
 	}
-}
-
-
-export function setCurrentComponent (component: ComponentInstance | null): void{
-	currentComponent = component
-}
-
-export function overCurrentComponent (callback){
-	return function (){
-		setCurrentComponent(this)
-
-		callback.call(this)
-
-		setCurrentComponent(null)
-	}
-}
+})
 
 /**
  * 实例初始化
  */
-export function attached() {
-    
-}
+export function attached (callback: Function){}
 
 /**
  * 装载完成
  */
-export function ready() {
-
-}
+export function ready (){}
 
 /**
  * 卸载
  */
-export function detached() {
-
-}
+export function detached (){}
 
 /**
  * 页面加载
  */
-export function onLoad() {
-    
-}
+export function onLoad (){}
 
 /**
  * 页面显示
  */
-export function onShow() {
-    
-}
+export function onShow (){}
 
 /**
  * 页面隐藏
  */
-export function onHide() {
-    
-}
+export function onHide (){}
 
 /**
  * 页面卸载
  */
-export function onUnload() {
-    
-}
+export function onUnload (){}
 
 /**
  * 下拉刷新
  */
-export function onPullDownRefresh() {
-    
-}
+export function onPullDownRefresh (){}
 
 /**
  * 滚动到底部
  */
-export function onReachBottom() {
-    
-}
+export function onReachBottom (){}
 
 /**
  * 转发
  */
-export function onShareAppMessage() {
-    
-}
+export function onShareAppMessage (){}

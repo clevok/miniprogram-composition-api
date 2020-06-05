@@ -1,43 +1,25 @@
-export {
-    useRef,
-    isRef,
-    IRef,
-    ISetRef,
-    IUseRef
-} from './ref';
+export { useRef, isRef, IRef, ISetRef, IUseRef } from './ref'
+
+export { defineComponent } from './component'
+
+export { definePage } from './page'
 
 export {
-    defineComponent,
-    setup
-} from './component';
+	setup,
+	onLoad,
+	onShow,
+	onHide,
+	onUnload,
+	onPullDownRefresh,
+	onShareAppMessage,
+	onReachBottom,
+	attached,
+	ready,
+	detached
+} from './lifecycle'
 
-export {
-    definePage
-} from './page';
+export { useProvide, useInject, useInjectAsync } from './inject'
 
-export {
-    onLoad,
-    onShow,
-    onHide,
-    onUnload,
-    onPullDownRefresh,
-    onShareAppMessage,
-    onReachBottom,
-    attached,
-    ready,
-    detached
-} from './lifecycle';
+export { useEffect } from './watch'
 
-export {
-    useProvide,
-    useInject,
-    useInjectAsync
-} from './inject';
-
-export {
-    useEffect
-} from './watch';
-
-export {
-    useComputed
-} from './computed'
+export { useComputed } from './computed'
