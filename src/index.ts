@@ -29,9 +29,9 @@ export {
 } from './lifecycle';
 
 export {
-    provide,
-    inject,
-    injectAsync
+    useProvide,
+    useInject,
+    useInjectAsync
 } from './inject';
 
 export {

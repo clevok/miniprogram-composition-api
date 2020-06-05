@@ -13,7 +13,7 @@ export interface InjectionKey<T> extends Symbol {}
  * @param key 
  * @param value 
  */
-export function provide<T> (key: InjectionKey<T> | string, value: T): void{
+export function useProvide<T> (key: InjectionKey<T> | string, value: T): void{
 	// TS doesn't allow symbol as index type
     provides[key as string] = value;
     dep.notify(key, value);
@@ -24,9 +24,9 @@ export function provide<T> (key: InjectionKey<T> | string, value: T): void{
  * 注入
  * @param key 
  */
-export function inject<T> (key: InjectionKey<T> | string): T | undefined
-export function inject<T> (key: InjectionKey<T> | string, defaultValue: T): T
-export function inject (key: InjectionKey<any> | string, defaultValue?: unknown): unknown{
+export function useInject<T> (key: InjectionKey<T> | string): T | undefined
+export function useInject<T> (key: InjectionKey<T> | string, defaultValue: T): T
+export function useInject (key: InjectionKey<any> | string, defaultValue?: unknown): unknown{
 	if (key in provides) {
 		// TS doesn't allow symbol as index type
 		return provides[key as string]
@@ -44,7 +44,7 @@ export function inject (key: InjectionKey<any> | string, defaultValue?: unknown)
  * 异步注入, 等待注册
  * @param key 
  */
-export async function injectAsync<T>(key: InjectionKey<T> | string): Promise<T> {
+export async function useInjectAsync<T>(key: InjectionKey<T> | string): Promise<T> {
     if (key in provides) {
 		// TS doesn't allow symbol as index type
 		return provides[key as string]
