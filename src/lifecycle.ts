@@ -1,6 +1,7 @@
 import { deepToRaw, deepWatch } from './shared'
 import { isFunction } from './utils'
 
+
 export const enum ComponentLifecycle {
 	CREATED = 'created',
 	ATTACHED = 'attached',
@@ -24,9 +25,13 @@ export const enum PageLifecycle {
 
 export type CurrentModuleInstance =
 	| WechatMiniprogram.Component.InstanceProperties &
-			WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>>
+			WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>> & {
+				[key: string]: any
+			}
 	| WechatMiniprogram.Page.InstanceProperties &
-			WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>>
+			WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>> & {
+				[key: string]: any
+			}
 
 /**
  * 执行期间的页面
@@ -35,10 +40,10 @@ export let currentModule: CurrentModuleInstance | null = null
 
 export function overCurrentModule<T extends Function> (callback: T): T{
 	// @ts-ignore
-	return function (...arg: any[]){
+	return function (){
 		currentModule = this
 
-		const reuslt = callback.apply(this, arg)
+		const reuslt = callback.apply(this, arguments)
 
 		currentModule = null
 
@@ -78,10 +83,31 @@ export const setup = overCurrentModule(function (target, callback: Function, pro
 	}
 })
 
+function lifecycleName (name: string){
+	return `__${name}__`
+}
+
+function injectLifecyle (
+	target: CurrentModuleInstance,
+	lifecycle: ComponentLifecycle | PageLifecycle,
+	callback: Function
+){
+	const life = lifecycleName(lifecycle)
+	if (target[life] === void 0) {
+		target[life] = []
+	}
+
+	target[life].push(callback)
+}
+
 /**
  * 实例初始化
  */
-export function attached (callback: Function){}
+export function attached(callback: Function) {
+    if (currentModule) {
+        injectLifecyle(currentModule, ComponentLifecycle.ATTACHED, callback)
+    }
+}
 
 /**
  * 装载完成
