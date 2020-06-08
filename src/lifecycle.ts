@@ -51,6 +51,13 @@ export function overCurrentModule<T extends Function> (callback: T): T{
 	}
 }
 
+function overInCurrentModule(callback: (params: CurrentModuleInstance) => void) {
+    if (currentModule) {
+        callback.call(this, currentModule)
+    }
+    callback = null;
+}
+
 /**
  * 
  * 绑定函数, 基于target对象绑定实例
@@ -104,52 +111,87 @@ function injectLifecyle (
  * 实例初始化
  */
 export function attached(callback: Function) {
-    if (currentModule) {
+    overInCurrentModule((currentModule) => {
         injectLifecyle(currentModule, ComponentLifecycle.ATTACHED, callback)
-    }
+    })
 }
 
 /**
  * 装载完成
  */
-export function ready (){}
+export function ready (callback: Function){
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, ComponentLifecycle.READY, callback)
+    })
+}
 
 /**
  * 卸载
  */
-export function detached (){}
+export function detached(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, ComponentLifecycle.DETACHED, callback)
+    })
+}
 
 /**
  * 页面加载
  */
-export function onLoad (){}
+export function onLoad(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_LOAD, callback)
+    })
+}
 
 /**
  * 页面显示
  */
-export function onShow (){}
+export function onShow(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_SHOW, callback)
+    })
+}
 
 /**
  * 页面隐藏
  */
-export function onHide (){}
+export function onHide(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_HIDE, callback)
+    })
+}
 
 /**
  * 页面卸载
  */
-export function onUnload (){}
+export function onUnload(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_UNLOAD, callback)
+    })
+}
 
 /**
  * 下拉刷新
  */
-export function onPullDownRefresh (){}
+export function onPullDownRefresh(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_PULL_DOWN_REFRESH, callback)
+    })
+}
 
 /**
  * 滚动到底部
  */
-export function onReachBottom (){}
-
+export function onReachBottom(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_REACH_BOTTOM, callback)
+    })
+}
 /**
  * 转发
  */
-export function onShareAppMessage (){}
+export function onShareAppMessage(callback: Function) {
+    overInCurrentModule((currentModule) => {
+        injectLifecyle(currentModule, PageLifecycle.ON_SHARE_APP_MESSAGE, callback)
+    })
+}
