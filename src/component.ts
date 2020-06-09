@@ -35,13 +35,14 @@ export function defineComponent (
 	/** setup 回调句柄, 用于清除监听 */
 	let __setup_handle: Function
 
+    
 	/**
      * 通过合并方法的方式, 调用setup
      * 在attached里调用setup是因为props原因
      * 下一个版本将props转化为ref对象,进行监听
      */
 	options[ComponentLifecycle.ATTACHED] = wrapFun(
-		options[ComponentLifecycle.ATTACHED],
+        options[ComponentLifecycle.ATTACHED],
 		function (){
 			__setup_handle = setup(this, setupFun, this.properties)
 		}

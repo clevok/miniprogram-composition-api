@@ -1,6 +1,10 @@
 import { deepToRaw, deepWatch } from './shared'
-import { isFunction } from './utils'
+import { isFunction, createShortName } from './utils'
 
+/**
+ * 执行期间的页面
+ */
+let currentModule: CurrentModuleInstance | null = null
 
 export const enum ComponentLifecycle {
 	CREATED = 'created',
@@ -33,11 +37,6 @@ export type CurrentModuleInstance =
 				[key: string]: any
 			}
 
-/**
- * 执行期间的页面
- */
-export let currentModule: CurrentModuleInstance | null = null
-
 export function overCurrentModule<T extends Function> (callback: T): T{
 	// @ts-ignore
 	return function (){
@@ -49,13 +48,6 @@ export function overCurrentModule<T extends Function> (callback: T): T{
 
 		return reuslt
 	}
-}
-
-function overInCurrentModule(callback: (params: CurrentModuleInstance) => void) {
-    if (currentModule) {
-        callback.call(this, currentModule)
-    }
-    callback = null;
 }
 
 /**
@@ -90,16 +82,12 @@ export const setup = overCurrentModule(function (target, callback: Function, pro
 	}
 })
 
-function lifecycleName (name: string){
-	return `__${name}__`
-}
-
 function injectLifecyle (
 	target: CurrentModuleInstance,
 	lifecycle: ComponentLifecycle | PageLifecycle,
 	callback: Function
 ){
-	const life = lifecycleName(lifecycle)
+	const life = createShortName(lifecycle)
 	if (target[life] === void 0) {
 		target[life] = []
 	}
@@ -107,91 +95,40 @@ function injectLifecyle (
 	target[life].push(callback)
 }
 
-/**
- * 实例初始化
- */
-export function attached(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, ComponentLifecycle.ATTACHED, callback)
-    })
+function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){
+	return function (callback: Function){
+		if (currentModule) {
+			injectLifecyle(currentModule, lifecycle, callback)
+		}
+	}
 }
 
-/**
- * 装载完成
- */
-export function ready (callback: Function){
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, ComponentLifecycle.READY, callback)
-    })
-}
+/** 实例初始化 */
+export const attached = createCurrentModuleLife(ComponentLifecycle.ATTACHED)
 
-/**
- * 卸载
- */
-export function detached(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, ComponentLifecycle.DETACHED, callback)
-    })
-}
+/** 装载完成 */
+export const ready = createCurrentModuleLife(ComponentLifecycle.READY)
 
-/**
- * 页面加载
- */
-export function onLoad(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_LOAD, callback)
-    })
-}
+/** 卸载 */
+export const detached = createCurrentModuleLife(ComponentLifecycle.DETACHED)
 
-/**
- * 页面显示
- */
-export function onShow(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_SHOW, callback)
-    })
-}
+/** 页面加载 */
+export const onLoad = createCurrentModuleLife(PageLifecycle.ON_LOAD)
 
-/**
- * 页面隐藏
- */
-export function onHide(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_HIDE, callback)
-    })
-}
+/** 页面显示 */
+export const onShow = createCurrentModuleLife(PageLifecycle.ON_SHOW)
 
-/**
- * 页面卸载
- */
-export function onUnload(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_UNLOAD, callback)
-    })
-}
+/** 页面隐藏 */
+export const onHide = createCurrentModuleLife(PageLifecycle.ON_HIDE)
 
-/**
- * 下拉刷新
- */
-export function onPullDownRefresh(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_PULL_DOWN_REFRESH, callback)
-    })
-}
+/** 页面卸载 */
+export const onUnload = createCurrentModuleLife(PageLifecycle.ON_UNLOAD)
 
-/**
- * 滚动到底部
- */
-export function onReachBottom(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_REACH_BOTTOM, callback)
-    })
-}
-/**
- * 转发
- */
-export function onShareAppMessage(callback: Function) {
-    overInCurrentModule((currentModule) => {
-        injectLifecyle(currentModule, PageLifecycle.ON_SHARE_APP_MESSAGE, callback)
-    })
-}
+/** 下拉刷新 */
+export const onPullDownRefresh = createCurrentModuleLife(PageLifecycle.ON_PULL_DOWN_REFRESH)
+
+/** 滚动到底部 */
+export const onReachBottom = createCurrentModuleLife(PageLifecycle.ON_REACH_BOTTOM)
+
+/** 转发 */
+export const onShareAppMessage = createCurrentModuleLife(PageLifecycle.ON_SHARE_APP_MESSAGE)

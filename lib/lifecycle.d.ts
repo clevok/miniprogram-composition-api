@@ -18,57 +18,38 @@ export declare const enum PageLifecycle {
     ON_RESIZE = "onResize",
     ON_TAB_ITEM_TAP = "onTabItemTap"
 }
-export declare type PageInstance = WechatMiniprogram.Page.InstanceProperties & WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>>;
-export declare type ComponentInstance = WechatMiniprogram.Component.InstanceProperties & WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>>;
+export declare type CurrentModuleInstance = (WechatMiniprogram.Component.InstanceProperties & WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>> & {
+    [key: string]: any;
+}) | (WechatMiniprogram.Page.InstanceProperties & WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>> & {
+    [key: string]: any;
+});
+export declare function overCurrentModule<T extends Function>(callback: T): T;
 /**
- * 执行期间的页面
+ *
+ * 绑定函数, 基于target对象绑定实例
+ * @param target - 页面/组件 实例
+ * @param callback - 执行方法
+ * @param props - props内容
+ * @return {function} - 停止内部所有依赖的监听
  */
-export declare let currentPage: PageInstance | null;
-/**
- * 执行期间的组件
- */
-export declare let currentComponent: ComponentInstance | null;
-export declare function setCurrentPage(page: PageInstance | null): void;
-export declare function overCurrentPage(callback: any): () => void;
-export declare function setCurrentComponent(component: ComponentInstance | null): void;
-export declare function overCurrentComponent(callback: any): () => void;
-/**
- * 实例初始化
- */
-export declare function attached(): void;
-/**
- * 装载完成
- */
-export declare function ready(): void;
-/**
- * 卸载
- */
-export declare function detached(): void;
-/**
- * 页面加载
- */
-export declare function onLoad(): void;
-/**
- * 页面显示
- */
-export declare function onShow(): void;
-/**
- * 页面隐藏
- */
-export declare function onHide(): void;
-/**
- * 页面卸载
- */
-export declare function onUnload(): void;
-/**
- * 下拉刷新
- */
-export declare function onPullDownRefresh(): void;
-/**
- * 滚动到底部
- */
-export declare function onReachBottom(): void;
-/**
- * 转发
- */
-export declare function onShareAppMessage(): void;
+export declare const setup: (target: any, callback: Function, props?: unknown) => () => void;
+/** 实例初始化 */
+export declare const attached: (callback: Function) => void;
+/** 装载完成 */
+export declare const ready: (callback: Function) => void;
+/** 卸载 */
+export declare const detached: (callback: Function) => void;
+/** 页面加载 */
+export declare const onLoad: (callback: Function) => void;
+/** 页面显示 */
+export declare const onShow: (callback: Function) => void;
+/** 页面隐藏 */
+export declare const onHide: (callback: Function) => void;
+/** 页面卸载 */
+export declare const onUnload: (callback: Function) => void;
+/** 下拉刷新 */
+export declare const onPullDownRefresh: (callback: Function) => void;
+/** 滚动到底部 */
+export declare const onReachBottom: (callback: Function) => void;
+/** 转发 */
+export declare const onShareAppMessage: (callback: Function) => void;

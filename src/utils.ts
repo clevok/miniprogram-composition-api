@@ -25,3 +25,7 @@ export function wrapFun (afterFun: Function, beforeFun: Function){
 		}
 	}
 }
+
+export function createShortName (name: string){
+	return `__${name}__`
+}

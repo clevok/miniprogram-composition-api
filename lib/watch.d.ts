@@ -1,4 +1,4 @@
-import { IRef } from "./ref";
+import { IRef } from './ref';
 /**
  * 可观测对象
  * @param value
