@@ -26,6 +26,24 @@ export function wrapFun (afterFun: Function, beforeFun: Function){
 	}
 }
 
+export function wrapFuns (...args: Function[]){
+	return function (...params: any[]){
+		args.forEach((fun) => {
+			try {
+				fun && fun.apply(this, params)
+			} catch (e) {
+				/** ignore */
+			}
+		})
+	}
+}
+
 export function createShortName (name: string){
 	return `__lifecycle_${name}__`
+}
+
+export function runFun(callback, params) {
+    if (typeof callback === 'function') {
+        callback.call(this, params)
+    }
 }

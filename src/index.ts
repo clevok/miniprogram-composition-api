@@ -15,7 +15,8 @@ export {
 	onReachBottom,
 	attached,
 	ready,
-	detached
+    detached,
+    onPageScroll
 } from './lifecycle'
 
 export { useProvide, useInject, useInjectAsync } from './inject'

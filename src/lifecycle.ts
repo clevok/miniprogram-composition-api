@@ -1,5 +1,5 @@
 import { deepToRaw, deepWatch } from './shared'
-import { isFunction, createShortName } from './utils'
+import { isFunction, createShortName, wrapFuns, wrapFun, runFun } from './utils'
 
 /**
  * 执行期间的页面
@@ -103,6 +103,17 @@ function injectLifecyle (
 	target[life].push(callback)
 }
 
+export function runLifecycle (
+	target: CurrentModuleInstance,
+	lifecycle: ComponentLifecycle | PageLifecycle
+){
+	const life = createShortName(lifecycle)
+	target[life] &&
+        target[life].forEach((fun) => {
+            runFun.call(target, fun)
+		})
+}
+
 function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){
 	return function (callback: Function){
 		if (currentModule) {
@@ -140,3 +151,6 @@ export const onReachBottom = createCurrentModuleLife(PageLifecycle.ON_REACH_BOTT
 
 /** 转发 */
 export const onShareAppMessage = createCurrentModuleLife(PageLifecycle.ON_SHARE_APP_MESSAGE)
+
+/** 页面滚动 */
+export const onPageScroll = createCurrentModuleLife(PageLifecycle.ON_PAGE_SCROLL)
