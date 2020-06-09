@@ -37,12 +37,16 @@ export type CurrentModuleInstance =
 				[key: string]: any
 			}
 
+/**
+ * 接受第一个参数是 current对象
+ * @param callback 
+ */
 export function overCurrentModule<T extends Function> (callback: T): T{
 	// @ts-ignore
-	return function (){
-		currentModule = this
+	return function (target: CurrentModuleInstance, ...arg: any[]){
+		currentModule = target
 
-		const reuslt = callback.apply(this, arguments)
+		const reuslt = callback.call(target, target, ...arg)
 
 		currentModule = null
 
@@ -58,7 +62,11 @@ export function overCurrentModule<T extends Function> (callback: T): T{
  * @param props - props内容
  * @return {function} - 停止内部所有依赖的监听
  */
-export const setup = overCurrentModule(function (target, callback: Function, props: unknown = {}){
+export const setup = overCurrentModule(function (
+	target: CurrentModuleInstance,
+	callback: Function,
+	props: unknown = {}
+){
 	const binding = callback.call(target, props)
 	const stopHandels = Object.keys(binding).map((key) => {
 		const value = binding[key]

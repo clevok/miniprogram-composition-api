@@ -36,7 +36,7 @@ export function definePage (
 	let __setup_handle: Function
 
 	options[PageLifecycle.ON_LOAD] = wrapFun(options[PageLifecycle.ON_LOAD], function (){
-		__setup_handle = setup(this, setupFun, this.properties)
+		__setup_handle = setup(this, setupFun, {})
 	})
 
 	options[PageLifecycle.ON_UNLOAD] = wrapFun(options[PageLifecycle.ON_UNLOAD], function (){

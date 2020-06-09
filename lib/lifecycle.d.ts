@@ -23,6 +23,10 @@ export declare type CurrentModuleInstance = (WechatMiniprogram.Component.Instanc
 }) | (WechatMiniprogram.Page.InstanceProperties & WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>> & {
     [key: string]: any;
 });
+/**
+ * 接受第一个参数是 current对象
+ * @param callback
+ */
 export declare function overCurrentModule<T extends Function>(callback: T): T;
 /**
  *
@@ -32,7 +36,7 @@ export declare function overCurrentModule<T extends Function>(callback: T): T;
  * @param props - props内容
  * @return {function} - 停止内部所有依赖的监听
  */
-export declare const setup: (target: any, callback: Function, props?: unknown) => () => void;
+export declare const setup: (target: CurrentModuleInstance, callback: Function, props?: unknown) => () => void;
 /** 实例初始化 */
 export declare const attached: (callback: Function) => void;
 /** 装载完成 */
