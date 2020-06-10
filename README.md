@@ -4,6 +4,7 @@
 1. 更新属性繁琐, 没有采用 Object.defineProperty(为了减少 属性添加删除上疑惑) 做监听, 也没有采用Proxy(版本问题)
     1.1 1导致 useCompute, useEffect 都需要开发者主动声明依赖
 2. props 还没有做代理
+3. 还在测试
 
 ### 为了什么
 1. 替代 mixins, 代码复用新方案

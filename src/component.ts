@@ -1,4 +1,4 @@
-import { isFunction, wrapFuns, createShortName } from './utils'
+import { isFunction, wrapFuns } from './utils'
 import { ComponentLifecycle, createLifecycle } from './lifecycle'
 import { setup } from './shared'
 import { ISetup } from './instance'
