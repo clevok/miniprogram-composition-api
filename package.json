@@ -8,11 +8,11 @@
     "test": "test"
   },
   "dependencies": {
-    "lodash": "*"
+    "@jsmini/clone": "^0.4.2",
+    "@jsmini/isequal": "^0.4.2"
   },
   "devDependencies": {
-    "miniprogram-api-typings": "*",
-    "@types/lodash": "*"
+    "miniprogram-api-typings": "*"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

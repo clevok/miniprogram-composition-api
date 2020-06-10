@@ -1,4 +1,6 @@
-import { isEqual, cloneDeep } from 'lodash'
+import { isEqual } from '@jsmini/isequal'
+import { clone } from '@jsmini/clone';
+
 import { Dep } from './dep'
 import { isFunction } from './utils'
 
@@ -72,7 +74,7 @@ function createRef<T> (_getValue: T): IUseRef<T>{
 	function setRef (value: any){
 		let updateValue: T
 		if (isFunction(value)) {
-			updateValue = value(cloneDeep(_getValue))
+			updateValue = value(clone(_getValue))
 		} else {
 			updateValue = value
 		}
