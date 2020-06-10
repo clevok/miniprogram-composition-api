@@ -1,11 +1,11 @@
 import { isFunction, wrapFuns } from './utils'
-import { PageLifecycle, setup } from './lifecycle'
-import { createLifecycle } from './component'
+import { PageLifecycle, createLifecycle } from './lifecycle'
+import { setup } from './shared'
 
 export function definePage (
 	optionsOrSetup:
 		| WechatMiniprogram.Page.Options<Record<string, any>, Record<string, any>> & {
-				setup?: Function
+				setup?: (params: Object) => {[key: string]: any}
 			}
 		| Function
 ): any{

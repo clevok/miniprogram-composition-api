@@ -1,4 +1,3 @@
-/// <reference types="types" />
 export declare const enum ComponentLifecycle {
     CREATED = "created",
     ATTACHED = "attached",
@@ -18,25 +17,14 @@ export declare const enum PageLifecycle {
     ON_RESIZE = "onResize",
     ON_TAB_ITEM_TAP = "onTabItemTap"
 }
-export declare type CurrentModuleInstance = (WechatMiniprogram.Component.InstanceProperties & WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>> & {
-    [key: string]: any;
-}) | (WechatMiniprogram.Page.InstanceProperties & WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>> & {
-    [key: string]: any;
-});
-/**
- * 接受第一个参数是 current对象
- * @param callback
- */
-export declare function overCurrentModule<T extends Function>(callback: T): T;
 /**
  *
- * 绑定函数, 基于target对象绑定实例
- * @param target - 页面/组件 实例
- * @param callback - 执行方法
- * @param props - props内容
- * @return {function} - 停止内部所有依赖的监听
+ * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法
+ * @param lifecycle - 页面属性
+ * @param options - 页面构造对象
+ * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
  */
-export declare const setup: (target: CurrentModuleInstance, callback: Function, props?: unknown) => () => void;
+export declare function createLifecycle(lifecycle: ComponentLifecycle | PageLifecycle, options: Object): (...args: any[]) => any[];
 /** 实例初始化 */
 export declare const attached: (callback: Function) => void;
 /** 装载完成 */

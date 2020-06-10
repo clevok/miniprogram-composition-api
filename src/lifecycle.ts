@@ -1,10 +1,5 @@
-import { deepToRaw, deepWatch } from './shared'
-import { isFunction, createShortName } from './utils'
-
-/**
- * 执行期间的页面
- */
-let currentModule: CurrentModuleInstance | null = null
+import { createShortName } from './utils'
+import { CurrentModuleInstance, getCurrentInstance } from './instance'
 
 export const enum ComponentLifecycle {
 	CREATED = 'created',
@@ -27,68 +22,35 @@ export const enum PageLifecycle {
 	ON_TAB_ITEM_TAP = 'onTabItemTap'
 }
 
-export type CurrentModuleInstance =
-	| WechatMiniprogram.Component.InstanceProperties &
-			WechatMiniprogram.Component.InstanceMethods<Record<string, unknown>> & {
-				[key: string]: any
-			}
-	| WechatMiniprogram.Page.InstanceProperties &
-			WechatMiniprogram.Page.InstanceMethods<Record<string, unknown>> & {
-				[key: string]: any
-			}
-
-/**
- * 接受第一个参数是 current对象
- * @param callback 
- */
-export function overCurrentModule<T extends Function> (callback: T): T{
-	// @ts-ignore
-	return function (target: CurrentModuleInstance, ...arg: any[]){
-		currentModule = target
-
-		const reuslt = callback.call(target, target, ...arg)
-
-		currentModule = null
-
-		return reuslt
-	}
-}
-
 /**
  * 
- * 绑定函数, 基于target对象绑定实例
- * @param target - 页面/组件 实例
- * @param callback - 执行方法
- * @param props - props内容
- * @return {function} - 停止内部所有依赖的监听
+ * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法
+ * @param lifecycle - 页面属性
+ * @param options - 页面构造对象
+ * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
  */
-export const setup = overCurrentModule(function (
-	target: CurrentModuleInstance,
-	callback: Function,
-	props: unknown = {}
-){
-	const binding = callback.call(target, props)
-	const stopHandels = Object.keys(binding).map((key) => {
-		const value = binding[key]
+export function createLifecycle (
+	lifecycle: ComponentLifecycle | PageLifecycle,
+	options: Object
+): (...args: any[]) => any[]{
+	/** 保持原有的生命周期方法链接 */
+	const lifeMethod = options[lifecycle]
 
-		if (isFunction(value)) {
-			target[key] = value
-			return
+	/**
+     * this - 实例
+     */
+	return function (...args: any[]){
+		const injectLifes = this[createShortName(lifecycle)] || []
+
+		if (lifeMethod) {
+			injectLifes.push(lifeMethod)
 		}
 
-		target.setData({
-			[key]: deepToRaw(value)
-		})
-
-		return deepWatch(target, key, value)
-	})
-
-	return () => {
-		stopHandels.forEach((stopHandle) => {
-			stopHandle && stopHandle()
-		})
+		return injectLifes.map(
+			(life: Function | undefined) => life && life.apply(this, ...args)
+		)
 	}
-})
+}
 
 function injectLifecyle (
 	target: CurrentModuleInstance,
@@ -105,8 +67,8 @@ function injectLifecyle (
 
 function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){
 	return function (callback: Function){
-		if (currentModule) {
-			injectLifecyle(currentModule, lifecycle, callback)
+		if (getCurrentInstance()) {
+			injectLifecyle(getCurrentInstance(), lifecycle, callback)
 		}
 	}
 }
