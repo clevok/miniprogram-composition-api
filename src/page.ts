@@ -1,5 +1,6 @@
-import { isFunction, wrapFun, createShortName, wrapFuns, runFun } from './utils'
-import { PageLifecycle, setup, runLifecycle } from './lifecycle'
+import { isFunction, wrapFuns } from './utils'
+import { PageLifecycle, setup } from './lifecycle'
+import { createLifecycle } from './component'
 
 export function definePage (
 	optionsOrSetup:
@@ -32,51 +33,43 @@ export function definePage (
 		options = otherOptions
 	}
 
-	function createLifecycle (lifecycle: PageLifecycle, ...funs: Function[]){
-		return wrapFuns(
-			...funs,
-			function (){
-				runLifecycle(this, lifecycle)
-			},
-			options[lifecycle]
-		)
-	}
-
 	/** setup 回调句柄, 用于清除监听 */
 	let __setup_handle: Function
 
-	options[PageLifecycle.ON_LOAD] = createLifecycle(PageLifecycle.ON_LOAD, function (){
-		__setup_handle = setup(this, setupFun, {})
-	})
+    
+	options[PageLifecycle.ON_LOAD] = wrapFuns(function (params){
+		__setup_handle = setup(this, setupFun, params)
+	}, createLifecycle(PageLifecycle.ON_LOAD, options))
 
-	options[PageLifecycle.ON_SHOW] = createLifecycle(PageLifecycle.ON_SHOW)
+	options[PageLifecycle.ON_SHOW] = createLifecycle(PageLifecycle.ON_SHOW, options)
 
-	options[PageLifecycle.ON_READY] = createLifecycle(PageLifecycle.ON_READY)
+	options[PageLifecycle.ON_READY] = createLifecycle(PageLifecycle.ON_READY, options)
 
-	options[PageLifecycle.ON_HIDE] = createLifecycle(PageLifecycle.ON_HIDE)
+	options[PageLifecycle.ON_HIDE] = createLifecycle(PageLifecycle.ON_HIDE, options)
 
-	options[PageLifecycle.ON_UNLOAD] = createLifecycle(PageLifecycle.ON_UNLOAD, function (){
+	options[PageLifecycle.ON_UNLOAD] = wrapFuns(function (){
 		__setup_handle && __setup_handle()
-	})
+	}, createLifecycle(PageLifecycle.ON_UNLOAD, options))
 
 	options[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycle(
-		PageLifecycle.ON_PULL_DOWN_REFRESH
+		PageLifecycle.ON_PULL_DOWN_REFRESH,
+		options
 	)
 
-	options[PageLifecycle.ON_REACH_BOTTOM] = createLifecycle(PageLifecycle.ON_HIDE)
+	options[PageLifecycle.ON_REACH_BOTTOM] = createLifecycle(
+		PageLifecycle.ON_REACH_BOTTOM,
+		options
+	)
 
-	options[PageLifecycle.ON_PAGE_SCROLL] = createLifecycle(PageLifecycle.ON_PAGE_SCROLL)
+	options[PageLifecycle.ON_PAGE_SCROLL] = createLifecycle(PageLifecycle.ON_PAGE_SCROLL, options)
 
-	options[PageLifecycle.ON_SHARE_APP_MESSAGE] = function (params: any){
-		const life = createShortName(PageLifecycle.ON_SHARE_APP_MESSAGE)
-		if (this[life] && this[life].length) {
-			if (isFunction(this[life][0])) {
-				return this[life][0].call(this, params)
-			}
-		}
-
-		return runFun.call(this, options[PageLifecycle.ON_SHARE_APP_MESSAGE], params)
-	}
+    options[PageLifecycle.ON_SHARE_APP_MESSAGE] = (() => {
+        const lifecycleMethod = createLifecycle(PageLifecycle.ON_SHARE_APP_MESSAGE, options);
+        return function () {
+            const runResults = lifecycleMethod();
+            return runResults[ runResults.length -1 ]
+        }
+    })()
 
 	return Page(options)
 }

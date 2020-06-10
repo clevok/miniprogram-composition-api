@@ -37,7 +37,6 @@ export declare function overCurrentModule<T extends Function>(callback: T): T;
  * @return {function} - 停止内部所有依赖的监听
  */
 export declare const setup: (target: CurrentModuleInstance, callback: Function, props?: unknown) => () => void;
-export declare function runLifecycle(target: CurrentModuleInstance, lifecycle: ComponentLifecycle | PageLifecycle): void;
 /** 实例初始化 */
 export declare const attached: (callback: Function) => void;
 /** 装载完成 */

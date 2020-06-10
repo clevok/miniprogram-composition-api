@@ -16,16 +16,6 @@ export function isPlainObject (x: unknown): x is Record<string, unknown>{
 	return x !== null && getType(x) === 'Object'
 }
 
-export function wrapFun (afterFun: Function, beforeFun: Function){
-	return function (){
-		try {
-			beforeFun && beforeFun.apply(this, arguments)
-		} finally {
-			afterFun && afterFun.apply(this, arguments)
-		}
-	}
-}
-
 export function wrapFuns (...args: Function[]){
 	return function (...params: any[]){
 		return args.map((fun) => {
@@ -40,10 +30,4 @@ export function wrapFuns (...args: Function[]){
 
 export function createShortName (name: string){
 	return `__lifecycle_${name}__`
-}
-
-export function runFun(callback, params) {
-    if (typeof callback === 'function') {
-        return callback.call(this, params)
-    }
 }

@@ -1,5 +1,5 @@
 import { deepToRaw, deepWatch } from './shared'
-import { isFunction, createShortName, wrapFuns, wrapFun, runFun } from './utils'
+import { isFunction, createShortName } from './utils'
 
 /**
  * 执行期间的页面
@@ -101,17 +101,6 @@ function injectLifecyle (
 	}
 
 	target[life].push(callback)
-}
-
-export function runLifecycle (
-	target: CurrentModuleInstance,
-	lifecycle: ComponentLifecycle | PageLifecycle
-){
-	const life = createShortName(lifecycle)
-	return target[life] &&
-        target[life].map((fun) => {
-            return runFun.call(target, fun)
-		})
 }
 
 function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){

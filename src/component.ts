@@ -1,5 +1,5 @@
-import { isFunction, wrapFun, wrapFuns, createShortName } from './utils'
-import { ComponentLifecycle, setup, runLifecycle, PageLifecycle } from './lifecycle'
+import { isFunction, wrapFuns, createShortName } from './utils'
+import { ComponentLifecycle, setup, PageLifecycle } from './lifecycle'
 
 export function defineComponent (
 	optionsOrSetup:
@@ -35,58 +35,49 @@ export function defineComponent (
 	/** setup 回调句柄, 用于清除监听 */
 	let __setup_handle: Function
 
-	function createLifecycle (lifecycle: ComponentLifecycle, ...funs: Function[]){
-		return wrapFuns(
-			...funs,
-			function (){
-				return runLifecycle(this, lifecycle)
-			},
-			options[lifecycle]
-		)
-	}
-
+    
 	/**
      * 通过合并方法的方式, 调用setup
      * 在attached里调用setup是因为props原因
      * 下一个版本将props转化为ref对象,进行监听
      */
-	options[
-		ComponentLifecycle.ATTACHED
-	] = createLifecycle(ComponentLifecycle.ATTACHED, function (){
+	options[ComponentLifecycle.ATTACHED] = wrapFuns(function (){
 		__setup_handle = setup(this, setupFun, this.properties)
-	})
+	}, createLifecycle(ComponentLifecycle.ATTACHED, options))
 
-	options[ComponentLifecycle.READY] = createLifecycle(ComponentLifecycle.READY)
+	options[ComponentLifecycle.READY] = createLifecycle(ComponentLifecycle.READY, options)
 
-	options[
-		ComponentLifecycle.DETACHED
-	] = createLifecycle(ComponentLifecycle.DETACHED, function (){
+	options[ComponentLifecycle.DETACHED] = wrapFuns(function (){
 		__setup_handle && __setup_handle()
-	})
+	}, createLifecycle(ComponentLifecycle.DETACHED, options))
 
 	return Component(options)
 }
 
 
 /**
- * 装饰原有声明周期
+ * 
+ * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法
  * @param lifecycle - 页面属性
- * @param lifeMethod - 原页面的方法指向
+ * @param options - 页面构造对象
  * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
  */
-function createLifecycle (
+export function createLifecycle (
 	lifecycle: ComponentLifecycle | PageLifecycle,
-	lifeMethod: Function | undefined
+	options: Object
 ): (...args: any[]) => any[]{
+	/** 保持原有的生命周期方法链接 */
+	const lifeMethod = options[lifecycle]
+
 	/**
      * this - 实例
      */
 	return function (...args: any[]){
-        const injectLifes = this[createShortName(lifecycle)] || [];
+		const injectLifes = this[createShortName(lifecycle)] || []
 
-        if (lifeMethod) {
-            injectLifes.push(lifeMethod)
-        }
+		if (lifeMethod) {
+			injectLifes.push(lifeMethod)
+		}
 
 		return injectLifes.map(
 			(life: Function | undefined) => life && life.apply(this, ...args)
