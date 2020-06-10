@@ -40,6 +40,7 @@
 1. props也做掉
 2. setup允许异步?
 3. watch, computed收集的依赖在页面/组件销毁时也要一起注销
+4. setup context 属性还没写完
 
 ```js
 

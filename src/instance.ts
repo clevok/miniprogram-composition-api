@@ -4,9 +4,12 @@ export type IContext = any
 
 export type ISetup<Props extends Record<string, any>> = (
 	this: void,
-	props: Props,
-	context: IContext
+	props: Props
 ) => IBindings
+
+export const context = {
+    
+}
 
 /**
  * 执行期间的页面
