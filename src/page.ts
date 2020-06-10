@@ -4,8 +4,7 @@ import { createLifecycle } from './component'
 
 export function definePage (
 	optionsOrSetup:
-		| {
-				[key: string]: any
+		| WechatMiniprogram.Page.Options<Record<string, any>, Record<string, any>> & {
 				setup?: Function
 			}
 		| Function
@@ -36,7 +35,6 @@ export function definePage (
 	/** setup 回调句柄, 用于清除监听 */
 	let __setup_handle: Function
 
-    
 	options[PageLifecycle.ON_LOAD] = wrapFuns(function (params){
 		__setup_handle = setup(this, setupFun, params)
 	}, createLifecycle(PageLifecycle.ON_LOAD, options))
@@ -63,13 +61,13 @@ export function definePage (
 
 	options[PageLifecycle.ON_PAGE_SCROLL] = createLifecycle(PageLifecycle.ON_PAGE_SCROLL, options)
 
-    options[PageLifecycle.ON_SHARE_APP_MESSAGE] = (() => {
-        const lifecycleMethod = createLifecycle(PageLifecycle.ON_SHARE_APP_MESSAGE, options);
-        return function () {
-            const runResults = lifecycleMethod();
-            return runResults[ runResults.length -1 ]
-        }
-    })()
+	options[PageLifecycle.ON_SHARE_APP_MESSAGE] = (() => {
+		const lifecycleMethod = createLifecycle(PageLifecycle.ON_SHARE_APP_MESSAGE, options)
+		return function (){
+			const runResults = lifecycleMethod()
+			return runResults[runResults.length - 1]
+		}
+	})()
 
 	return Page(options)
 }

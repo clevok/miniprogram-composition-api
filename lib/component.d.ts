@@ -1,8 +1,8 @@
+/// <reference types="types" />
 import { ComponentLifecycle, PageLifecycle } from './lifecycle';
-export declare function defineComponent(optionsOrSetup: {
-    [key: string]: any;
+export declare function defineComponent(optionsOrSetup: (WechatMiniprogram.Component.Options<Record<string, any>, Record<string, WechatMiniprogram.Component.AllProperty>, Record<string, (...args: any[]) => any>> & {
     setup?: Function;
-} | Function): any;
+}) | Function): any;
 /**
  *
  * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法

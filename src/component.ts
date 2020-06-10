@@ -3,8 +3,11 @@ import { ComponentLifecycle, setup, PageLifecycle } from './lifecycle'
 
 export function defineComponent (
 	optionsOrSetup:
-		| {
-				[key: string]: any
+		| WechatMiniprogram.Component.Options<
+				Record<string, any>,
+				Record<string, WechatMiniprogram.Component.AllProperty>,
+				Record<string, (...args: any[]) => any>
+			> & {
 				setup?: Function
 			}
 		| Function
@@ -35,7 +38,6 @@ export function defineComponent (
 	/** setup 回调句柄, 用于清除监听 */
 	let __setup_handle: Function
 
-    
 	/**
      * 通过合并方法的方式, 调用setup
      * 在attached里调用setup是因为props原因
@@ -53,7 +55,6 @@ export function defineComponent (
 
 	return Component(options)
 }
-
 
 /**
  * 
