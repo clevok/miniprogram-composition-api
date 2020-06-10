@@ -5,6 +5,19 @@
     1.1 1导致 useCompute, useEffect 都需要开发者主动声明依赖
 2. props 还没有做代理
 3. 还在测试
+4. 不太适用于大量静态内容, 建议提前定义好data, 因为数据是在 onLoad/attached触发赋值的
+
+```js
+definePage({
+    data: {
+        test: ''
+    },
+    setup() {
+
+    }
+})
+```
+
 
 ### 为了什么
 1. 替代 mixins, 代码复用新方案
@@ -15,8 +28,7 @@
 
 ### 降级版
 1. 没有采用 @vue/reactivity 因为 小程序经打点发现目前还有好多用户都不支持 Proxy,Reflect, 于是不采用了(已经有人写好了小程序版composition-api,可以直接用这个)[https://github.com/yangmingshan/vue-mini]
-2. 也不打算 Object.defineProperty 的方式 例如mobx4 ,经典老问题 ,为了避免使用的时候,如果没有经验的,对象新增属性上操作困扰,目前而言小程序中凭空添加对象属性还是多的, 主要为了少增加api, 增加负担
-3. 理论上应该没有基础库兼容问题
+2. 理论上应该没有基础库兼容问题
 
 
 ### 思考1
@@ -33,15 +45,15 @@
 ### 注意
 1. 暂不支持 ref 嵌套 ref的情况, 也是可以支持的, 而且容易有问题, 就是 更改最外层的ref的值, 是否会能直接更改里面ref的值, 所以不支持这样
 
-### TODO
-需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
-参考之前的hooks的那个声明周期,可以实现类似的
 
-### 要修正的
-1. props也做掉
-2. setup允许异步?
+### TODO
+1. 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
+参考之前的hooks的那个声明周期,可以实现类似的
+2. props被代理
 3. watch, computed收集的依赖在页面/组件销毁时也要一起注销
 4. setup context 属性还没写完
+5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
+
 
 
 ```js
@@ -77,6 +89,31 @@ defineComponent({
 
 
 ```
+
+### 下一版本将支持router带方法传递
+
+方法可以类似于props被带过来, 主要为了减少事件发布订阅
+
+```js
+
+import { router } from '';
+
+router.go({
+    url: '/pages/createSuccess?isplit=123',
+    params: {
+        onSubmit() {
+            
+        }
+    }
+})
+
+// /pages/createSuccess
+definePage((props) => {
+    props.onSubmit && props.onSubmit();
+});
+
+```
+
 
 ### 解决的问题
 1. 为了解决mixins问题
