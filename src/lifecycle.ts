@@ -108,9 +108,9 @@ export function runLifecycle (
 	lifecycle: ComponentLifecycle | PageLifecycle
 ){
 	const life = createShortName(lifecycle)
-	target[life] &&
-        target[life].forEach((fun) => {
-            runFun.call(target, fun)
+	return target[life] &&
+        target[life].map((fun) => {
+            return runFun.call(target, fun)
 		})
 }
 

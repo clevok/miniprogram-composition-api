@@ -1,5 +1,5 @@
 import { isFunction, wrapFun, wrapFuns, createShortName } from './utils'
-import { ComponentLifecycle, setup, runLifecycle } from './lifecycle'
+import { ComponentLifecycle, setup, runLifecycle, PageLifecycle } from './lifecycle'
 
 export function defineComponent (
 	optionsOrSetup:
@@ -39,7 +39,7 @@ export function defineComponent (
 		return wrapFuns(
 			...funs,
 			function (){
-				runLifecycle(this, lifecycle)
+				return runLifecycle(this, lifecycle)
 			},
 			options[lifecycle]
 		)
@@ -65,4 +65,31 @@ export function defineComponent (
 	})
 
 	return Component(options)
+}
+
+
+/**
+ * 装饰原有声明周期
+ * @param lifecycle - 页面属性
+ * @param lifeMethod - 原页面的方法指向
+ * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
+ */
+function createLifecycle (
+	lifecycle: ComponentLifecycle | PageLifecycle,
+	lifeMethod: Function | undefined
+): (...args: any[]) => any[]{
+	/**
+     * this - 实例
+     */
+	return function (...args: any[]){
+        const injectLifes = this[createShortName(lifecycle)] || [];
+
+        if (lifeMethod) {
+            injectLifes.push(lifeMethod)
+        }
+
+		return injectLifes.map(
+			(life: Function | undefined) => life && life.apply(this, ...args)
+		)
+	}
 }

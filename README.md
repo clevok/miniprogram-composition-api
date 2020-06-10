@@ -30,7 +30,7 @@
 
 ### TODO
 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
-
+参考之前的hooks的那个声明周期,可以实现类似的
 
 ```js
 
@@ -49,18 +49,17 @@ import { defineComponent } from '';
 
 defineComponent({
     setup(props) {
-
-        // data
+        /**
+         *  useRef返回是个数组, 数组第一个是 返回的可被监听的 对象, .value访问存储的值, 返回的第二个是个方法,用来触发改变的
+         * 在视图层不需要 .value 来访问
+        */
         const [ name, setName ] = useRef('along');
         setName('along1');
 
-        // 计算属性
+        // 计算属性返回的也是个可被观察的对象, .value是值
         const sayName = useCompute(() => {
             return '我名字叫' + name.value
         }, [ name ]);
-
-        /** 注意,也是 .value */
-        sayName.value
 
         // watch,需手动传入要监听的
         const stopHandle = useEffect(() => {
@@ -133,17 +132,18 @@ createComponent({
      * 构建页面方法, 注意, 这个是小程序加载就执行的, 不要做什么错误的示例, 只能做初始化的
      */
     setup () {
-        const { pageStatus, searchList } = useSearchList();
-        const renderList = () => {
-            await searchList(api.pack.getList, {}, {});
-        }
+        const { pageStatus, searchList, run, reset, refresh } = useSearchList();
+
+        run(async () => {
+            const { data } = await searchList(api.pack.getList, {}, {});
+        })
 
         onLoad((props) => {
-
+            reset();
         })
 
         onShow(() => {
-
+            refresh();
         })
 
         return {
@@ -154,3 +154,9 @@ createComponent({
 })
 
 ```
+
+
+### 声明周期想要实现的功能
+1. setup内的方法会被注入到this内
+2. 默认定义好了所有的声明周期, 先触发 () => 所有的this内的声明周期返回的结果成数组, 然会触发 原生的声明周期, onShare 会 取第一个结果返回
+3. 
