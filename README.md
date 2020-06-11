@@ -49,11 +49,13 @@ definePage({
 ### TODO
 1. 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
 参考之前的hooks的那个声明周期,可以实现类似的
-2. props被代理
+2. 代理 props
 3. watch, computed收集的依赖在页面/组件销毁时也要一起注销
 4. setup context 属性还没写完
 5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
-
+6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
+7. 对于tabbar页面实现页面传参, 额外添加声明周期? 用于取代onLoad和onShow
+8. 还需要配置 让框架知道 哪些页面是tabbar页面
 
 
 ```js
