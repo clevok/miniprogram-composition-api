@@ -58,7 +58,7 @@ definePage({
 7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
 8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
 9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
-
+10. setup 支持异步
 
 ```js
 import { defineComponent } from '';
@@ -198,6 +198,9 @@ createComponent({
 
 
 ### 子组件需要等待某个数据完成
+场景, 页面有两个组件, 依赖父亲的值做渲染, 可是, 依赖某些数据, 是异步来的, 需要一个合适的方法, 让子组件知道什么父亲什么时候完成了？
+1. 事件通知, 同时支持 回调 和 promise, 事件通知, 多了会很讨厌的
+2. 就是有了数据再渲染组件,可不适用于所有的场景
 
 ```js
 <template>
@@ -212,21 +215,29 @@ Page({
             name: '准备中'
         }
     },
-    onLoad() {
-        
+    setup() {
+        onLoad (async() => {
+            const id = await Api();
+            useEmit('packageStatus', {
+                id
+            })
+        })
     }
-})
-```
+});
 
+```
+目前我也没有好的解决方案, 依然
 child1, 和 child2 都需要等待对于的数据真正好了, 比如packStatus等待接口完成后才有id,再计算, 除了 监听(watch) title, packStaus变化 做处理 还有什么好的实现方式吗, 如果是你想怎么写,方便,又不容易乱
 
 ```js
-Componet(() {
-    attached(async () => {
-        wathc((value) => {
+Componet(async () => {
+    const packageStatus = await useOn('packageStatus');
+    
+    /** 应该还支持动态再新增属性 */
+    useSetData()
 
-        }, [await useInjectAsync('packageStatus')])
-
-    })
+    return {
+        packageStatus
+    }
 })
 ```

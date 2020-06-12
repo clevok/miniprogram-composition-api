@@ -1,4 +1,4 @@
-import { CurrentModuleInstance } from './instance';
+import { ICurrentModuleInstance } from './instance';
 export declare const deepToRaw: (x: unknown) => any;
 /**
  * Page/Component 与 watch 中转
@@ -13,4 +13,4 @@ export declare function deepWatch(target: any, key: string, value: any): () => v
  * @param props - props内容
  * @return {function} - 停止内部所有依赖的监听
  */
-export declare const setup: (target: CurrentModuleInstance, callback: Function, props?: unknown) => () => void;
+export declare const setup: (target: ICurrentModuleInstance, callback: Function, props?: unknown) => () => void;

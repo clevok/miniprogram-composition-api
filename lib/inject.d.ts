@@ -7,6 +7,10 @@ export interface InjectionKey<T> extends Symbol {
  */
 export declare function useProvide<T>(key: InjectionKey<T> | string, value: T): void;
 /**
+ * 取消注册
+ */
+export declare function useUnProvide(): void;
+/**
  * 注入
  * @param key
  */

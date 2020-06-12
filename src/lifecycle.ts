@@ -29,7 +29,7 @@ export const enum PageLifecycle {
  * @param options - 页面构造对象
  * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
  */
-export function createLifecycle (
+export function createLifecycle(
 	lifecycle: ComponentLifecycle | PageLifecycle,
 	options: Object
 ): (...args: any[]) => any[]{
@@ -37,7 +37,7 @@ export function createLifecycle (
 	const lifeMethod = options[lifecycle]
 
 	/** this - 实例 */
-	return function (...args: any[]){
+	return function (this: ICurrentModuleInstance, ...args: any[]){
 		const injectLifes = this[createShortName(lifecycle)] || []
 
 		if (lifeMethod) {

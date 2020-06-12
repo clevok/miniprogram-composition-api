@@ -77,7 +77,18 @@ export const setup = overCurrentModule(function (
 	callback: Function,
 	props: unknown = {}
 ){
-	const binding = callback.call(target, props)
+	return useSetData(target, callback.call(target, props))
+})
+
+/**
+ * setData 变种, 能够解析 ref 并 动态更新
+ * @param target - 页面实例
+ * @param binding - 绑定的属性
+ * @return {function} 移除方法
+ */
+export function useSetData (target: ICurrentModuleInstance, binding: Object): () => any{
+	if (!binding) return () => {}
+
 	const stopHandels = Object.keys(binding).map((key) => {
 		const value = binding[key]
 
@@ -98,4 +109,4 @@ export const setup = overCurrentModule(function (
 			stopHandle && stopHandle()
 		})
 	}
-})
+}
