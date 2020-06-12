@@ -5,4 +5,4 @@ export { onLoad, onShow, onHide, onUnload, onPullDownRefresh, onShareAppMessage,
 export { useProvide, useInject, useInjectAsync } from './inject';
 export { useEffect } from './watch';
 export { useComputed } from './computed';
-export { setup } from './shared';
+export { setup, useSetData } from './shared';

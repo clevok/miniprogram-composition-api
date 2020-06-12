@@ -9,7 +9,7 @@ export declare function useProvide<T>(key: InjectionKey<T> | string, value: T): 
 /**
  * 取消注册
  */
-export declare function useUnProvide(): void;
+export declare function useUnProvide(key: string): void;
 /**
  * 注入
  * @param key
