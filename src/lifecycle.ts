@@ -36,9 +36,7 @@ export function createLifecycle (
 	/** 保持原有的生命周期方法链接 */
 	const lifeMethod = options[lifecycle]
 
-	/**
-     * this - 实例
-     */
+	/** this - 实例 */
 	return function (...args: any[]){
 		const injectLifes = this[createShortName(lifecycle)] || []
 

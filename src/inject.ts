@@ -18,6 +18,13 @@ export function useProvide<T> (key: InjectionKey<T> | string, value: T): void{
 }
 
 /**
+ * 取消注册
+ */
+export function useUnProvide() {
+    
+}
+
+/**
  * 注入
  * @param key 
  */

@@ -53,9 +53,11 @@ definePage({
 3. watch, computed收集的依赖在页面/组件销毁时也要一起注销
 4. setup context 属性还没写完
 5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
+5.1. router.back({ delta: 1, params: {}}) 后退的参数, 是否允许带到 onShow, 是否有必要
 6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
-7. 对于tabbar页面实现页面传参, 额外添加声明周期? 用于取代onLoad和onShow
-8. 还需要配置 让框架知道 哪些页面是tabbar页面
+7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
+8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
+9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
 
 
 ```js
@@ -117,7 +119,7 @@ definePage((props) => {
 ```
 
 
-### 解决的问题
+### 场景问题解决
 1. 为了解决mixins问题
 示例 searchList
 
@@ -192,4 +194,39 @@ createComponent({
     }
 })
 
+```
+
+
+### 子组件需要等待某个数据完成
+
+```js
+<template>
+    <child1 title="title"></child1>
+    <child2 packStatus="packStatus"></child2>
+</template>
+Page({
+    data: {
+        title: '准备中',
+        packStatus: {
+            id: 0,
+            name: '准备中'
+        }
+    },
+    onLoad() {
+        
+    }
+})
+```
+
+child1, 和 child2 都需要等待对于的数据真正好了, 比如packStatus等待接口完成后才有id,再计算, 除了 监听(watch) title, packStaus变化 做处理 还有什么好的实现方式吗, 如果是你想怎么写,方便,又不容易乱
+
+```js
+Componet(() {
+    attached(async () => {
+        wathc((value) => {
+
+        }, [await useInjectAsync('packageStatus')])
+
+    })
+})
 ```
