@@ -6,7 +6,6 @@ export type ISetup<Props extends Record<string, any>> = (this: void, props: Prop
 
 export function getContext (){}
 
-/** 执行期间的页面 */
 let currentModule: ICurrentModuleInstance | null = null
 
 export type ICurrentModuleInstance =

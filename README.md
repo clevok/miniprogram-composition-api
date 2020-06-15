@@ -226,13 +226,12 @@ Page({
 });
 
 ```
-目前我也没有好的解决方案, 依然
-child1, 和 child2 都需要等待对于的数据真正好了, 比如packStatus等待接口完成后才有id,再计算, 除了 监听(watch) title, packStaus变化 做处理 还有什么好的实现方式吗, 如果是你想怎么写,方便,又不容易乱
 
+下面这个方式不行, 影响到了声明周期的调用,很容易留坑
 ```js
 Componet(async () => {
-    const packageStatus = await useOn('packageStatus');
-    
+    const packageStatus = await useInjectAsync('packageStatus');
+
     /** 应该还支持动态再新增属性 */
     useSetData()
 

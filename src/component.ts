@@ -1,5 +1,5 @@
 import { isFunction, wrapFuns } from './utils'
-import { ComponentLifecycle, createLifecycle } from './lifecycle'
+import { ComponentLifecycle, createLifecycleMethods, PageLifecycle } from './lifecycle'
 import { setup } from './shared'
 import { ISetup, ICurrentModuleInstance } from './instance'
 
@@ -14,11 +14,14 @@ export function defineComponent (
 			})
 		| ISetup<WechatMiniprogram.Component.AllProperty>
 ): any{
-	/** setup, 将在onLoad执行 */
 	let setupFun: Function
 
-	/** 构建componets基本参数 */
-	let options: Object
+	let options: {
+		methods?: {
+			[key: string]: (...args: any[]) => any
+		}
+		[key: string]: any
+	}
 
 	if (isFunction(optionsOrSetup)) {
 		setupFun = optionsOrSetup
@@ -33,7 +36,8 @@ export function defineComponent (
 		options = otherOptions
 	}
 
-	/** setup 回调句柄, 用于清除监听 */
+	options.methods = options.methods || {}
+
 	let __setup_handle: Function
 
 	/**
@@ -41,13 +45,64 @@ export function defineComponent (
      */
 	options[ComponentLifecycle.ATTACHED] = wrapFuns(function (this: ICurrentModuleInstance){
 		__setup_handle = setup(this, setupFun, this.properties)
-	}, createLifecycle(ComponentLifecycle.ATTACHED, options))
+	}, createLifecycleMethods(ComponentLifecycle.ATTACHED, options))
 
-	options[ComponentLifecycle.READY] = createLifecycle(ComponentLifecycle.READY, options)
+	options[ComponentLifecycle.READY] = createLifecycleMethods(ComponentLifecycle.READY, options)
 
 	options[ComponentLifecycle.DETACHED] = wrapFuns(function (){
 		__setup_handle && __setup_handle()
-	}, createLifecycle(ComponentLifecycle.DETACHED, options))
+	}, createLifecycleMethods(ComponentLifecycle.DETACHED, options))
+
+	options.methods[PageLifecycle.ON_LOAD] = createLifecycleMethods(
+		PageLifecycle.ON_LOAD,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_SHOW] = createLifecycleMethods(
+		PageLifecycle.ON_SHOW,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_READY] = createLifecycleMethods(
+		PageLifecycle.ON_READY,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_HIDE] = createLifecycleMethods(
+		PageLifecycle.ON_HIDE,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_UNLOAD] = createLifecycleMethods(
+		PageLifecycle.ON_UNLOAD,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycleMethods(
+		PageLifecycle.ON_PULL_DOWN_REFRESH,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_REACH_BOTTOM] = createLifecycleMethods(
+		PageLifecycle.ON_REACH_BOTTOM,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_PAGE_SCROLL] = createLifecycleMethods(
+		PageLifecycle.ON_PAGE_SCROLL,
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+	)
+
+	options.methods[PageLifecycle.ON_SHARE_APP_MESSAGE] = (() => {
+		const lifecycleMethod = createLifecycleMethods(
+			PageLifecycle.ON_SHARE_APP_MESSAGE,
+			options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
+		)
+		return function (){
+			const runResults = lifecycleMethod.apply(this, arguments)
+			return runResults[runResults.length - 1]
+		}
+	})()
 
 	return Component(options)
 }

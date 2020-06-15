@@ -12,10 +12,11 @@ export {
 	onPullDownRefresh,
 	onShareAppMessage,
 	onReachBottom,
-	attached,
-	ready,
-	detached,
-	onPageScroll
+	onPageScroll,
+
+    onAttached,
+	onReady,
+	onDetached,
 } from './lifecycle'
 
 export { useProvide, useInject, useInjectAsync } from './inject'
@@ -24,4 +25,4 @@ export { useEffect } from './watch'
 
 export { useComputed } from './computed'
 
-export { setup, useSetData } from './shared'
+export { setup, setData } from './shared'

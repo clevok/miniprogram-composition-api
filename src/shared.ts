@@ -76,32 +76,38 @@ export const setup = overCurrentModule(function (
 	target: ICurrentModuleInstance,
 	callback: Function,
 	props: unknown = {}
-){
-	return useSetData(target, callback.call(target, props))
+) {
+    const binds = callback.call(target, props);
+    if (binds instanceof Promise) {
+        return console.error(`
+            setup返回值不支持promise
+        `)
+    }
+    return setData.call(this, binds);
 })
 
 /**
- * setData 变种, 能够解析 ref 并 动态更新
- * @param target - 页面实例
- * @param binding - 绑定的属性
+ * 必须更改方法this指向为页面/组件
+ * setData, 能够解析ref, 并监听
+ * @param {object} binding - 必须是个对象,里面包含要绑定的数据
  * @return {function} 移除方法
  */
-export function useSetData (target: ICurrentModuleInstance, binding: Object): () => any{
+export function setData (this: ICurrentModuleInstance, binding: Object): () => any{
 	if (!binding) return () => {}
 
 	const stopHandels = Object.keys(binding).map((key) => {
 		const value = binding[key]
 
 		if (isFunction(value)) {
-			target[key] = value
+			this[key] = value
 			return
 		}
 
-		target.setData({
+		this.setData({
 			[key]: deepToRaw(value)
 		})
 
-		return deepWatch(target, key, value)
+		return deepWatch(this, key, value)
 	})
 
 	return () => {

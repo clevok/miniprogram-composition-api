@@ -20,8 +20,8 @@ export function useProvide<T> (key: InjectionKey<T> | string, value: T): void{
 /**
  * 取消注册
  */
-export function useUnProvide(key: string) {
-    delete provides[key]
+export function useUnProvide<T>(key: InjectionKey<T> | string): void {
+    delete provides[key as string]
 }
 
 /**

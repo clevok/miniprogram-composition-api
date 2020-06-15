@@ -23,62 +23,47 @@ export const enum PageLifecycle {
 }
 
 /**
- *
- * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法
- * @param lifecycle - 页面属性
- * @param options - 页面构造对象
+ * 返回的函数 this指向必须是 页面或组件
+ * @param lifecycle
+ * @param options - 页面构造对象 / 或者原方法
  * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
  */
-export function createLifecycle(
+export function createLifecycleMethods (
 	lifecycle: ComponentLifecycle | PageLifecycle,
-	options: Object
+	options: Object | Function
 ): (...args: any[]) => any[]{
-	/** 保持原有的生命周期方法链接 */
-	const lifeMethod = options[lifecycle]
+	const lifeMethod: Function | undefined =
+		typeof options === 'function' ? options : options[lifecycle]
 
-	/** this - 实例 */
 	return function (this: ICurrentModuleInstance, ...args: any[]){
-		const injectLifes = this[createShortName(lifecycle)] || []
+		const injectLifes: Function[] = this[createShortName(lifecycle)] || []
 
 		if (lifeMethod) {
 			injectLifes.push(lifeMethod)
 		}
 
-		return injectLifes.map(
-			(life: Function | undefined) => life && life.apply(this, ...args)
-		)
+		return injectLifes.map((life) => life && life.apply(this, ...args))
 	}
-}
-
-function injectLifecyle (
-	target: ICurrentModuleInstance,
-	lifecycle: ComponentLifecycle | PageLifecycle,
-	callback: Function
-){
-	const life = createShortName(lifecycle)
-	if (target[life] === void 0) {
-		target[life] = []
-	}
-
-	target[life].push(callback)
 }
 
 function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){
 	return function (callback: Function){
-		if (getCurrentInstance()) {
-			injectLifecyle(getCurrentInstance(), lifecycle, callback)
+		const currentInstance = getCurrentInstance()
+		if (currentInstance) {
+			const injectLifes = currentInstance[createShortName(lifecycle)] || []
+			injectLifes.push(callback)
 		}
 	}
 }
 
 /** 实例初始化 */
-export const attached = createCurrentModuleLife(ComponentLifecycle.ATTACHED)
+export const onAttached = createCurrentModuleLife(ComponentLifecycle.ATTACHED)
 
 /** 装载完成 */
-export const ready = createCurrentModuleLife(ComponentLifecycle.READY)
+export const onReady = createCurrentModuleLife(ComponentLifecycle.READY)
 
 /** 卸载 */
-export const detached = createCurrentModuleLife(ComponentLifecycle.DETACHED)
+export const onDetached = createCurrentModuleLife(ComponentLifecycle.DETACHED)
 
 /** 页面加载 */
 export const onLoad = createCurrentModuleLife(PageLifecycle.ON_LOAD)

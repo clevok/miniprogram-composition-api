@@ -1,7 +1,6 @@
 export class Dep {
 	private deps: Function[] = []
 
-	/* 收集监听 */
 	depend (callback: Function) {
 		this.deps.push(callback)
 		return () => {
@@ -12,14 +11,12 @@ export class Dep {
 		}
 	}
 
-	/* 执行监听 */
 	notify (...arg: any[]) {
 		this.deps.forEach((dep) => {
 			dep(...arg)
 		})
 	}
 
-	/** 清空监听 */
 	clear () {
 		this.deps = []
 	}
