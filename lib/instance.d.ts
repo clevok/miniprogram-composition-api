@@ -2,7 +2,9 @@
 export declare type IBindings = Record<string, any> | void;
 import { Emitter } from './mitt';
 export declare type IContext = {
-    setData: () => void;
+    setData: (params: {
+        [key: string]: any;
+    }) => void;
 } & Emitter;
 export declare type ISetup<Props extends Record<string, any>> = (this: ICurrentModuleInstance, props: Props, context: IContext) => IBindings;
 export declare function getContext(): void;

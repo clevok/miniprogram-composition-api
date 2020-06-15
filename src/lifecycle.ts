@@ -30,27 +30,29 @@ export const enum PageLifecycle {
  */
 export function createLifecycleMethods (
 	lifecycle: ComponentLifecycle | PageLifecycle,
-	options: Object | Function
+	options: Object | Function | undefined
 ): (...args: any[]) => any[]{
 	const lifeMethod: Function | undefined =
-		typeof options === 'function' ? options : options[lifecycle]
+		typeof options === 'function'
+			? options
+			: typeof options === 'undefined' ? undefined : options[lifecycle]
 
-	return function (this: ICurrentModuleInstance, ...args: any[]){
+	return function (this: ICurrentModuleInstance, ...arg: any[]){
 		const injectLifes: Function[] = this[createShortName(lifecycle)] || []
 
 		if (lifeMethod) {
 			injectLifes.push(lifeMethod)
 		}
 
-		return injectLifes.map((life) => life && life.apply(this, ...args))
+		return injectLifes.map((life) => life && life.apply(this, arg))
 	}
 }
 
 function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
-    return function (callback: Function) {
-        overInCurrentModule((currentInstance) => {
+	return function (callback: Function){
+		overInCurrentModule((currentInstance) => {
 			injectHook(currentInstance, lifecycle, callback)
-        })
+		})
 	}
 }
 

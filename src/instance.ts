@@ -2,7 +2,10 @@ export type IBindings = Record<string, any> | void
 import { Emitter } from './mitt'
 
 export type IContext = {
-	setData: () => void
+    /**
+     * 返回移除所有监听的方法
+     */
+	setData: (params: { [key: string]: any }) => () => void
 } & Emitter
 
 export type ISetup<Props extends Record<string, any>> = (

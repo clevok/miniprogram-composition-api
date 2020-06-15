@@ -57,8 +57,8 @@ export function mitt(all?: EventHandlerMap): Emitter {
         
         once(type: EventType, handler: Handler) {
             const _this = this;
-            const mergeHandle = function () {
-                handler.apply(null, arguments);
+            const mergeHandle = function (...params: any[]) {
+                handler.apply(null, params);
                 _this.off(type, mergeHandle);
             }
 

@@ -1,4 +1,4 @@
-export { useRef, isRef, IRef, ISetRef, IUseRef } from './core/ref'
+export { useRef, isRef, IRef, ISetRef, IUseRef } from './reactivity/ref'
 
 export { defineComponent } from './component'
 
@@ -19,10 +19,8 @@ export {
 	onDetached,
 } from './lifecycle'
 
-export { useProvide, useInject, useInjectAsync } from './core/inject'
+export { useProvide, useInject, useInjectAsync } from './reactivity/inject'
 
-export { useEffect } from './core/watch'
+export { useEffect } from './reactivity/watch'
 
 export { useComputed } from './computed'
-
-export { setup, setData } from './shared'

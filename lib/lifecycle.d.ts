@@ -23,7 +23,7 @@ export declare const enum PageLifecycle {
  * @param options
  * @return {function}
  */
-export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function): (...args: any[]) => any[];
+export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function | undefined): (...args: any[]) => any[];
 /** 实例初始化 */
 export declare const onAttached: (callback: Function) => void;
 /** 装载完成 */

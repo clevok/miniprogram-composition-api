@@ -1,5 +1,5 @@
-import { isRef, IRef } from './core/ref'
-import { useEffect, isObserve } from './core/watch'
+import { isRef, IRef } from './reactivity/ref'
+import { useEffect, isObserve } from './reactivity/watch'
 import { isPlainObject, isArray, isFunction } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
@@ -84,36 +84,5 @@ export const setup = overCurrentModule(function (
             setup返回值不支持promise
         `)
     }
-    return setData.call(this, binds);
+    return context.setData(binds);
 })
-
-/**
- * 必须更改方法this指向为页面/组件
- * setData, 能够解析ref, 并监听
- * @param {object} binding - 必须是个对象,里面包含要绑定的数据
- * @return {function} 移除方法
- */
-export function setData (this: ICurrentModuleInstance, binding: Object): () => any{
-	if (!binding) return () => {}
-
-	const stopHandels = Object.keys(binding).map((key) => {
-		const value = binding[key]
-
-		if (isFunction(value)) {
-			this[key] = value
-			return
-		}
-
-		this.setData({
-			[key]: deepToRaw(value)
-		})
-
-		return deepWatch(this, key, value)
-	})
-
-	return () => {
-		stopHandels.forEach((stopHandle) => {
-			stopHandle && stopHandle()
-		})
-	}
-}
