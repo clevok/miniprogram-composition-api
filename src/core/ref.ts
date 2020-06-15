@@ -2,7 +2,7 @@ import { isEqual } from '@jsmini/isequal'
 import { clone } from '@jsmini/clone';
 
 import { Dep } from './dep'
-import { isFunction } from './utils'
+import { isFunction } from '../utils'
 
 export interface IRef<T = any> {
 	/**

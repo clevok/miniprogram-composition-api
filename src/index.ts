@@ -1,4 +1,4 @@
-export { useRef, isRef, IRef, ISetRef, IUseRef } from './ref'
+export { useRef, isRef, IRef, ISetRef, IUseRef } from './core/ref'
 
 export { defineComponent } from './component'
 
@@ -19,9 +19,9 @@ export {
 	onDetached,
 } from './lifecycle'
 
-export { useProvide, useInject, useInjectAsync } from './inject'
+export { useProvide, useInject, useInjectAsync } from './core/inject'
 
-export { useEffect } from './watch'
+export { useEffect } from './core/watch'
 
 export { useComputed } from './computed'
 

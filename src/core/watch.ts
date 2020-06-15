@@ -1,5 +1,5 @@
 import { IRef, isRef } from './ref'
-import { isFunction } from './utils'
+import { isFunction } from '../utils'
 
 /**
  * 可观测对象

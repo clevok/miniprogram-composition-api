@@ -25,8 +25,8 @@ export const enum PageLifecycle {
 /**
  * 返回的函数 this指向必须是 页面或组件
  * @param lifecycle
- * @param options - 页面构造对象 / 或者原方法
- * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
+ * @param options
+ * @return {function}
  */
 export function createLifecycleMethods (
 	lifecycle: ComponentLifecycle | PageLifecycle,

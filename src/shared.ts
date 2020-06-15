@@ -1,5 +1,5 @@
-import { isRef, IRef } from './ref'
-import { useEffect, isObserve } from './watch'
+import { isRef, IRef } from './core/ref'
+import { useEffect, isObserve } from './core/watch'
 import { isPlainObject, isArray, isFunction } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
