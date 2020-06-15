@@ -18,19 +18,18 @@ export declare const enum PageLifecycle {
     ON_TAB_ITEM_TAP = "onTabItemTap"
 }
 /**
- *
- * 装饰原有声明周期, 执行被注入的 this对象内声明周期方法
- * @param lifecycle - 页面属性
- * @param options - 页面构造对象
- * @return {function} - 新方法, 用于指向所有的注入的声明周期以及原有方法
+ * 返回的函数 this指向必须是 页面或组件
+ * @param lifecycle
+ * @param options
+ * @return {function}
  */
-export declare function createLifecycle(lifecycle: ComponentLifecycle | PageLifecycle, options: Object): (...args: any[]) => any[];
+export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function): (...args: any[]) => any[];
 /** 实例初始化 */
-export declare const attached: (callback: Function) => void;
+export declare const onAttached: (callback: Function) => void;
 /** 装载完成 */
-export declare const ready: (callback: Function) => void;
+export declare const onReady: (callback: Function) => void;
 /** 卸载 */
-export declare const detached: (callback: Function) => void;
+export declare const onDetached: (callback: Function) => void;
 /** 页面加载 */
 export declare const onLoad: (callback: Function) => void;
 /** 页面显示 */

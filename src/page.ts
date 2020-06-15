@@ -1,6 +1,7 @@
 import { isFunction, wrapFuns } from './utils'
 import { PageLifecycle, createLifecycleMethods } from './lifecycle'
 import { setup } from './shared'
+import { createContext } from './context';
 
 export function definePage (
 	pageOptions:
@@ -34,7 +35,7 @@ export function definePage (
 	let __setup_handle: Function
 
 	options[PageLifecycle.ON_LOAD] = wrapFuns(function (params){
-		__setup_handle = setup(this, setupFun, params)
+		__setup_handle = setup(this, setupFun, params, createContext(this))
 	}, createLifecycleMethods(PageLifecycle.ON_LOAD, options))
 
 	options[PageLifecycle.ON_SHOW] = createLifecycleMethods(PageLifecycle.ON_SHOW, options)

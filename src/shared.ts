@@ -3,7 +3,7 @@ import { useEffect, isObserve } from './core/watch'
 import { isPlainObject, isArray, isFunction } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
-import { overCurrentModule, ICurrentModuleInstance } from './instance'
+import { overCurrentModule, ICurrentModuleInstance, IContext } from './instance'
 
 export const deepToRaw = overCloneDeep(function (x: unknown){
 	if (isRef(x)) {
@@ -75,9 +75,10 @@ export function deepWatch (target: any, key: string, value: any){
 export const setup = overCurrentModule(function (
 	target: ICurrentModuleInstance,
 	callback: Function,
-	props: unknown = {}
+    props: unknown = {},
+    context: IContext
 ) {
-    const binds = callback.call(target, props);
+    const binds = callback.call(target, props, context);
     if (binds instanceof Promise) {
         return console.error(`
             setup返回值不支持promise

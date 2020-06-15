@@ -2,6 +2,7 @@ import { isFunction, wrapFuns } from './utils'
 import { ComponentLifecycle, createLifecycleMethods, PageLifecycle } from './lifecycle'
 import { setup } from './shared'
 import { ISetup, ICurrentModuleInstance } from './instance'
+import { createContext } from './context';
 
 export function defineComponent (
 	componentOptions:
@@ -43,8 +44,8 @@ export function defineComponent (
 	/**
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
-	options[ComponentLifecycle.ATTACHED] = wrapFuns(function (this: ICurrentModuleInstance){
-		__setup_handle = setup(this, setupFun, this.properties)
+    options[ComponentLifecycle.ATTACHED] = wrapFuns(function (this: ICurrentModuleInstance) {
+		__setup_handle = setup(this, setupFun, this.properties, createContext(this))
 	}, createLifecycleMethods(ComponentLifecycle.ATTACHED, options))
 
 	options[ComponentLifecycle.READY] = createLifecycleMethods(ComponentLifecycle.READY, options)

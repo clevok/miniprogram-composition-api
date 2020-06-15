@@ -1,5 +1,2 @@
-import { IRef } from './ref';
-/**
- * 计算属性
- */
+import { IRef } from './core/ref';
 export declare function useComputed<T>(callback: () => T, refs: IRef[]): IRef<T>;

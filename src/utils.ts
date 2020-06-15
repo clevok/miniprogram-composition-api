@@ -29,5 +29,5 @@ export function wrapFuns (...args: Function[]){
 }
 
 export function createShortName (name: string){
-	return `__lifecycle_${name}__`
+	return `__${name}__`
 }

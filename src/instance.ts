@@ -1,8 +1,15 @@
 export type IBindings = Record<string, any> | void
+import { Emitter } from './mitt'
 
-export type IContext = any
+export type IContext = {
+	setData: () => void
+} & Emitter
 
-export type ISetup<Props extends Record<string, any>> = (this: void, props: Props) => IBindings
+export type ISetup<Props extends Record<string, any>> = (
+	this: ICurrentModuleInstance,
+	props: Props,
+	context: IContext
+) => IBindings
 
 export function getContext (){}
 
@@ -18,12 +25,8 @@ export type ICurrentModuleInstance =
 				[key: string]: any
 			})
 
-export function getCurrentInstance (): ICurrentModuleInstance | null{
-	return currentModule
-}
-
 /**
- * 接受第一个参数是 current对象
+ * 要求注入的函数第一个参数是 current对象
  * @param callback
  */
 export function overCurrentModule<T extends Function> (callback: T): T{
@@ -37,4 +40,11 @@ export function overCurrentModule<T extends Function> (callback: T): T{
 
 		return reuslt
 	}
+}
+
+export function overInCurrentModule (callback: (current: ICurrentModuleInstance) => void){
+	if (currentModule) {
+		callback(currentModule)
+	}
+	callback = null
 }

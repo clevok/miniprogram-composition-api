@@ -1,5 +1,5 @@
 import { createShortName } from './utils'
-import { ICurrentModuleInstance, getCurrentInstance } from './instance'
+import { ICurrentModuleInstance, overInCurrentModule } from './instance'
 
 export const enum ComponentLifecycle {
 	CREATED = 'created',
@@ -47,11 +47,10 @@ export function createLifecycleMethods (
 }
 
 function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
-	return function (callback: Function){
-		const currentInstance = getCurrentInstance()
-		if (currentInstance) {
+    return function (callback: Function) {
+        overInCurrentModule((currentInstance) => {
 			injectHook(currentInstance, lifecycle, callback)
-		}
+        })
 	}
 }
 
