@@ -46,45 +46,57 @@ export function createLifecycleMethods (
 	}
 }
 
-function createCurrentModuleLife (lifecycle: ComponentLifecycle | PageLifecycle){
+function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
 	return function (callback: Function){
 		const currentInstance = getCurrentInstance()
 		if (currentInstance) {
-			const injectLifes = currentInstance[createShortName(lifecycle)] || []
-			injectLifes.push(callback)
+			injectHook(currentInstance, lifecycle, callback)
 		}
 	}
 }
 
+function injectHook (
+	currentInstance: ICurrentModuleInstance,
+	lifecycle: PageLifecycle | ComponentLifecycle,
+	hook: Function
+){
+	const hiddenField = createShortName(lifecycle)
+	if (currentInstance[hiddenField] === undefined) {
+		currentInstance[hiddenField] = []
+	}
+
+	currentInstance[hiddenField].push(hook)
+}
+
 /** 实例初始化 */
-export const onAttached = createCurrentModuleLife(ComponentLifecycle.ATTACHED)
+export const onAttached = createCurrentModuleHook(ComponentLifecycle.ATTACHED)
 
 /** 装载完成 */
-export const onReady = createCurrentModuleLife(ComponentLifecycle.READY)
+export const onReady = createCurrentModuleHook(ComponentLifecycle.READY)
 
 /** 卸载 */
-export const onDetached = createCurrentModuleLife(ComponentLifecycle.DETACHED)
+export const onDetached = createCurrentModuleHook(ComponentLifecycle.DETACHED)
 
 /** 页面加载 */
-export const onLoad = createCurrentModuleLife(PageLifecycle.ON_LOAD)
+export const onLoad = createCurrentModuleHook(PageLifecycle.ON_LOAD)
 
 /** 页面显示 */
-export const onShow = createCurrentModuleLife(PageLifecycle.ON_SHOW)
+export const onShow = createCurrentModuleHook(PageLifecycle.ON_SHOW)
 
 /** 页面隐藏 */
-export const onHide = createCurrentModuleLife(PageLifecycle.ON_HIDE)
+export const onHide = createCurrentModuleHook(PageLifecycle.ON_HIDE)
 
 /** 页面卸载 */
-export const onUnload = createCurrentModuleLife(PageLifecycle.ON_UNLOAD)
+export const onUnload = createCurrentModuleHook(PageLifecycle.ON_UNLOAD)
 
 /** 下拉刷新 */
-export const onPullDownRefresh = createCurrentModuleLife(PageLifecycle.ON_PULL_DOWN_REFRESH)
+export const onPullDownRefresh = createCurrentModuleHook(PageLifecycle.ON_PULL_DOWN_REFRESH)
 
 /** 滚动到底部 */
-export const onReachBottom = createCurrentModuleLife(PageLifecycle.ON_REACH_BOTTOM)
+export const onReachBottom = createCurrentModuleHook(PageLifecycle.ON_REACH_BOTTOM)
 
 /** 转发 */
-export const onShareAppMessage = createCurrentModuleLife(PageLifecycle.ON_SHARE_APP_MESSAGE)
+export const onShareAppMessage = createCurrentModuleHook(PageLifecycle.ON_SHARE_APP_MESSAGE)
 
 /** 页面滚动 */
-export const onPageScroll = createCurrentModuleLife(PageLifecycle.ON_PAGE_SCROLL)
+export const onPageScroll = createCurrentModuleHook(PageLifecycle.ON_PAGE_SCROLL)

@@ -4,7 +4,7 @@ import { setup } from './shared'
 import { ISetup, ICurrentModuleInstance } from './instance'
 
 export function defineComponent (
-	optionsOrSetup:
+	componentOptions:
 		| (WechatMiniprogram.Component.Options<
 				Record<string, any>,
 				Record<string, WechatMiniprogram.Component.AllProperty>,
@@ -23,15 +23,15 @@ export function defineComponent (
 		[key: string]: any
 	}
 
-	if (isFunction(optionsOrSetup)) {
-		setupFun = optionsOrSetup
+	if (isFunction(componentOptions)) {
+		setupFun = componentOptions
 		options = {}
 	} else {
-		if (optionsOrSetup.setup === void 0) {
-			return Component(optionsOrSetup)
+		if (componentOptions.setup === void 0) {
+			return Component(componentOptions)
 		}
 
-		const { setup: setupOption, ...otherOptions } = optionsOrSetup
+		const { setup: setupOption, ...otherOptions } = componentOptions
 		setupFun = setupOption
 		options = otherOptions
 	}

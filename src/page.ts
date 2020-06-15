@@ -3,7 +3,7 @@ import { PageLifecycle, createLifecycleMethods } from './lifecycle'
 import { setup } from './shared'
 
 export function definePage (
-	optionsOrSetup:
+	pageOptions:
 		| WechatMiniprogram.Page.Options<Record<string, any>, Record<string, any>> & {
 				setup?: (params: Object) => { [key: string]: any }
 			}
@@ -11,22 +11,22 @@ export function definePage (
 ): any{
 	let setupFun: Function
 
-    let options: {
+	let options: {
 		methods?: {
 			[key: string]: (...args: any[]) => any
 		}
 		[key: string]: any
 	}
 
-	if (isFunction(optionsOrSetup)) {
-		setupFun = optionsOrSetup
+	if (isFunction(pageOptions)) {
+		setupFun = pageOptions
 		options = {}
 	} else {
-		if (optionsOrSetup.setup === void 0) {
-			return Page(optionsOrSetup)
+		if (pageOptions.setup === void 0) {
+			return Page(pageOptions)
 		}
 
-		const { setup: setupOption, ...otherOptions } = optionsOrSetup
+		const { setup: setupOption, ...otherOptions } = pageOptions
 		setupFun = setupOption
 		options = otherOptions
 	}
