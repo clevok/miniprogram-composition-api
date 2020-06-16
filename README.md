@@ -51,7 +51,7 @@ definePage({
 
 **`useRef`**
 
-`参数1`
+`返回值1`
 接受一个参数值并返回一个数组, 第一项 是被包装的对象。ref 对象拥有一个指向内部值的单一属性 .value。
 
 ```js
@@ -63,7 +63,7 @@ setCount(1)
 console.log(count.value) // 1
 ```
 
-`参数2`
+`返回值1`
 是更改该值的方法, 接受一个值或者一个方法
 ```js
 const [count, setCount] = useRef(0)
