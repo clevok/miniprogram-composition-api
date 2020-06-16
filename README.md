@@ -45,23 +45,38 @@ definePage({
 2. `setData`是封装后的setData, 支持对`ref包装对象`的解析, 其他用法和原生一致
 3. `this`指向, 目前, setup, onLoad等其他的函数, this将会绑定到当前页面/组件实例
 
+---
 
 ### 包裹对象useRef
 
 **`useRef`**
 
+`参数1`
 接受一个参数值并返回一个数组, 第一项 是被包装的对象。ref 对象拥有一个指向内部值的单一属性 .value。
-第二项是 更改该值的方法
+
 ```js
 const [count, setCount] = useRef(0)
 console.log(count.value) // 0
 
 setCount(1)
-// 或者这样写
-setCount((value) => value + 1) 也可以这样写, 返回值作为更改后的值
 
 console.log(count.value) // 1
 ```
+
+`参数2`
+是更改该值的方法, 接受一个值或者一个方法
+```js
+const [count, setCount] = useRef(0)
+
+// 回调函数返回的值作为要赋值
+setCount((value) => value + 1);
+setCount(value + 1);
+
+```
+更新值已经做了diff, 两次赋同一值将不会触发改变
+
+采用了[westore](https://github.com/Tencent/westore) 的 json diff,用于对比文件并提取需要更改的路径, 用于最小化setData
+
 
 1. 在视图层中读取
 当该值被`setup`返回, 将进入data值, 可在模板中被读取到, 会自动解套,无需在模板中额外书写`.value`
@@ -86,6 +101,7 @@ definePage({
 2. context.setData
 `setup`返回值其实也是执行了`context.setData`
 
+---
 
 ### 计算属性
 
@@ -107,6 +123,8 @@ setCount(2)
 
 计算属性总是最少会执行一次,为了第一次赋值
 
+---
+
 ### 监听Ref值更新
 
 **`useEffect`**
@@ -125,6 +143,8 @@ const stopHandle = useEffect(() => {
 
 setCount(2)
 ```
+
+---
 
 ### 声明周期函数
 可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：
@@ -147,14 +167,18 @@ const MyComponent = {
 
 ```
 
+---
+
 ### 依赖注入
 `useProvide` 和 `useInject`, `useInjectAsync` 提供依赖注入, 功能和 `Session` 一致, 只是找了地方存了以下
 
+---
 
 ### 不要这样做
 1. 在未来某个时间 `useEffect`, `useComputed`, 在setup期间执行的监听操作都将绑定在该实例上, 在该实例销毁后, 也会同步取消监听事件, 如果你注册的监听,恰好某个组件执行了setup, 会出现, 他销毁后, 你注册的监听不起效果了, 一开始是不做这样的处理的, 只是为了避免大量的取消监听的写法, 于是做了这样的处理
 我也很纠结, 这个问题一旦碰上了, 那就很致命了, 哎, 可是也没有特别好的办法 
 
+---
 
 ### 为了什么
 1. 替代 mixins, 代码复用新方案
