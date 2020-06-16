@@ -1,21 +1,3 @@
-export type IBindings = Record<string, any> | void
-import { Emitter } from './mitt'
-
-export type IContext = {
-    /**
-     * 返回移除所有监听的方法
-     */
-	setData: (params: { [key: string]: any }) => () => void
-} & Emitter
-
-export type ISetup<Props extends Record<string, any>> = (
-	this: ICurrentModuleInstance,
-	props: Props,
-	context: IContext
-) => IBindings
-
-export function getContext (){}
-
 let currentModule: ICurrentModuleInstance | null = null
 
 export type ICurrentModuleInstance =
@@ -32,12 +14,11 @@ export type ICurrentModuleInstance =
  * 要求注入的函数第一个参数是 current对象
  * @param callback
  */
-export function overCurrentModule<T extends Function> (callback: T): T{
-	// @ts-ignore
-	return function (target: ICurrentModuleInstance, ...arg: any[]){
+export function overCurrentModule<T> (callback: () => T){
+	return function (target: ICurrentModuleInstance, ...arg: any[]): T{
 		currentModule = target
 
-		const reuslt = callback.call(target, target, ...arg)
+		const reuslt = callback.apply(target, arg)
 
 		currentModule = null
 
@@ -45,9 +26,13 @@ export function overCurrentModule<T extends Function> (callback: T): T{
 	}
 }
 
-export function overInCurrentModule (callback: (current: ICurrentModuleInstance) => void){
+export function overInCurrentModule<T, D> (
+	callback: (current: ICurrentModuleInstance) => T,
+	emptyCallback?: () => D
+): T | D{
 	if (currentModule) {
-		callback(currentModule)
+		return callback(currentModule)
+	} else {
+		return emptyCallback && emptyCallback()
 	}
-	callback = null
 }

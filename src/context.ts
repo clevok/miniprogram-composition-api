@@ -1,7 +1,13 @@
-import { ICurrentModuleInstance, IContext } from './instance'
+import { ICurrentModuleInstance } from './instance'
 import { deepToRaw, deepWatch } from './shared'
 import { mitt } from './mitt'
 import { isFunction } from './utils'
+
+import { Emitter } from './mitt'
+
+export type IContext = {
+	setData: (params: { [key: string]: any }) => () => void
+} & { event: Emitter }
 
 export function createContext (target: ICurrentModuleInstance): IContext{
 	function setData (this: ICurrentModuleInstance, binding: Object): () => any{
@@ -33,6 +39,8 @@ export function createContext (target: ICurrentModuleInstance): IContext{
 		{
 			setData: setData.bind(target)
 		},
-		mitt()
+		{
+			event: mitt()
+		}
 	)
 }

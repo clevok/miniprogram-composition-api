@@ -1,14 +1,15 @@
 import { isFunction, wrapFuns } from './utils'
-import { PageLifecycle, createLifecycleMethods } from './lifecycle'
-import { setup } from './shared'
-import { createContext } from './context';
+import { PageLifecycle, conductHook, ExtendLefecycle } from './lifecycle'
+import { createContext } from './context'
+import { createLifecycleMethods, ISetup } from './shared'
+import { overCurrentModule } from './instance'
 
 export function definePage (
 	pageOptions:
 		| WechatMiniprogram.Page.Options<Record<string, any>, Record<string, any>> & {
-				setup?: (params: Object) => { [key: string]: any }
+				setup?: ISetup<WechatMiniprogram.Component.AllProperty>
 			}
-		| Function
+		| ISetup<WechatMiniprogram.Component.AllProperty>
 ): any{
 	let setupFun: Function
 
@@ -32,10 +33,17 @@ export function definePage (
 		options = otherOptions
 	}
 
-	let __setup_handle: Function
-
 	options[PageLifecycle.ON_LOAD] = wrapFuns(function (params){
-		__setup_handle = setup(this, setupFun, params, createContext(this))
+		overCurrentModule(() => {
+			const context = createContext(this)
+			const binds = setupFun.call(this, params, context)
+			if (binds instanceof Promise) {
+				return console.error(`
+                setup不支持返回promise
+            `)
+			}
+			context.setData(binds)
+		})(this)
 	}, createLifecycleMethods(PageLifecycle.ON_LOAD, options))
 
 	options[PageLifecycle.ON_SHOW] = createLifecycleMethods(PageLifecycle.ON_SHOW, options)
@@ -45,7 +53,7 @@ export function definePage (
 	options[PageLifecycle.ON_HIDE] = createLifecycleMethods(PageLifecycle.ON_HIDE, options)
 
 	options[PageLifecycle.ON_UNLOAD] = wrapFuns(function (){
-		__setup_handle && __setup_handle()
+		conductHook(this, ExtendLefecycle.EFFECT, [])
 	}, createLifecycleMethods(PageLifecycle.ON_UNLOAD, options))
 
 	options[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycleMethods(

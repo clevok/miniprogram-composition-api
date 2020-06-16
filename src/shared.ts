@@ -1,9 +1,12 @@
 import { isRef, IRef } from './reactivity/ref'
-import { useEffect, isObserve } from './reactivity/watch'
-import { isPlainObject, isArray, isFunction } from './utils'
+import { isObserve } from './reactivity/watch'
+import { isPlainObject, isArray } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
-import { overCurrentModule, ICurrentModuleInstance, IContext } from './instance'
+import { ComponentLifecycle, PageLifecycle, conductHook } from './lifecycle'
+import { ICurrentModuleInstance } from './instance'
+import { IContext } from './context'
+import { useEffect } from './watch';
 
 export const deepToRaw = overCloneDeep(function (x: unknown){
 	if (isRef(x)) {
@@ -65,24 +68,32 @@ export function deepWatch (target: any, key: string, value: any){
 }
 
 /**
- *
- * 绑定函数, 基于target对象绑定实例
- * @param target - 页面/组件 实例
- * @param callback - 执行方法
- * @param props - props内容
- * @return {function} - 停止内部所有依赖的监听
+ * 返回的函数 this指向必须是 页面或组件
  */
-export const setup = overCurrentModule(function (
-	target: ICurrentModuleInstance,
-	callback: Function,
-    props: unknown = {},
-    context: IContext
-) {
-    const binds = callback.call(target, props, context);
-    if (binds instanceof Promise) {
-        return console.error(`
-            setup返回值不支持promise
-        `)
-    }
-    return context.setData(binds);
-})
+export function createLifecycleMethods (
+	lifecycle: ComponentLifecycle | PageLifecycle,
+	options: Object | Function | undefined
+): (...args: any[]) => any[]{
+	const lifeMethod: Function | undefined =
+		typeof options === 'function'
+			? options
+			: typeof options === 'undefined' ? undefined : options[lifecycle]
+
+	return function (this: ICurrentModuleInstance, ...args: any[]){
+		const injectLifes: any[] = conductHook(this, lifecycle, args)
+
+		if (lifeMethod) {
+			injectLifes.push(lifeMethod.call(this, args))
+		}
+
+		return injectLifes
+	}
+}
+
+export type IBindings = Record<string, any> | void
+
+export type ISetup<Props extends Record<string, any>> = (
+	this: ICurrentModuleInstance,
+	props: Props,
+	context: IContext
+) => IBindings

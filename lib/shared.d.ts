@@ -1,4 +1,6 @@
-import { ICurrentModuleInstance, IContext } from './instance';
+import { ComponentLifecycle, PageLifecycle } from './lifecycle';
+import { ICurrentModuleInstance } from './instance';
+import { IContext } from './context';
 export declare const deepToRaw: (x: unknown) => any;
 /**
  * Page/Component 与 watch 中转
@@ -6,18 +8,8 @@ export declare const deepToRaw: (x: unknown) => any;
  */
 export declare function deepWatch(target: any, key: string, value: any): () => void;
 /**
- *
- * 绑定函数, 基于target对象绑定实例
- * @param target - 页面/组件 实例
- * @param callback - 执行方法
- * @param props - props内容
- * @return {function} - 停止内部所有依赖的监听
+ * 返回的函数 this指向必须是 页面或组件
  */
-export declare const setup: (target: ICurrentModuleInstance, callback: Function, props: unknown, context: IContext) => any;
-/**
- * 必须更改方法this指向为页面/组件
- * setData, 能够解析ref, 并监听
- * @param {object} binding - 必须是个对象,里面包含要绑定的数据
- * @return {function} 移除方法
- */
-export declare function setData(this: ICurrentModuleInstance, binding: Object): () => any;
+export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function | undefined): (...args: any[]) => any[];
+export declare type IBindings = Record<string, any> | void;
+export declare type ISetup<Props extends Record<string, any>> = (this: ICurrentModuleInstance, props: Props, context: IContext) => IBindings;

@@ -1,6 +1,6 @@
 {
   "name": "miniprogram-composition-api",
-  "version": "0.1.1",
+  "version": "0.1.0",
   "description": "类 vue3 composition-api 写法写小程序 小程序mixins替代方案, 计算属性, watch",
   "main": "lib/index.js",
   "directories": {

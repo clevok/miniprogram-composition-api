@@ -1,8 +1,8 @@
 import { isFunction, wrapFuns } from './utils'
-import { ComponentLifecycle, createLifecycleMethods, PageLifecycle } from './lifecycle'
-import { setup } from './shared'
-import { ISetup, ICurrentModuleInstance } from './instance'
+import { ComponentLifecycle, PageLifecycle, conductHook, ExtendLefecycle } from './lifecycle'
+import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext } from './context'
+import { createLifecycleMethods, ISetup } from './shared'
 
 export function defineComponent (
 	componentOptions:
@@ -39,19 +39,26 @@ export function defineComponent (
 
 	options.methods = options.methods || {}
 
-	let __setup_handle: Function | void
-
 	/**
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
 	options[ComponentLifecycle.ATTACHED] = wrapFuns(function (this: ICurrentModuleInstance){
-		__setup_handle = setup(this, setupFun, this.properties, createContext(this))
+		overCurrentModule(() => {
+			const context = createContext(this)
+			const binds = setupFun.call(this, this.properties, context)
+			if (binds instanceof Promise) {
+				return console.error(`
+                setup返回值不支持promise
+            `)
+			}
+			context.setData(binds)
+		})(this)
 	}, createLifecycleMethods(ComponentLifecycle.ATTACHED, options))
 
 	options[ComponentLifecycle.READY] = createLifecycleMethods(ComponentLifecycle.READY, options)
 
-	options[ComponentLifecycle.DETACHED] = wrapFuns(function (){
-		__setup_handle && __setup_handle()
+    options[ComponentLifecycle.DETACHED] = wrapFuns(function () {
+        conductHook(this, ExtendLefecycle.EFFECT, []);
 	}, createLifecycleMethods(ComponentLifecycle.DETACHED, options))
 
 	options.methods[PageLifecycle.ON_LOAD] = createLifecycleMethods(

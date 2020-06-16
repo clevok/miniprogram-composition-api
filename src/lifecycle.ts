@@ -22,43 +22,13 @@ export const enum PageLifecycle {
 	ON_TAB_ITEM_TAP = 'onTabItemTap'
 }
 
-/**
- * 返回的函数 this指向必须是 页面或组件
- * @param lifecycle
- * @param options
- * @return {function}
- */
-export function createLifecycleMethods (
-	lifecycle: ComponentLifecycle | PageLifecycle,
-	options: Object | Function | undefined
-): (...args: any[]) => any[]{
-	const lifeMethod: Function | undefined =
-		typeof options === 'function'
-			? options
-			: typeof options === 'undefined' ? undefined : options[lifecycle]
-
-	return function (this: ICurrentModuleInstance, ...arg: any[]){
-		const injectLifes: Function[] = this[createShortName(lifecycle)] || []
-
-		if (lifeMethod) {
-			injectLifes.push(lifeMethod)
-		}
-
-		return injectLifes.map((life) => life && life.apply(this, arg))
-	}
+export const enum ExtendLefecycle {
+    EFFECT = 'effect'
 }
 
-function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
-	return function (callback: Function){
-		overInCurrentModule((currentInstance) => {
-			injectHook(currentInstance, lifecycle, callback)
-		})
-	}
-}
-
-function injectHook (
+export function injectHook (
 	currentInstance: ICurrentModuleInstance,
-	lifecycle: PageLifecycle | ComponentLifecycle,
+	lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle,
 	hook: Function
 ){
 	const hiddenField = createShortName(lifecycle)
@@ -67,6 +37,25 @@ function injectHook (
 	}
 
 	currentInstance[hiddenField].push(hook)
+}
+
+export function conductHook (
+	currentInstance: ICurrentModuleInstance,
+	lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle,
+	params: any[]
+){
+	const hiddenField = createShortName(lifecycle)
+	const injectLifes: Function[] = currentInstance[hiddenField] || []
+
+	return injectLifes.map((life) => typeof life === 'function' && life.apply(this, params))
+}
+
+function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
+	return function (callback: Function){
+		overInCurrentModule((currentInstance) => {
+			injectHook(currentInstance, lifecycle, callback)
+		})
+	}
 }
 
 /** 实例初始化 */

@@ -1,3 +1,4 @@
+import { ICurrentModuleInstance } from './instance';
 export declare const enum ComponentLifecycle {
     CREATED = "created",
     ATTACHED = "attached",
@@ -17,13 +18,11 @@ export declare const enum PageLifecycle {
     ON_RESIZE = "onResize",
     ON_TAB_ITEM_TAP = "onTabItemTap"
 }
-/**
- * 返回的函数 this指向必须是 页面或组件
- * @param lifecycle
- * @param options
- * @return {function}
- */
-export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function | undefined): (...args: any[]) => any[];
+export declare const enum ExtendLefecycle {
+    EFFECT = "effect"
+}
+export declare function injectHook(currentInstance: ICurrentModuleInstance, lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle, hook: Function): void;
+export declare function conductHook(currentInstance: ICurrentModuleInstance, lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle, params: any[]): any[];
 /** 实例初始化 */
 export declare const onAttached: (callback: Function) => void;
 /** 装载完成 */

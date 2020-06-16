@@ -21,6 +21,6 @@ export {
 
 export { useProvide, useInject, useInjectAsync } from './reactivity/inject'
 
-export { useEffect } from './reactivity/watch'
+export { useEffect } from './watch'
 
 export { useComputed } from './computed'

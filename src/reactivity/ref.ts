@@ -5,14 +5,16 @@ import { Dep } from './dep'
 import { isFunction } from '../utils'
 
 export interface IRef<T = any> {
-	/**
-     * 用于确认他是ref对象
-     */
 	__v_isRef: boolean
 	/**
      * 更新通知
      */
-	__v_change: (callback: Function) => /** 清除句柄 */ () => any
+    __v_change: (callback: Function) => /** 清除句柄 */ () => any
+    /**
+     * 清除所有的监听
+     */
+    __v_clear: () => void
+    
 	value: T
 }
 
@@ -68,7 +70,15 @@ function createRef<T> (_getValue: T): IUseRef<T>{
 			configurable: false,
 			writable: false,
 			enumerable: false
-		}
+        },
+        __v_clear: {
+            value: () => {
+                dep.clear()
+            },
+            configurable: false,
+			writable: false,
+			enumerable: false
+        }
 	})
 
 	function setRef (value: any){
