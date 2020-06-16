@@ -1,5 +1,5 @@
-import { useEffect as _useEffect } from './reactivity/watch'
 import { IRef } from './reactivity/ref'
+import { useEffect as _useEffect } from './reactivity/watch'
 import { overInCurrentModule } from './instance'
 import { injectHook, ExtendLefecycle } from './lifecycle'
 
