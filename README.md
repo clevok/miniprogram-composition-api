@@ -7,16 +7,153 @@
 3. 还在测试
 4. 不太适用于大量静态内容, 建议提前定义好data, 因为数据是在 onLoad/attached触发赋值的
 
+
+### setup
+
+setup 函数是一个新的组件选项。作为在组件内使用 Composition API 的入口点。
+
+- 调用时机
+在onLoad/attached时候被执行
+
+- 参数
+该函数接收 props 作为其第一个参数, context 第二个参数
 ```js
 definePage({
     data: {
         test: ''
     },
-    setup() {
-
+    setup(props, context) {
+        console.log(props.name)
     }
 })
 ```
+`props`暂时还没有做特殊处理, `context`作为上下文对象, 暴露了一些api
+```js
+definePage({
+    data: {
+        test: ''
+    },
+    setup(props, context) {
+        context.event.on('load', () => {});
+        context.setData({
+            age: useRef(16)[0]
+        })
+    }
+})
+```
+1. `event`是事件通知模块, 包含常用的emit, on, once, off, context注册的事件, 在页面/组件被销毁时也会主动off
+2. `setData`是封装后的setData, 支持对`ref包装对象`的解析, 其他用法和原生一致
+3. `this`指向, 目前, setup, onLoad等其他的函数, this将会绑定到当前页面/组件实例
+
+
+### 包裹对象useRef
+
+**`useRef`**
+
+接受一个参数值并返回一个数组, 第一项 是被包装的对象。ref 对象拥有一个指向内部值的单一属性 .value。
+第二项是 更改该值的方法
+```js
+const [count, setCount] = useRef(0)
+console.log(count.value) // 0
+
+setCount(1)
+// 或者这样写
+setCount((value) => value + 1) 也可以这样写, 返回值作为更改后的值
+
+console.log(count.value) // 1
+```
+
+1. 在视图层中读取
+当该值被`setup`返回, 将进入data值, 可在模板中被读取到, 会自动解套,无需在模板中额外书写`.value`
+```js
+<template>
+  <div>{{ count }}</div>
+</template>
+
+definePage({
+    setup(props, context) {
+        const [count, setCount] = useRef(0)
+        return {
+            count,
+            updateCount() {
+                setCount(count.value + 1)
+            }
+        }
+    }
+})
+```
+
+2. context.setData
+`setup`返回值其实也是执行了`context.setData`
+
+
+### 计算属性
+
+**`useComputed`**
+返回一个 不可手动修改的 ref 对象。可以理解为没有set方法返回的useRef
+
+```js
+const [count, setCount] = useRef(1)
+const plusOne = computed(() => count.value + 1, [count])
+
+console.log(plusOne.value) // 2
+
+setCount(2)
+```
+
+`参数`
+1. `callback` 监听变化的回调, 返回任意值
+2. `any[]` 这个框架没有做依赖收集, 需要用户主动传入所有的依赖, 当里面的依赖变化时, 会触发回调函数执行,计算
+
+计算属性总是最少会执行一次,为了第一次赋值
+
+### 监听Ref值更新
+
+**`useEffect`**
+当被监听的ref对象变化时, 将触发, 返回值是个方法, 用于停止监听
+
+`参数`
+1. `callback` 监听变化的回调
+2. `any[]` 这个框架没有做依赖收集, 需要用户主动传入所有的依赖, 当里面的依赖变化时, 会触发回调函数执行
+
+```js
+const [count, setCount] = useRef(1)
+const stopHandle = useEffect(() => {
+    console.log('我发送了变化');
+    stopHandle()
+}, [count])
+
+setCount(2)
+```
+
+### 声明周期函数
+可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：
+```js
+import { onAttached, onHide, onShow } from 'vue'
+
+const MyComponent = {
+  setup() {
+    onAttached(() => {
+      console.log('mounted!')
+    })
+    onHide(() => {
+      console.log('updated!')
+    })
+    onShow(() => {
+      console.log('unmounted!')
+    })
+  },
+}
+
+```
+
+### 依赖注入
+`useProvide` 和 `useInject`, `useInjectAsync` 提供依赖注入, 功能和 `Session` 一致, 只是找了地方存了以下
+
+
+### 不要这样做
+1. 在未来某个时间 `useEffect`, `useComputed`, 在setup期间执行的监听操作都将绑定在该实例上, 在该实例销毁后, 也会同步取消监听事件, 如果你注册的监听,恰好某个组件执行了setup, 会出现, 他销毁后, 你注册的监听不起效果了, 一开始是不做这样的处理的, 只是为了避免大量的取消监听的写法, 于是做了这样的处理
+我也很纠结, 这个问题一旦碰上了, 那就很致命了, 哎, 可是也没有特别好的办法 
 
 
 ### 为了什么
@@ -50,8 +187,6 @@ definePage({
 1. 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
 参考之前的hooks的那个声明周期,可以实现类似的
 2. 代理 props
-3. watch, computed收集的依赖在页面/组件销毁时也要一起注销
-4. setup context 属性还没写完
 5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
 5.1. router.back({ delta: 1, params: {}}) 后退的参数, 是否允许带到 onShow, 是否有必要
 6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
