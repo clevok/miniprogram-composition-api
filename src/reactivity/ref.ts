@@ -121,10 +121,3 @@ function createRef<T, D extends Function> (_getValue: T, _setValue?: (setValue: 
 
 	return [ ref, setValue ]
 }
-
-const [ number, updateNumber ] = useRef('', (setValue, value) => {
-	return () => {
-		setValue((value) => '2')
-		return 2
-	}
-})
