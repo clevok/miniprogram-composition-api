@@ -1,12 +1,24 @@
 ## 尝试在小程序里使用 composition-api
 
+### 下载
+
+> npm install miniprogram-composition-api --save
+
+> [仓库地址](https://github.com/clevok/miniprogram-composition-api)
+
+> [composition-api解决了哪些痛点可以看这个](https://juejin.im/post/5ea05d5151882573a44de762)
+
+
 ### 缺点
 1. 更新属性繁琐, 没有采用 Object.defineProperty(为了减少 属性添加删除上疑惑) 做监听, 也没有采用Proxy(版本问题)
-    1.1 1导致 useCompute, useEffect 都需要开发者主动声明依赖
+    1. 导致 useCompute, useEffect 都需要开发者主动声明依赖
+    2. 目前有线程直接基于 @vue/reactivity 写的框架, 更加方便，只是有版本要求, [vue-mini](https://github.com/yangmingshan/vue-mini)
 2. props 还没有做代理
 3. 还在测试
 4. 不太适用于大量静态内容, 建议提前定义好data, 因为数据是在 onLoad/attached触发赋值的
-
+5. 自己就已经发现了好多问题，但是还没有好的办法解决
+6. 有点不伦不类的, react hooks和 composition-api 杂交了
+7. 只是个实验性, 用来玩玩的项目
 
 ### setup
 
@@ -27,7 +39,9 @@ definePage({
     }
 })
 ```
+
 `props`暂时还没有做特殊处理, `context`作为上下文对象, 暴露了一些api
+
 ```js
 definePage({
     data: {
@@ -175,8 +189,13 @@ const MyComponent = {
 ---
 
 ### 不要这样做
+1. setup 不能是异步
+
+2. `useEffect`, `useComputed`尽量在setup内做, 如果不是的话,注意做好清除清除监听
+
 1. 在未来某个时间 `useEffect`, `useComputed`, 在setup期间执行的监听操作都将绑定在该实例上, 在该实例销毁后, 也会同步取消监听事件, 如果你注册的监听,恰好某个组件执行了setup, 会出现, 他销毁后, 你注册的监听不起效果了, 一开始是不做这样的处理的, 只是为了避免大量的取消监听的写法, 于是做了这样的处理
 我也很纠结, 这个问题一旦碰上了, 那就很致命了, 哎, 可是也没有特别好的办法 
+
 
 ---
 
@@ -217,7 +236,8 @@ const MyComponent = {
 7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
 8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
 9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
-10. setup 支持异步
+10. setup 支持异步(不允许)
+11. context event 允许监听 声明周期方法
 
 ```js
 import { defineComponent } from '';
@@ -399,3 +419,6 @@ Componet(async () => {
     }
 })
 ```
+
+### router
+tabbler页面

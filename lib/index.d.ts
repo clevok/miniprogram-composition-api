@@ -1,4 +1,4 @@
-export { useRef, isRef, IRef, ISetRef, IUseRef } from './reactivity/ref';
+export { useRef, isRef, IRef, ISetRef } from './reactivity/ref';
 export { defineComponent } from './component';
 export { definePage } from './page';
 export { onLoad, onShow, onHide, onUnload, onPullDownRefresh, onShareAppMessage, onReachBottom, onPageScroll, onAttached, onReady, onDetached, } from './lifecycle';

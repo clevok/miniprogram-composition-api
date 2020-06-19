@@ -6,7 +6,7 @@ import { overCloneDeep } from './over'
 import { ComponentLifecycle, PageLifecycle, conductHook } from './lifecycle'
 import { ICurrentModuleInstance } from './instance'
 import { IContext } from './context'
-import { useEffect } from './watch';
+import { useEffect } from './watch'
 
 export const deepToRaw = overCloneDeep(function (x: unknown){
 	if (isRef(x)) {
