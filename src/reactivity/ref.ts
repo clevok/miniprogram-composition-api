@@ -55,19 +55,25 @@ export function useRef<T, D extends Function> (
 	value: T,
 	setValue: (setValue: ISetRef<T>, value: IRef<T>) => D
 ): [IRef<T>, D]
-export function useRef<T, D extends Function> (value: T, setValue?: (setValue: ISetRef<T>, value: IRef<T>) => D): any{
+export function useRef<T, D extends Function> (
+	value: T,
+	setValue?: (setValue: ISetRef<T>, value: IRef<T>) => D
+): any{
 	return createRef(value, setValue)
 }
-
 
 function createRef<T> (_getValue: T): [IRef<T>, ISetRef<T>]
 function createRef<T, D extends Function> (
 	_getValue: T,
 	_setValue: (setValue: ISetRef<T>, value: IRef<T>) => D
 ): [IRef<T>, D]
-function createRef<T, D extends Function> (_getValue: T, _setValue?: (setValue: ISetRef<T>, value: IRef<T>) => D): any{
-    // @ts-ignore
-    const ref: IRef<T> = {
+function createRef<T, D extends Function> (
+	_getValue: T,
+	_setValue?: (setValue: ISetRef<T>, value: IRef<T>) => D
+): any{
+	_getValue = clone(_getValue)
+	// @ts-ignore
+	const ref: IRef<T> = {
 		get value () {
 			return _getValue
 		},
@@ -115,9 +121,9 @@ function createRef<T, D extends Function> (_getValue: T, _setValue?: (setValue: 
 		if (!isEqual(_getValue, updateValue)) {
 			dep.notify((_getValue = updateValue))
 		}
-    }
-    
-    const setValue = _setValue ? _setValue(setRef, ref) : setRef as ISetRef<T>;
+	}
+
+	const setValue = _setValue ? _setValue(setRef, ref) : setRef as ISetRef<T>
 
 	return [ ref, setValue ]
 }

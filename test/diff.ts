@@ -35,3 +35,14 @@ console.log(
 		}
 	)
 )
+
+console.log(
+    diff(
+        {},
+		{
+			name: {
+				name1: 155
+			}
+		}
+	)
+)
