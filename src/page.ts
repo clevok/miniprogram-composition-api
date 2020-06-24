@@ -6,9 +6,9 @@ import { overCurrentModule } from './instance'
 
 export function definePage (
 	pageOptions:
-		| WechatMiniprogram.Page.Options<Record<string, any>, Record<string, any>> & {
+		| ({} & {
 				setup?: ISetup<WechatMiniprogram.Component.AllProperty>
-			}
+			})
 		| ISetup<WechatMiniprogram.Component.AllProperty>
 ): any{
 	let setupFun: Function
@@ -31,12 +31,12 @@ export function definePage (
 		const { setup: setupOption, ...otherOptions } = pageOptions
 		setupFun = setupOption
 		options = otherOptions
-    }
-    
-    let __context: IContext;
+	}
+
+	let __context: IContext
 
 	options[PageLifecycle.ON_LOAD] = wrapFuns(function (params){
-        overCurrentModule(() => {
+		overCurrentModule(() => {
 			__context = createContext(this)
 			const binds = setupFun.call(this, params, __context)
 			if (binds instanceof Promise) {
@@ -54,9 +54,16 @@ export function definePage (
 
 	options[PageLifecycle.ON_HIDE] = createLifecycleMethods(PageLifecycle.ON_HIDE, options)
 
+	options[PageLifecycle.ON_RESIZE] = createLifecycleMethods(PageLifecycle.ON_RESIZE, options)
+
+	options[PageLifecycle.ON_TAB_ITEM_TAP] = createLifecycleMethods(
+		PageLifecycle.ON_TAB_ITEM_TAP,
+		options
+	)
+
 	options[PageLifecycle.ON_UNLOAD] = wrapFuns(function (){
-        conductHook(this, ExtendLefecycle.EFFECT, [])
-        __context && __context.event.clear()
+		conductHook(this, ExtendLefecycle.EFFECT, [])
+		__context && __context.event.clear()
 	}, createLifecycleMethods(PageLifecycle.ON_UNLOAD, options))
 
 	options[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycleMethods(

@@ -6,11 +6,7 @@ import { createLifecycleMethods, ISetup } from './shared'
 
 export function defineComponent (
 	componentOptions:
-		| (WechatMiniprogram.Component.Options<
-				Record<string, any>,
-				Record<string, WechatMiniprogram.Component.AllProperty>,
-				Record<string, (...args: any[]) => any>
-			> & {
+		| ({} & {
 				setup?: ISetup<WechatMiniprogram.Component.AllProperty>
 			})
 		| ISetup<WechatMiniprogram.Component.AllProperty>
@@ -39,7 +35,7 @@ export function defineComponent (
 
 	options.methods = options.methods || {}
 
-    let __context: IContext;
+	let __context: IContext
 
 	/**
      * TODO 下一个版本将props转化为ref对象,进行监听
@@ -59,9 +55,9 @@ export function defineComponent (
 
 	options[ComponentLifecycle.READY] = createLifecycleMethods(ComponentLifecycle.READY, options)
 
-    options[ComponentLifecycle.DETACHED] = wrapFuns(function () {
-        conductHook(this, ExtendLefecycle.EFFECT, []);
-        __context && __context.event.clear()
+	options[ComponentLifecycle.DETACHED] = wrapFuns(function (){
+		conductHook(this, ExtendLefecycle.EFFECT, [])
+		__context && __context.event.clear()
 	}, createLifecycleMethods(ComponentLifecycle.DETACHED, options))
 
 	options.methods[PageLifecycle.ON_LOAD] = createLifecycleMethods(

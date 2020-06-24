@@ -10,7 +10,9 @@ export const router = {
             url
         });
     },
-    back() {
-        
+    back(delta = 1) {
+        wx.navigateBack({
+            delta
+        });
     }
 }

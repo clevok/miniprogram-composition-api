@@ -1,4 +1,4 @@
-export { useRef, isRef, IRef, ISetRef } from './reactivity/ref'
+export { useRef, isRef, IRef } from './reactivity/ref'
 
 export { defineComponent } from './component'
 
@@ -13,10 +13,9 @@ export {
 	onShareAppMessage,
 	onReachBottom,
 	onPageScroll,
-
-    onAttached,
+	onAttached,
 	onReady,
-	onDetached,
+	onDetached
 } from './lifecycle'
 
 export { useProvide, useInject, useInjectAsync } from './reactivity/inject'
@@ -24,3 +23,5 @@ export { useProvide, useInject, useInjectAsync } from './reactivity/inject'
 export { useEffect } from './watch'
 
 export { useComputed } from './computed'
+
+export { createContext } from './context';

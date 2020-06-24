@@ -11,5 +11,7 @@ export declare function deepWatch(target: any, key: string, value: any): () => v
  * 返回的函数 this指向必须是 页面或组件
  */
 export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle, options: Object | Function | undefined): (...args: any[]) => any[];
-export declare type IBindings = Record<string, any> | void;
-export declare type ISetup<Props extends Record<string, any>> = (this: ICurrentModuleInstance, props: Props, context: IContext) => IBindings;
+export declare type IBindings = {
+    [key: string]: any;
+};
+export declare type ISetup<Props extends Object> = (this: ICurrentModuleInstance, props: Props, context: IContext) => IBindings;

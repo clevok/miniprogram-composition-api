@@ -90,9 +90,9 @@ export function createLifecycleMethods (
 	}
 }
 
-export type IBindings = Record<string, any> | void
+export type IBindings = { [key: string]: any }
 
-export type ISetup<Props extends Record<string, any>> = (
+export type ISetup<Props extends Object> = (
 	this: ICurrentModuleInstance,
 	props: Props,
 	context: IContext
