@@ -53,7 +53,7 @@ export function conductHook (
 function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){
 	return function (callback: Function){
 		overInCurrentModule((currentInstance) => {
-			injectHook(currentInstance, lifecycle, callback)
+			currentInstance && injectHook(currentInstance, lifecycle, callback)
 		})
 	}
 }

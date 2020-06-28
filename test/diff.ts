@@ -46,3 +46,15 @@ console.log(
 		}
 	)
 )
+console.log(
+    diff(
+        {
+            name: []
+        },
+		{
+			name: [{
+				name1: 155
+			}]
+		}
+	)
+)

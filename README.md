@@ -10,15 +10,14 @@
 
 
 ### 缺点
-1. 更新属性繁琐, 没有采用 Object.defineProperty(为了减少 属性添加删除上疑惑) 做监听, 也没有采用Proxy(版本问题)
-    1. 导致 useCompute, useEffect 都需要开发者主动声明依赖
-    2. 目前有线程直接基于 @vue/reactivity 写的框架, 更加方便，只是有版本要求, [vue-mini](https://github.com/yangmingshan/vue-mini)
+1. 更新属性繁琐
+    1. 没有采用vue2 Object.defineProperty(为了减少 属性添加删除上疑惑), 更新值也必须通过set方法,  useCompute, useEffect 都需要开发者主动声明依赖
+    2. 没有采用 @vue/reactivity Proxy(小程序兼容问题) 因为 小程序经打点发现目前还有好多用户都不支持 Proxy,Reflect, 于是不采用了(已经有人写好了小程序版composition-api,可以直接用这个)[https://github.com/yangmingshan/vue-mini]
 2. props 还没有做代理
 3. 还在测试
 4. 不太适用于大量静态内容, 建议提前定义好data, 因为数据是在 onLoad/attached触发赋值的
 5. 自己就已经发现了好多问题，但是还没有好的办法解决
-6. 有点不伦不类的, react hooks和 composition-api 杂交了
-7. 只是个实验性, 用来玩玩的项目
+6. 只是个实验性, 用来玩玩的项目
 
 ### setup
 
@@ -50,7 +49,7 @@ definePage({
     setup(props, context) {
         context.event.on('load', () => {});
         context.setData({
-            age: useRef(16)[0]
+            age: useRef(16)
         })
     }
 })
@@ -69,10 +68,10 @@ definePage({
 接受一个参数值并返回一个数组, 第一项 是被包装的对象。ref 对象拥有一个指向内部值的单一属性 .value。
 
 ```js
-const [count, setCount] = useRef(0)
+const count = useRef(0)
 console.log(count.value) // 0
 
-setCount(1)
+count.set(1)
 
 console.log(count.value) // 1
 ```
@@ -80,11 +79,11 @@ console.log(count.value) // 1
 `返回值1`
 是更改该值的方法, 接受一个值或者一个方法
 ```js
-const [count, setCount] = useRef(0)
+const count = useRef(0)
 
 // 回调函数返回的值作为要赋值
-setCount((value) => value + 1);
-setCount(value + 1);
+count.set((value) => value + 1);
+count.set(value + 1);
 
 ```
 更新值已经做了diff, 两次赋同一值将不会触发改变
@@ -101,11 +100,11 @@ setCount(value + 1);
 
 definePage({
     setup(props, context) {
-        const [count, setCount] = useRef(0)
+        const count = useRef(0)
         return {
             count,
             updateCount() {
-                setCount(count.value + 1)
+                count.set(count.value + 1)
             }
         }
     }
@@ -123,7 +122,7 @@ definePage({
 返回一个 不可手动修改的 ref 对象。可以理解为没有set方法返回的useRef
 
 ```js
-const [count, setCount] = useRef(1)
+const count = useRef(1)
 const plusOne = computed(() => count.value + 1, [count])
 
 console.log(plusOne.value) // 2
@@ -149,13 +148,13 @@ setCount(2)
 2. `any[]` 这个框架没有做依赖收集, 需要用户主动传入所有的依赖, 当里面的依赖变化时, 会触发回调函数执行
 
 ```js
-const [count, setCount] = useRef(1)
+const count = useRef(1)
 const stopHandle = useEffect(() => {
     console.log('我发送了变化');
     stopHandle()
 }, [count])
 
-setCount(2)
+count.set(2)
 ```
 
 ---
@@ -204,11 +203,6 @@ const MyComponent = {
 2. 全局状态管理, 计算属性, watch 版本要求不高()
 3. 解决页面状态一旦props很多地方,很深就很烦
 4. data, methods 不再分散 
-
-
-### 降级版
-1. 没有采用 @vue/reactivity 因为 小程序经打点发现目前还有好多用户都不支持 Proxy,Reflect, 于是不采用了(已经有人写好了小程序版composition-api,可以直接用这个)[https://github.com/yangmingshan/vue-mini]
-2. 理论上应该没有基础库兼容问题
 
 
 ### 思考1
@@ -375,50 +369,6 @@ createComponent({
 
 ```
 
-
-### 子组件需要等待某个数据完成
-场景, 页面有两个组件, 依赖父亲的值做渲染, 可是, 依赖某些数据, 是异步来的, 需要一个合适的方法, 让子组件知道什么父亲什么时候完成了？
-1. 事件通知, 同时支持 回调 和 promise, 事件通知, 多了会很讨厌的
-2. 就是有了数据再渲染组件,可不适用于所有的场景
-
-```js
-<template>
-    <child1 title="title"></child1>
-    <child2 packStatus="packStatus"></child2>
-</template>
-Page({
-    data: {
-        title: '准备中',
-        packStatus: {
-            id: 0,
-            name: '准备中'
-        }
-    },
-    setup() {
-        onLoad (async() => {
-            const id = await Api();
-            useEmit('packageStatus', {
-                id
-            })
-        })
-    }
-});
-
-```
-
-下面这个方式不行, 影响到了声明周期的调用,很容易留坑
-```js
-Componet(async () => {
-    const packageStatus = await useInjectAsync('packageStatus');
-
-    /** 应该还支持动态再新增属性 */
-    useSetData()
-
-    return {
-        packageStatus
-    }
-})
-```
 
 ### router
 tabbler页面

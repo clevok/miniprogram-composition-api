@@ -15,7 +15,7 @@ export interface IRef<T = any> {
 	/**
      * 更新通知
      */
-	__v_change: (callback: Function) => /** 清除句柄 */ () => any
+	__v_change: (callback: (newValue: T, oldValue: T) => any) => /** 清除句柄 */ () => any
 	/**
      * 清除所有的监听
      */
@@ -68,15 +68,16 @@ function createRef<T> (_getValue: T){
 		},
 		set: {
 			value: (value: any) => {
+				let cloneValue = clone(_getValue)
 				let updateValue: T
 				if (isFunction(value)) {
-					updateValue = value(clone(_getValue))
+					updateValue = value(cloneValue)
 				} else {
 					updateValue = value
 				}
 
-				if (!isEqual(_getValue, updateValue)) {
-					dep.notify((_getValue = updateValue))
+				if (!isEqual(cloneValue, updateValue)) {
+					dep.notify((_getValue = updateValue), cloneValue)
 				}
 			},
 			configurable: false,

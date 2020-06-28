@@ -1,17 +1,10 @@
 import { useRef } from '../src/reactivity/ref';
 import { defineComponent } from '../src/component';
 
-const [name, setName] = useRef('along');
-name.__v_change((value) => {
-    console.log('变化', value)
+const name = useRef('along');
+name.__v_change((value, old) => {
+    console.log('变化', value, old)
 });
-name.__v_change((value) => {
-    console.log('变化', value)
-});
-setName('555')
+name.set('555')
+name.set('777')
 
-defineComponent({
-    setup() {
-        return []
-    }
-})

@@ -26,13 +26,8 @@ export function overCurrentModule<T> (callback: () => T){
 	}
 }
 
-export function overInCurrentModule<T, D> (
-	callback: (current: ICurrentModuleInstance) => T,
-	emptyCallback?: () => D
-): T | D{
-	if (currentModule) {
-		return callback(currentModule)
-	} else {
-		return emptyCallback && emptyCallback()
-	}
+export function overInCurrentModule<T> (
+	callback: (current: ICurrentModuleInstance) => T
+): T {
+	return callback(currentModule)
 }

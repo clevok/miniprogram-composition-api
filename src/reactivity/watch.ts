@@ -13,7 +13,7 @@ export function isObserve (value): value is IRef{
  * 监听ref做出回应
  * @return {function} 丢弃监听
  */
-export function useEffect<T> (callback: (newValue: T) => any, refs: IRef<T>[]){
+export function useEffect<T> (callback: (newValue: T, oldValue: T) => any, refs: IRef<T>[]){
 	if (!isFunction(callback)) {
 		return void console.warn(`
         useEffect callback must be functions
@@ -29,8 +29,8 @@ export function useEffect<T> (callback: (newValue: T) => any, refs: IRef<T>[]){
 		if (!isObserve(ref)) {
 			return void console.warn(`useEffect refs incloud cant Observe object`)
 		}
-		return ref.__v_change((newValue) => {
-			callback(newValue)
+		return ref.__v_change((newValue, oldValue) => {
+			callback(newValue, oldValue)
 		})
 	})
 
