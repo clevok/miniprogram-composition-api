@@ -8,7 +8,7 @@ export interface IRef<T = any> {
     /**
      * 更新通知
      */
-    __v_change: (callback: Function) => () => any;
+    __v_change: (callback: (newValue: T, oldValue: T) => any) => () => any;
     /**
      * 清除所有的监听
      */

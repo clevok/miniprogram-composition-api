@@ -9,4 +9,4 @@ export declare type ICurrentModuleInstance = (WechatMiniprogram.Component.Instan
  * @param callback
  */
 export declare function overCurrentModule<T>(callback: () => T): (target: ICurrentModuleInstance, ...arg: any[]) => T;
-export declare function overInCurrentModule<T, D>(callback: (current: ICurrentModuleInstance) => T, emptyCallback?: () => D): T | D;
+export declare function overInCurrentModule<T>(callback: (current: ICurrentModuleInstance) => T): T;
