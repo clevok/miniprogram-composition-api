@@ -20,8 +20,9 @@ export function wrapFuns (...args: Function[]){
 	return function (...params: any[]){
 		return args.map((fun) => {
 			try {
-				return fun && fun.apply(this, params)
-			} catch (e) {
+				fun && fun.apply(this, params)
+            } catch (e) {
+                console.error(e);
 				/** ignore */
 			}
 		})
