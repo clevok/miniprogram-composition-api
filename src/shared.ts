@@ -1,6 +1,6 @@
 import { isRef, IRef } from './reactivity/ref'
 import { isObserve } from './reactivity/watch'
-import { isPlainObject, isArray } from './utils'
+import { isPlainObject, isArray, isFunction } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
 import { ComponentLifecycle, PageLifecycle, conductHook } from './lifecycle'
@@ -8,7 +8,11 @@ import { ICurrentModuleInstance } from './instance'
 import { IContext } from './context'
 import { useEffect } from './watch'
 
-export const deepToRaw = overCloneDeep(function (x: unknown){
+/** 副作用, 如果是方法,返回null */
+export const deepToRaw = overCloneDeep(function (x: unknown) {
+    if (isFunction(x)) {
+        return null
+    }
 	if (isRef(x)) {
 		return x.value
 	}

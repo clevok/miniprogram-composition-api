@@ -83,7 +83,13 @@ function createRef<T> (_getValue: T){
 			configurable: false,
 			writable: false,
 			enumerable: false
-		},
+        },
+        toString: {
+			value: () => String(_getValue),
+			configurable: false,
+			writable: false,
+			enumerable: false
+        },
 		__v_isRef: {
 			value: true,
 			configurable: false,

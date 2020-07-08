@@ -23,9 +23,10 @@ export const enum PageLifecycle {
 }
 
 export const enum ExtendLefecycle {
-    EFFECT = 'effect'
+	EFFECT = 'effect'
 }
 
+/**注入hooks */
 export function injectHook (
 	currentInstance: ICurrentModuleInstance,
 	lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle,
@@ -39,6 +40,7 @@ export function injectHook (
 	currentInstance[hiddenField].push(hook)
 }
 
+/**执行hooks */
 export function conductHook (
 	currentInstance: ICurrentModuleInstance,
 	lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle,
