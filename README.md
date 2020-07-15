@@ -6,7 +6,31 @@
 
 > [仓库地址](https://github.com/clevok/miniprogram-composition-api)
 
-> [composition-api解决了哪些痛点可以看这个](https://juejin.im/post/5ea05d5151882573a44de762)
+### 解决什么
+1. mixins替代方案(mixins可不是个好东西)
+2. 带来另一个种全局状态管理思路
+3. 计算属性,watch也都有
+4. 没有基础库,版本,兼容性要求
+5. 新的写法,避免data,methods定义在不同位置上的麻烦点
+
+
+### TODO
+1. 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
+参考之前的hooks的那个声明周期,可以实现类似的
+2. 代理 props
+5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
+5.1. router.back({ delta: 1, params: {}}) 后退的参数, 是否允许带到 onShow, 是否有必要
+6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
+7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
+8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
+9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
+10. setup 支持异步(不允许)
+11. context event 允许监听 声明周期方法
+12. 自定义组件和page组件生命周期统一？
+13. useContext,createContext实现方案, 组件必须通过 bind:context="$" / ref="$" | onContext="$", 建立上下文关系(__parents,__childs), 会不会麻烦?, app应该是所有人的父亲页面
+14. 自定义get,set ref, 实现set转意, get也能格式化
+15. 事件传递很麻烦,例如input基础上又来了个inputCacle, inputCacle需要把input所有的事件再统一传递出去,很烦人, 该怎么解决没想好
+16
 
 
 ### 缺点
@@ -14,10 +38,7 @@
     1. 没有采用vue2 Object.defineProperty(为了减少 属性添加删除上疑惑), 更新值也必须通过set方法,  useCompute, useEffect 都需要开发者主动声明依赖
     2. 没有采用 @vue/reactivity Proxy(小程序兼容问题) 因为 小程序经打点发现目前还有好多用户都不支持 Proxy,Reflect, 于是不采用了(已经有人写好了小程序版composition-api,可以直接用这个)[https://github.com/yangmingshan/vue-mini]
 2. props 还没有做代理
-3. 还在测试
-4. 不太适用于大量静态内容, 建议提前定义好data, 因为数据是在 onLoad/attached触发赋值的
-5. 自己就已经发现了好多问题，但是还没有好的办法解决
-6. 只是个实验性, 用来玩玩的项目
+3. setup返回的对象和方法,是在onLoad期间绑定在组件实例上的,依次不太适用于大量静态内容, 建议提前定义好data
 
 ### setup
 
@@ -185,6 +206,12 @@ const MyComponent = {
 ### 依赖注入
 `useProvide` 和 `useInject`, `useInjectAsync` 提供依赖注入, 功能和 `Session` 一致, 只是找了地方存了以下
 
+--- 
+
+### 便捷
+1. 单向数据灌输流 setup期间,如果通过 useStore 注入响应式对象, 组件通过 useStore 创建了属性, 类似useRef使用, 当他之前有人 也使用了相同的 key, 那么, 这两个 key 将会指向同一个响应式对象 
+
+
 ---
 
 ### 不要这样做
@@ -195,14 +222,7 @@ const MyComponent = {
 1. 在未来某个时间 `useEffect`, `useComputed`, 在setup期间执行的监听操作都将绑定在该实例上, 在该实例销毁后, 也会同步取消监听事件, 如果你注册的监听,恰好某个组件执行了setup, 会出现, 他销毁后, 你注册的监听不起效果了, 一开始是不做这样的处理的, 只是为了避免大量的取消监听的写法, 于是做了这样的处理
 我也很纠结, 这个问题一旦碰上了, 那就很致命了, 哎, 可是也没有特别好的办法 
 
-
 ---
-
-### 为了什么
-1. 替代 mixins, 代码复用新方案
-2. 全局状态管理, 计算属性, watch 版本要求不高()
-3. 解决页面状态一旦props很多地方,很深就很烦
-4. data, methods 不再分散 
 
 
 ### 思考1
@@ -219,19 +239,6 @@ const MyComponent = {
 ### 注意
 1. 暂不支持 ref 嵌套 ref的情况, 也是可以支持的, 而且容易有问题, 就是 更改最外层的ref的值, 是否会能直接更改里面ref的值, 所以不支持这样
 
-
-### TODO
-1. 需要一个能 根据 key 实现缓存组件的效果, 多个同一个key 的组件共享状态, 声明周期也不应该重复触发
-参考之前的hooks的那个声明周期,可以实现类似的
-2. 代理 props
-5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
-5.1. router.back({ delta: 1, params: {}}) 后退的参数, 是否允许带到 onShow, 是否有必要
-6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
-7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
-8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
-9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
-10. setup 支持异步(不允许)
-11. context event 允许监听 声明周期方法
 
 ```js
 import { defineComponent } from '';

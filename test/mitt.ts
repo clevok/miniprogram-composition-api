@@ -11,3 +11,11 @@ const handle = _miit.once('type', (value) => {
 
 _miit.emit('type', 'along')
 _miit.emit('type', 'along2')
+
+function Over () {
+    console.log('123')
+}
+
+function Say() {
+
+}
