@@ -49,7 +49,7 @@ export function conductHook (
 	const hiddenField = createShortName(lifecycle)
 	const injectLifes: Function[] = currentInstance[hiddenField] || []
 
-	return injectLifes.map((life) => typeof life === 'function' && life.apply(this, params))
+	return injectLifes.map((life) => typeof life === 'function' && life.apply(currentInstance, params))
 }
 
 function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle){

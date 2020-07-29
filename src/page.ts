@@ -86,8 +86,8 @@ export function definePage (
 			PageLifecycle.ON_SHARE_APP_MESSAGE,
 			options
 		)
-		return function (){
-			const runResults = lifecycleMethod()
+		return function (...args: any){
+			const runResults = lifecycleMethod.apply(this, ...args)
 			return runResults[runResults.length - 1]
 		}
 	})()

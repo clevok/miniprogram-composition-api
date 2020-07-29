@@ -71,7 +71,7 @@ function createRef<T> (_getValue: T){
 				let cloneValue = clone(_getValue)
 				let updateValue: T
 				if (isFunction(value)) {
-					updateValue = value(cloneValue)
+					updateValue = value(clone(_getValue))
 				} else {
 					updateValue = value
 				}

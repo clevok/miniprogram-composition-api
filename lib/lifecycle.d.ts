@@ -21,7 +21,9 @@ export declare const enum PageLifecycle {
 export declare const enum ExtendLefecycle {
     EFFECT = "effect"
 }
+/**注入hooks */
 export declare function injectHook(currentInstance: ICurrentModuleInstance, lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle, hook: Function): void;
+/**执行hooks */
 export declare function conductHook(currentInstance: ICurrentModuleInstance, lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle, params: any[]): any[];
 /** 实例初始化 */
 export declare const onAttached: (callback: Function) => void;

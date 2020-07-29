@@ -1,6 +1,7 @@
 import { ComponentLifecycle, PageLifecycle } from './lifecycle';
 import { ICurrentModuleInstance } from './instance';
 import { IContext } from './context';
+/** 副作用, 如果是方法,返回null */
 export declare const deepToRaw: (x: unknown) => any;
 /**
  * Page/Component 与 watch 中转
