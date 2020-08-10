@@ -193,6 +193,7 @@ function useList () {
 
 ![avatar](./static/consignee.gif)
 
+
 > 那么用 miniprogram-composition-api怎么写
 1. 我们只需要一个维护特殊的数组对象即可
 

@@ -41,8 +41,11 @@ export function useRef<T> (value: T): IRef<T>{
 	return createRef(value)
 }
 
-function createRef<T> (_getValue: T){
-	_getValue = clone(_getValue)
+function createRef<T>(viewDate: T) {
+    /** 视图层的数据,只有在set的时候才能被获取更改 */
+	viewDate = clone(viewDate)
+    /** 对外的数据,允许更改 */
+    let outDate = clone(viewDate)
 
 	const dep = new Dep()
 	const ref = Object.create(null)
@@ -50,7 +53,7 @@ function createRef<T> (_getValue: T){
 	Object.defineProperties(ref, {
 		value: {
 			get () {
-				return _getValue
+				return outDate
 			},
 			set () {
 				console.error(`
@@ -60,7 +63,7 @@ function createRef<T> (_getValue: T){
 		},
 		get: {
 			value: () => {
-				return _getValue
+				return outDate
 			},
 			configurable: false,
 			writable: false,
@@ -68,16 +71,20 @@ function createRef<T> (_getValue: T){
 		},
 		set: {
 			value: (value: any) => {
-				let cloneValue = clone(_getValue)
 				let updateValue: T
 				if (isFunction(value)) {
-					updateValue = value(clone(_getValue))
+					updateValue = value(clone(viewDate))
 				} else {
 					updateValue = value
 				}
 
-				if (!isEqual(cloneValue, updateValue)) {
-					dep.notify((_getValue = updateValue), cloneValue)
+                if (!isEqual(viewDate, updateValue)) {
+                    let beforeViewDate = clone(viewDate)
+
+                    viewDate = clone(updateValue);
+                    outDate = clone(updateValue)
+
+					dep.notify(updateValue, beforeViewDate)
 				}
 			},
 			configurable: false,
@@ -85,7 +92,7 @@ function createRef<T> (_getValue: T){
 			enumerable: false
         },
         toString: {
-			value: () => String(_getValue),
+			value: () => String(viewDate),
 			configurable: false,
 			writable: false,
 			enumerable: false
