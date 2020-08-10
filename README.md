@@ -1,90 +1,107 @@
 ## 尝试在小程序里使用 composition-api
 
+- [案例](./EXAMPLE.md)
+- [版本更新](./TODO.md)
+
 ### 下载
 
 > npm install miniprogram-composition-api --save
 
 > [仓库地址](https://github.com/clevok/miniprogram-composition-api)
 
+### 注意
+1. ref对象的值必须通过ref.set方式更改值,类似小程序中必须通过setData更改视图值一样的,没有采用Proxy和Object.defineProperty
+    原因 1: 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api了](https://github.com/yangmingshan/vue-mini)
+    原先 2: Object.defineProperty毕竟还存对对象操作上问题,于是想简单点,通过set传入修改后的对象来直接变值
+
+2. 采用[westore](https://github.com/Tencent/westore) 的 json diff, 视图层上的数据,会出乎你意料之外,详情后面会将
+
 ### 解决什么
-1. mixins替代方案(mixins可不是个好东西)
+1. 带来新的代码复用方案(比mixins更友好)
 2. 带来另一个种全局状态管理思路
-3. 计算属性,watch也都有
-4. 没有基础库,版本,兼容性要求
-5. 新的写法,避免data,methods定义在不同位置上的麻烦点
+3. `计算属性computed`,`监听watch`也都有, 没有基础库限制要求(定义的时候需要用户主动传入依赖项)
+4. 新的写法,不再是 {data:{},methods,生命周期方法}这类写法
 
+## 使用入门
 
-### TODO
-2. 代理 props
-5. router.go({ url: '', params:{} }), 自定义路由方法, params支持传入方法, 子页面可以被正常调用被传入的方法
-5.1. router.back({ delta: 1, params: {}}) 后退的参数, 是否允许带到 onShow, 是否有必要
-6. router支持别名, 用于解决以前是 /pages/logistics, 现在是 /sub-logistics/logsitcs 路径问题, 拦截这个别名, 跳转到我指定的路径
-7. 对于tabbar页面实现页面传参, 额外添加声明周期 onTabPageShow 可以接受到 跳转到当前页, 相当于 onShow生命周期,用于解决tab页面第二次进入onLoad不触发, onShow也没有参数的问题, 还需要配置 让框架知道 哪些页面是tabbar页面, onTabPageShow需兼容直接进入的情况, 不通过自带的参数进来也需要能参数带来
-8. 全局Components, Page混入还是有必要的, 比如 小程序双向绑定通过 bind:ing="$", 需要功能混入 $方法
-9. inject感觉还可以更强大, 比如setup内的在组件或小程序注销后,也会被注销
-10. setup 支持异步(不允许)
-11. context event 允许监听 声明周期方法
-12. 自定义组件和page组件生命周期统一？
-13. useContext,createContext实现方案, 组件必须通过 bind:context="$" / ref="$" | onContext="$", 建立上下文关系(__parents,__childs), 会不会麻烦?, app应该是所有人的父亲页面
-14. 自定义get,set ref, 实现set转意, get也能格式化
-15. 事件传递很麻烦,例如input基础上又来了个inputCacle, inputCacle需要把input所有的事件再统一传递出去,很烦人, 该怎么解决没想好
-16
+### setup入口
+以前都是在Componets.data定义属性,methods下定义方法这样写,现在呢
+现在变成了 setup期间将 你想在视图层中显示的 数据或者方法 `return回去`, 或者叫 `注入到视图层`中
+> 也就是只有需要在视图层上需要渲染的变量/方法,才需 return回去, 否者将不会会渲染到视图中
 
+```js
+<template>
+    {{name}}
+</template>
+import { definePage } from 'miniprogram-composition-api'
+definePage({
+    setup() {
 
-### 缺点
-1. 更新属性繁琐
-    1. 没有采用vue2 Object.defineProperty(为了减少 属性添加删除上疑惑), 更新值也必须通过set方法,  useCompute, useEffect 都需要开发者主动声明依赖
-    2. 没有采用 @vue/reactivity Proxy(小程序兼容问题) 因为 小程序经打点发现目前还有好多用户都不支持 Proxy,Reflect, 于是不采用了(已经有人写好了小程序版composition-api,可以直接用这个)[https://github.com/yangmingshan/vue-mini]
-2. props 还没有做代理
-3. setup返回的对象和方法,是在onLoad期间绑定在组件实例上的,依次不太适用于大量静态内容, 建议提前定义好data
+        return {
+            name: '123'
+        }
+    }
+})
+
+```
+name这个字段将会被注入到视图层里了,这么一看似乎也还好,只是以前配置到data,现在变成了js书写方法将你想要的东西`return|注入`到视图层
+但是如果搭配`ref`响应式对象,那就能实现状态管理了
+
+### useRef对象
+这是一套响应式数据,`setup`可以将`响应式对象``注入`到`视图层`中,只要这个`响应式对象`值变化了,那么注入到的视图层里的值都会变,(也就是说定义一个叫cart的ref对象,A页面注入了cart,B页面也注入了cart, 只要cart值变了, A页面和B页面的对应的值都会变化)
+```js
+// global.js
+export const cart = useRef({name: '小兰'})
+export const updateCart = () => {
+    cart.set({
+        name: '小明'
+    })
+}
+```
+```html
+// A页面和B页面都这样写
+<template>
+    {{cart.name}}
+</template>
+<script>
+import { definePage } from 'miniprogram-composition-api'
+import { cart } from './global'
+
+definePage({
+    setup() {
+
+        return {
+            cart
+        }
+    }
+})
+</script>
+```
+以上,只有某个地方调用 updateCart,所有页面上的name值都会变化！这就是响应式对象
+
+## API文档
 
 ### setup
 
-setup 函数是一个新的组件选项。作为在组件内使用 Composition API 的入口点。
-
-- 调用时机
-在onLoad/attached时候被执行
-
-- 参数
-该函数接收 props 作为其第一个参数, context 第二个参数
-```js
-definePage({
-    data: {
-        test: ''
-    },
-    setup(props, context) {
-        console.log(props.name)
-    }
-})
-```
-
-`props`暂时还没有做特殊处理, `context`作为上下文对象, 暴露了一些api
+setup 函数是一个新声明周期,在onLoad期间调用, 将返回值注入到视图中
 
 ```js
 definePage({
-    data: {
-        test: ''
-    },
-    setup(props, context) {
-        context.event.on('load', () => {});
-        context.setData({
-            age: useRef(16)
-        })
+    setup() {
+        return {
+            name: '123',
+            updateName () {
+
+            }
+        }
     }
 })
 ```
-1. `event`是事件通知模块, 包含常用的emit, on, once, off, context注册的事件, 在页面/组件被销毁时也会主动off
-2. `setData`是封装后的setData, 支持对`ref包装对象`的解析, 其他用法和原生一致
-3. `this`指向, 目前, setup, onLoad等其他的函数, this将会绑定到当前页面/组件实例
-
----
 
 ### 包裹对象useRef
 
 **`useRef`**
-
-`返回值1`
-接受一个参数值并返回一个数组, 第一项 是被包装的对象。ref 对象拥有一个指向内部值的单一属性 .value。
+useRef对象接受一个参数作为初始值,必须通过 .value来访问 ref对象的值, .set来更新值
 
 ```js
 const count = useRef(0)
@@ -95,16 +112,17 @@ count.set(1)
 console.log(count.value) // 1
 ```
 
-`返回值1`
-是更改该值的方法, 接受一个值或者一个方法
+`修改值`
+`.set`接受一个一个非方法对象,将会直接改变这个ref的值
+接受一个方法, 将会调用这个方法并传入原来的值, 接受这个方法返回的值作为更改后的值
 ```js
 const count = useRef(0)
 
-// 回调函数返回的值作为要赋值
 count.set((value) => value + 1);
 count.set(value + 1);
 
 ```
+
 更新值已经做了diff, 两次赋同一值将不会触发改变
 
 采用了[westore](https://github.com/Tencent/westore) 的 json diff,用于对比文件并提取需要更改的路径, 用于最小化setData
@@ -112,11 +130,11 @@ count.set(value + 1);
 
 1. 在视图层中读取
 当该值被`setup`返回, 将进入data值, 可在模板中被读取到, 会自动解套,无需在模板中额外书写`.value`
-```js
+```html
 <template>
   <div>{{ count }}</div>
 </template>
-
+<script>
 definePage({
     setup(props, context) {
         const count = useRef(0)
@@ -128,12 +146,8 @@ definePage({
         }
     }
 })
+</script>
 ```
-
-2. context.setData
-`setup`返回值其实也是执行了`context.setData`
-
----
 
 ### 计算属性
 
@@ -199,19 +213,6 @@ const MyComponent = {
 
 ```
 
----
-
-### 依赖注入
-`useProvide` 和 `useInject`, `useInjectAsync` 提供依赖注入, 功能和 `Session` 一致, 只是找了地方存了以下
-
---- 
-
-### 便捷
-1. 单向数据灌输流 setup期间,如果通过 useStore 注入响应式对象, 组件通过 useStore 创建了属性, 类似useRef使用, 当他之前有人 也使用了相同的 key, 那么, 这两个 key 将会指向同一个响应式对象 
-
-
----
-
 ### 不要这样做
 1. setup 不能是异步
 
@@ -221,18 +222,6 @@ const MyComponent = {
 我也很纠结, 这个问题一旦碰上了, 那就很致命了, 哎, 可是也没有特别好的办法 
 
 ---
-
-
-### 思考1
-1. setup触发 是一开始小程序加载就触发,用来初始化数据,还是 onLoad,attached 来触发, 如果是onLoad来触发,setup里面注册onLoad事件,感觉有点奇怪
-2. provide 是否要实现单例? 如果真的要单例, 其实可以不放在生命周期触发, 加载即触发, 只provide一次也是一样的效果
-
-
-### 差异
-1. setup this执行是组件的实例
-2. 自定义组件setup执行是在attached, 尽管create更早, 但是为了获取props, 所以就采用了attached了, props接下来需要ref化
-3. useCompute, useEffect, 没有采用 Object.defineProperty 做依赖收集, 由开发者手动做依赖收集
-
 
 ### 注意
 1. 暂不支持 ref 嵌套 ref的情况, 也是可以支持的, 而且容易有问题, 就是 更改最外层的ref的值, 是否会能直接更改里面ref的值, 所以不支持这样
@@ -271,109 +260,6 @@ defineComponent({
 
 
 ```
-
-### 下一版本将支持router带方法传递
-
-方法可以类似于props被带过来, 主要为了减少事件发布订阅
-
-```js
-
-import { router } from '';
-
-router.go({
-    url: '/pages/createSuccess?isplit=123',
-    params: {
-        onSubmit() {
-            
-        }
-    }
-})
-
-// /pages/createSuccess
-definePage((props) => {
-    props.onSubmit && props.onSubmit();
-});
-
-```
-
-
-### 场景问题解决
-1. 为了解决mixins问题
-示例 searchList
-
-```js
-function useSearchList () {
-    const [ pageStatus, setPageStatus] = useRef({
-        page: 1,
-        pageSize: 10,
-        loadStatus: {
-            isLoading: false,
-            isEnd: false,
-            isEmpt: false,
-            isError: false
-        }
-    });
-
-    const searchList = async function (api, params, options) {
-        setPageStatus(status => {
-            status.loadStatus.isLoading = true;
-            return status
-        });
-
-        try {
-            await api(Object.assign({ page: pageStatus.value.page, pageSize: pageStatus.value.pageSize }, params));
-            setPageStatus(status => {
-                status.page += 1;
-                return status
-            });
-        } catch (e) {
-            setPageStatus(status => {
-                status.loadStatus.isError = true;
-                return status
-            });
-        } finally {
-            setPageStatus(status => {
-                status.loadStatus.isLoading = false;
-                return status
-            });
-        }
-    }
-
-    return { pageStatus, searchList }
-}
-
-createComponent({
-    props: {
-        name: string
-    },
-
-    /** 
-     * 构建页面方法, 注意, 这个是小程序加载就执行的, 不要做什么错误的示例, 只能做初始化的
-     */
-    setup () {
-        const { pageStatus, searchList, run, reset, refresh } = useSearchList();
-
-        run(async () => {
-            const { data } = await searchList(api.pack.getList, {}, {});
-        })
-
-        onLoad((props) => {
-            reset();
-        })
-
-        onShow(() => {
-            refresh();
-        })
-
-        return {
-            pageStatus,
-            renderList
-        }
-    }
-})
-
-```
-
 
 ### router
 tabbler页面
