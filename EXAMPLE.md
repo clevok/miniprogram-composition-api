@@ -111,20 +111,12 @@ Page({
     <block a:if="{{ tapType }}">
         <view>成功的列表</view>
         <!-- 可以采用的模板的方式,不用重复 -->
-        <!-- <template is="list" data="{{ ...successList }}"></template> -->
-        <block a:for="{{successList.list}}">
-            {{item}}
-        </block>
-        <c-load-status loadStatus="{{ successList.pageStatus }}"></c-load-status>
+        <template is="list" data="{{ ...successList }}"></template>
     </block>
     <block a:else>
         <view>失败的列表</view>
         <!-- 可以采用的模板的方式,不用重复 -->
-        <!-- <template is="list" data="{{ ...failList }}"></template> -->
-        <block a:for="{{failList.list}}">
-            {{item}}
-        </block>
-        <c-load-status loadStatus="{{ failList.pageStatus }}"></c-load-status>
+        <template is="list" data="{{ ...failList }}"></template>
     </block>
 
 </template>
