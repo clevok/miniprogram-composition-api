@@ -1,6 +1,5 @@
 {
 	"compilerOptions": {
-		"types" : ["mini-types", "miniprogram-api-typings"],
 		"target": "es5",
 		"module": "commonjs",
 		"declaration": true,

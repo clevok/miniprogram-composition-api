@@ -195,12 +195,15 @@ count.set(2)
 ### 声明周期函数
 可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：
 ```js
-import { onAttached, onHide, onShow } from 'vue'
+import { onMounted, onUnmounted onHide, onShow } from 'vue'
 
 const MyComponent = {
   setup() {
-    onAttached(() => {
+    onMounted(() => {
       console.log('mounted!')
+    })
+    onUnmounted(() => {
+      console.log('onUnmounted!')
     })
     onHide(() => {
       console.log('updated!')
