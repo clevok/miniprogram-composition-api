@@ -1,0 +1,11 @@
+node_modules/
+coverage/
+demo/
+example/
+test/
+ISSUE_TEMPLATE.md
+appveyor.yml
+README_zh-CN.md
+*.map
+src/
+coverage

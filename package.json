@@ -1,22 +1,7 @@
 {
-  "name": "miniprogram-composition-api",
-  "version": "0.2.4",
-  "description": "类 vue3 composition-api 写法写小程序 小程序mixins替代方案, 计算属性, watch",
-  "main": "lib/index.js",
-  "directories": {
-    "lib": "lib",
-    "test": "test"
-  },
-  "dependencies": {
-    "@jsmini/clone": "^0.4.2",
-    "@jsmini/isequal": "^0.4.2"
-  },
+  "name": "root",
+  "private": true,
   "devDependencies": {
-    "miniprogram-api-typings": "*"
-  },
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC"
+    "lerna": "^3.22.1"
+  }
 }

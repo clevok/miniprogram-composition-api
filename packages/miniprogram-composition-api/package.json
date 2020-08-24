@@ -1,0 +1,22 @@
+{
+  "name": "@wx/miniprogram-composition-api",
+  "version": "0.3.0",
+  "description": "类 vue3 composition-api 写法写小程序 小程序mixins替代方案, 计算属性, watch",
+  "main": "lib/index.js",
+  "directories": {
+    "lib": "lib",
+    "test": "test"
+  },
+  "dependencies": {
+    "miniprogram-reactivity": "^0.3.2",
+    "lodash": "^4.17.20"
+  },
+  "devDependencies": {
+    "miniprogram-api-typings": "*"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}

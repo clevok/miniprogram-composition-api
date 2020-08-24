@@ -1,0 +1,14 @@
+{
+	"compilerOptions": {
+		"types" : ["mini-types", "miniprogram-api-typings"],
+		"target": "es5",
+		"module": "commonjs",
+		"declaration": true,
+		"outDir": "./lib",
+		"strict": false,
+		"experimentalDecorators": true,
+        "lib": ["ES2015","dom"]
+    },
+    "include": ["src"],
+	"exclude": ["node_modules", "dist", "example", "test"]
+}

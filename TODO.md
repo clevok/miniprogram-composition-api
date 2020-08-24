@@ -16,6 +16,23 @@
 15. 事件传递很麻烦,例如input基础上又来了个inputCacle, inputCacle需要把input所有的事件再统一传递出去,很烦人, 该怎么解决没想好
 
 
+connect,内部无法使用声明周期
+```js
+export const useConnectUseInfo = connect(() => {
+    const name = useRef(1)
+    const age = useRef(1)
+
+    return {
+        name,
+        age
+    }
+})
+
+useSetup({
+    userInfo: useUserInof()
+}, this)
+
+```
 
 ### 下一版本将支持router带方法传递
 
