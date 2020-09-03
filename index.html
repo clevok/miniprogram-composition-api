@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+
+    <head>
+        <meta charset="UTF-8">
+        <meta
+            name="viewport"
+            content="width=device-width, initial-scale=1.0"
+        >
+        <title>Document</title>
+        <style>
+            .btn {
+                padding: 12px;
+                border-radius: 8px;
+                background-color: #f3f4f5;
+                text-align: center;
+            }
+        </style>
+    </head>
+
+    <body>
+        <p><strong>欢迎使用风火递小程序</strong></p>
+        <ol>
+            <li>需先在电脑端, 绑定店铺</li>
+            <li>在微信小程序“风火递”中同步订单</li>
+        </ol>
+        <p><strong>绑定店铺步骤</strong></p>
+        <ol>
+            <li>
+                <div>请在电脑上微信登录风火递通用版(www.fhd001.com),按引导完成关联</div>
+                <div
+                    id="btn"
+                    class="btn"
+                    style="margin-top: 14px;"
+                >复制链接</div>
+            </li>
+        </ol>
+        <p><strong>如何使用微信小程序</strong></p>
+        <ul>
+            <li>微信小程序搜索“风火递”</li>
+            <li>截屏以下二维码, 打开微信扫一扫, 扫描保存的截图
+                <img style="display: block;" src="https://img1.fhd001.com/home/image/v2/fhd_xcx.jpg">
+            </li>
+        </ul>
+        <textarea style="opacity: 0;left: -999px;" id="input">www.fhd001.com</textarea>
+    </body>
+    <script>
+        document.querySelector('#btn').addEventListener('click', function () {
+            var input = document.getElementById("input");
+            input.select();
+            document.execCommand("copy");
+            alert('已复制，请前往浏览器粘贴(www.fhd001.com)')
+        })
+    </script>
+</html>

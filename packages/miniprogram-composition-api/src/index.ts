@@ -7,9 +7,9 @@ export { definePage } from './page'
 export { router } from './router'
 
 export {
-	onMounted,
+	onLoad,
 	onReady,
-	onUnmounted,
+	onUnLoad,
 
     onShow,
 	onHide,

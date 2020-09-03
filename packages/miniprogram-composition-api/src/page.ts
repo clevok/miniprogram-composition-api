@@ -46,7 +46,7 @@ export function definePage (
 			}
 			__context.setData(binds)
 		})(this)
-	}, createLifecycleMethods(CommonLifecycle.ON_MOUNTED, options[PageLifecycle.ON_LOAD]))
+	}, createLifecycleMethods(CommonLifecycle.ON_LOAD, options[PageLifecycle.ON_LOAD]))
 
 	options[PageLifecycle.ON_READY] = createLifecycleMethods(
 		CommonLifecycle.ON_READY,
@@ -55,7 +55,7 @@ export function definePage (
 
 	options[PageLifecycle.ON_UNLOAD] = wrapFuns(function (){
 		conductHook(this, ExtendLefecycle.EFFECT, [])
-	}, createLifecycleMethods(CommonLifecycle.ON_UN_MOUNTED, options[PageLifecycle.ON_UNLOAD]))
+	}, createLifecycleMethods(CommonLifecycle.ON_UN_LOAD, options[PageLifecycle.ON_UNLOAD]))
 
 	options[PageLifecycle.ON_SHOW] = createLifecycleMethods(PageLifecycle.ON_SHOW, options)
 

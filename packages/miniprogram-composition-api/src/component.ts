@@ -57,7 +57,7 @@ export function defineComponent (
 			}
 			__context.setData(binds)
 		})(this)
-	}, createLifecycleMethods(CommonLifecycle.ON_MOUNTED, options[ComponentLifecycle.ATTACHED]))
+	}, createLifecycleMethods(CommonLifecycle.ON_LOAD, options[ComponentLifecycle.ATTACHED]))
 
 	options[ComponentLifecycle.READY] = createLifecycleMethods(
 		CommonLifecycle.ON_READY,
@@ -67,7 +67,7 @@ export function defineComponent (
 	options[ComponentLifecycle.DETACHED] = wrapFuns(function (){
 		conductHook(this, ExtendLefecycle.EFFECT, [])
 	}, createLifecycleMethods(
-		CommonLifecycle.ON_UN_MOUNTED,
+		CommonLifecycle.ON_UN_LOAD,
 		options[ComponentLifecycle.DETACHED]
 	))
 

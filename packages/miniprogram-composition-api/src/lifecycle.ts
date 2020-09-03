@@ -23,8 +23,8 @@ export const enum PageLifecycle {
 }
 
 export const enum CommonLifecycle {
-    ON_MOUNTED = 'onMounted',
-    ON_UN_MOUNTED = 'onUnmounted',
+    ON_LOAD = 'onLoad',
+    ON_UN_LOAD = 'onUnload',
     ON_READY = 'onReady'
 }
 
@@ -67,10 +67,10 @@ function createCurrentModuleHook (lifecycle: ComponentLifecycle | PageLifecycle 
 }
 
 /** 实例被加载, Page.onLoad, Components.attached */
-export const onMounted = createCurrentModuleHook(CommonLifecycle.ON_MOUNTED)
+export const onLoad = createCurrentModuleHook(CommonLifecycle.ON_LOAD)
 
 /** 实例被销毁, Page.onUnLoad, Components.destory */
-export const onUnmounted = createCurrentModuleHook(CommonLifecycle.ON_UN_MOUNTED)
+export const onUnLoad = createCurrentModuleHook(CommonLifecycle.ON_UN_LOAD)
 
 /** 实例装载完成, Page.onReady, Components.ready */
 export const onReady = createCurrentModuleHook(CommonLifecycle.ON_READY)

@@ -21,7 +21,6 @@
 //                 // 重定向 {query, params}, query 是路由跳转载荷, params 是路径上的参数对象
 //                 // to,要前往的页面, from来自哪个页面
 //                 beforeEnter: (to, from, next) => {
-
 //                     // 调用 next,则跳转到该 url 上,挈带 params,query
 //                     next({
 //                         url: '',

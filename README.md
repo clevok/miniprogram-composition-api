@@ -123,12 +123,27 @@ count.set(value + 1);
 
 ```
 
+为了避免按引用类型对象不小心被刚刚坑,我们断绝了除 .set方法外一切 可能更改 ref内部值的途径
+```js
+var a = { name: 123 }
+var b = useRef(a)
+var c = b.value
+var d = b.get()
+
+// 他们的关系分别是
+// a ,  b  , [ c, d ], 只有 c和d 是指针指向相同的
+// a !== b !== (c === d)
+
+```
+
+1. 在视图层中读取
+
+
 更新值已经做了diff, 两次赋同一值将不会触发改变
 
 采用了[westore](https://github.com/Tencent/westore) 的 json diff,用于对比文件并提取需要更改的路径, 用于最小化setData
 
 
-1. 在视图层中读取
 当该值被`setup`返回, 将进入data值, 可在模板中被读取到, 会自动解套,无需在模板中额外书写`.value`
 ```html
 <template>

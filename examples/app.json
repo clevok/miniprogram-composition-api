@@ -1,0 +1,13 @@
+{
+  "pages": [
+    "pages/home/home",
+    "pages/list/list"
+  ],
+  "window": {
+    "defaultTitle": "案例",
+    "backgroundColor": "#F5F5F9",
+    "pullRefresh": false,
+    "allowsBounceVertical": true
+  },
+  "sitemapLocation": "sitemap.json"
+}
