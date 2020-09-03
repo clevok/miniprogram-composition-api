@@ -1,5 +1,5 @@
-import isEqual from 'lodash/isEqual'
-import cloneDeep from 'lodash/cloneDeep'
+const isEqual = require('lodash/isEqual');
+const cloneDeep = require('lodash/cloneDeep');
 
 import { Dep } from './dep'
 import { isFunction } from './utils'

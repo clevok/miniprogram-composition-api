@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var isEqual_1 = require("lodash/isEqual");
-var cloneDeep_1 = require("lodash/cloneDeep");
+var isEqual = require('lodash/isEqual');
+var cloneDeep = require('lodash/cloneDeep');
 var dep_1 = require("./dep");
 var utils_1 = require("./utils");
 function isRef(r) {
@@ -24,9 +24,9 @@ function useRef(value) {
 exports.useRef = useRef;
 function createRef(viewDate) {
     /** 视图层的数据,只有在set的时候才能被获取更改 */
-    viewDate = cloneDeep_1.default(viewDate);
+    viewDate = cloneDeep(viewDate);
     /** 对外的数据,允许更改 */
-    var outDate = cloneDeep_1.default(viewDate);
+    var outDate = cloneDeep(viewDate);
     var dep = new dep_1.Dep();
     var ref = Object.create(null);
     Object.defineProperties(ref, {
@@ -51,15 +51,15 @@ function createRef(viewDate) {
                 if (config === void 0) { config = { notify: false }; }
                 var updateValue;
                 if (utils_1.isFunction(value)) {
-                    updateValue = value(cloneDeep_1.default(viewDate));
+                    updateValue = value(cloneDeep(viewDate));
                 }
                 else {
                     updateValue = value;
                 }
-                if (config.notify || !isEqual_1.default(viewDate, updateValue)) {
-                    var beforeViewDate = cloneDeep_1.default(viewDate);
-                    viewDate = cloneDeep_1.default(updateValue);
-                    outDate = cloneDeep_1.default(updateValue);
+                if (config.notify || !isEqual(viewDate, updateValue)) {
+                    var beforeViewDate = cloneDeep(viewDate);
+                    viewDate = cloneDeep(updateValue);
+                    outDate = cloneDeep(updateValue);
                     dep.notify(updateValue, beforeViewDate);
                 }
             },
