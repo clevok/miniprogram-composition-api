@@ -24,6 +24,7 @@ function defineComponent(componentOptions) {
         options = {};
     }
     else {
+        componentOptions.properties = componentOptions.props || componentOptions.properties || {};
         if (componentOptions.setup === void 0) {
             return Component(componentOptions);
         }
@@ -34,6 +35,7 @@ function defineComponent(componentOptions) {
     options.methods = options.methods || {};
     var __context;
     /**
+     *
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
     options["attached" /* ATTACHED */] = utils_1.wrapFuns(function () {

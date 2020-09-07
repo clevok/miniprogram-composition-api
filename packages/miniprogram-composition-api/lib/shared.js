@@ -67,7 +67,9 @@ exports.deepWatch = deepWatch;
 function createLifecycleMethods(lifecycle, options) {
     var lifeMethod = typeof options === 'function'
         ? options
-        : typeof options === 'undefined' ? undefined : options[lifecycle];
+        : typeof options === 'undefined'
+            ? undefined
+            : options[lifecycle];
     return function () {
         var args = [];
         for (var _i = 0; _i < arguments.length; _i++) {
