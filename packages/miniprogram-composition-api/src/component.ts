@@ -17,7 +17,7 @@ export function defineComponent<
 >(
     componentOptions:
         | {
-              props: P
+              props?: P
               setup?: ISetup<P>
               [key: string]: any
           }
