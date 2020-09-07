@@ -10,9 +10,51 @@ import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext, IContext } from './context'
 import { createLifecycleMethods, ISetup } from './shared'
 
+type IAnyObject = Record<string, any>
+type PropertyType =
+    | StringConstructor
+    | NumberConstructor
+    | BooleanConstructor
+    | ArrayConstructor
+    | ObjectConstructor
+    | null
+type ValueType<T extends PropertyType> = T extends StringConstructor
+    ? string
+    : T extends NumberConstructor
+    ? number
+    : T extends BooleanConstructor
+    ? boolean
+    : T extends ArrayConstructor
+    ? any[]
+    : T extends ObjectConstructor
+    ? IAnyObject
+    : any
+
+type FullProperty<T extends PropertyType> = {
+    /** 属性类型 */
+    type: T
+    /** 属性初始值 */
+    value?: ValueType<T>
+    /** 属性值被更改时的响应函数 */
+    observer?:
+        | string
+        | ((
+              newVal: ValueType<T>,
+              oldVal: ValueType<T>,
+              changedPath: Array<string | number>
+          ) => void)
+}
+type AllFullProperty =
+    | FullProperty<StringConstructor>
+    | FullProperty<NumberConstructor>
+    | FullProperty<BooleanConstructor>
+    | FullProperty<ArrayConstructor>
+    | FullProperty<ObjectConstructor>
+    | FullProperty<null>
+
 export function defineComponent<
     P extends {
-        [key: string]: any
+        [key: string]: AllFullProperty
     }
 >(
     componentOptions:
@@ -24,7 +66,6 @@ export function defineComponent<
         | ISetup<P>
 ): any {
     let setupFun: Function
-
     let options: {
         methods?: {
             [key: string]: (...args: any[]) => any
@@ -36,7 +77,8 @@ export function defineComponent<
         setupFun = componentOptions
         options = {}
     } else {
-        componentOptions.properties = componentOptions.props || componentOptions.properties || {}
+        componentOptions.properties =
+            componentOptions.props || componentOptions.properties || {}
 
         if (componentOptions.setup === void 0) {
             return Component(componentOptions)
