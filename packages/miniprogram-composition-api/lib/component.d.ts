@@ -1,8 +1,8 @@
-import { ISetup } from './shared';
-export declare function defineComponent<P extends {
-    [key: string]: any;
+import { ISetup, AllProperty } from './shared';
+export declare function defineComponent<PROPS extends {
+    [key: string]: AllProperty;
 }>(componentOptions: {
-    props?: P;
-    setup?: ISetup<P>;
+    props?: PROPS;
+    setup?: ISetup<PROPS>;
     [key: string]: any;
-} | ISetup<P>): any;
+} | ISetup<PROPS>): any;

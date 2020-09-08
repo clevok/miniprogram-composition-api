@@ -1,3 +1,4 @@
+import { IRef } from 'miniprogram-reactivity';
 import { ComponentLifecycle, PageLifecycle, CommonLifecycle } from './lifecycle';
 import { ICurrentModuleInstance } from './instance';
 import { IContext } from './context';
@@ -12,11 +13,27 @@ export declare function deepWatch(target: any, key: string, value: any): () => v
  * 执行注册的生命周期
  */
 export declare function createLifecycleMethods(lifecycle: ComponentLifecycle | PageLifecycle | CommonLifecycle, options: Object | Function | undefined): (...args: any[]) => any[];
-/** 将数据注入到视图中 */
-export declare function useSetup(setup: () => {
-    [key: string]: any;
-}): (target: ICurrentModuleInstance) => void;
 export declare type IBindings = {
     [key: string]: any;
 };
-export declare type ISetup<Props extends Object> = (this: ICurrentModuleInstance, props: Props, context: IContext) => IBindings;
+declare type IAnyObject = Record<string, any>;
+declare type PropertyType = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor | null;
+declare type ValueType<T extends PropertyType> = T extends StringConstructor ? string : T extends NumberConstructor ? number : T extends BooleanConstructor ? boolean : T extends ArrayConstructor ? any[] : T extends ObjectConstructor ? IAnyObject : any;
+declare type FullProperty<T extends PropertyType> = {
+    /** 属性类型 */
+    type: T;
+    /** 默认值 */
+    value?: ValueType<T>;
+};
+declare type AllFullProperty = FullProperty<StringConstructor> | FullProperty<NumberConstructor> | FullProperty<BooleanConstructor> | FullProperty<ArrayConstructor> | FullProperty<ObjectConstructor> | FullProperty<null>;
+declare type ShortProperty = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor | null;
+export declare type AllProperty = AllFullProperty | ShortProperty;
+interface IProps {
+    [keyName: string]: AllProperty;
+}
+declare type PropertyToData<T extends AllProperty> = T extends ShortProperty ? ValueType<T> : T extends AllFullProperty ? ValueType<T['type']> : any;
+declare type PropertyOptionToData<P extends IProps> = {
+    [name in keyof P]: IRef<PropertyToData<P[name]>>;
+};
+export declare type ISetup<P extends IProps> = (this: ICurrentModuleInstance, props: PropertyOptionToData<P>, context: IContext) => IBindings;
+export {};

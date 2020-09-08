@@ -8,67 +8,29 @@ import {
 } from './lifecycle'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext, IContext } from './context'
-import { createLifecycleMethods, ISetup } from './shared'
-
-type IAnyObject = Record<string, any>
-type PropertyType =
-    | StringConstructor
-    | NumberConstructor
-    | BooleanConstructor
-    | ArrayConstructor
-    | ObjectConstructor
-    | null
-type ValueType<T extends PropertyType> = T extends StringConstructor
-    ? string
-    : T extends NumberConstructor
-    ? number
-    : T extends BooleanConstructor
-    ? boolean
-    : T extends ArrayConstructor
-    ? any[]
-    : T extends ObjectConstructor
-    ? IAnyObject
-    : any
-
-type FullProperty<T extends PropertyType> = {
-    /** 属性类型 */
-    type: T
-    /** 属性初始值 */
-    value?: ValueType<T>
-    /** 属性值被更改时的响应函数 */
-    observer?:
-        | string
-        | ((
-              newVal: ValueType<T>,
-              oldVal: ValueType<T>,
-              changedPath: Array<string | number>
-          ) => void)
-}
-type AllFullProperty =
-    | FullProperty<StringConstructor>
-    | FullProperty<NumberConstructor>
-    | FullProperty<BooleanConstructor>
-    | FullProperty<ArrayConstructor>
-    | FullProperty<ObjectConstructor>
-    | FullProperty<null>
+import { createLifecycleMethods, ISetup, AllProperty } from './shared'
+import { useRef, IRef } from 'miniprogram-reactivity'
 
 export function defineComponent<
-    P extends {
-        [key: string]: AllFullProperty
+    PROPS extends {
+        [key: string]: AllProperty
     }
 >(
     componentOptions:
         | {
-              props?: P
-              setup?: ISetup<P>
+              props?: PROPS
+              setup?: ISetup<PROPS>
               [key: string]: any
           }
-        | ISetup<P>
+        | ISetup<PROPS>
 ): any {
     let setupFun: Function
     let options: {
         methods?: {
             [key: string]: (...args: any[]) => any
+        }
+        properties?: {
+            [key: string]: AllProperty
         }
         [key: string]: any
     }
@@ -91,6 +53,34 @@ export function defineComponent<
 
     options.methods = options.methods || {}
 
+    /**
+     * 
+     * 拦截props,做数据响应
+     */
+    const proxyProps: {
+        [key: string]: IRef<any>
+    } = {}
+    options.properties && Object.keys(options.properties).forEach((KEY) => {
+        let prop = options.properties[KEY];
+        let proxy_prop;
+        if (typeof prop === 'function' || prop === null) {
+            proxy_prop = {
+                type: prop,
+                value: null
+            }
+        } else {
+            proxy_prop = prop
+        }
+        let ref = useRef(proxy_prop.value || null)
+
+        proxy_prop.observer = function (newValue, oldValue) {
+            ref.set(newValue)
+        }
+
+        proxyProps[KEY] = ref
+        options.properties[KEY] = proxy_prop
+    })
+
     let __context: IContext
 
     /**
@@ -102,7 +92,7 @@ export function defineComponent<
     ) {
         overCurrentModule(() => {
             __context = createContext(this)
-            const binds = setupFun.call(this, this.properties, __context)
+            const binds = setupFun.call(this, proxyProps, __context)
             if (binds instanceof Promise) {
                 return console.error(`
                 setup返回值不支持promise

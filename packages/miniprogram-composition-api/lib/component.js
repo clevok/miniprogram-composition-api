@@ -16,6 +16,7 @@ var lifecycle_1 = require("./lifecycle");
 var instance_1 = require("./instance");
 var context_1 = require("./context");
 var shared_1 = require("./shared");
+var miniprogram_reactivity_1 = require("miniprogram-reactivity");
 function defineComponent(componentOptions) {
     var setupFun;
     var options;
@@ -24,7 +25,8 @@ function defineComponent(componentOptions) {
         options = {};
     }
     else {
-        componentOptions.properties = componentOptions.props || componentOptions.properties || {};
+        componentOptions.properties =
+            componentOptions.props || componentOptions.properties || {};
         if (componentOptions.setup === void 0) {
             return Component(componentOptions);
         }
@@ -33,6 +35,30 @@ function defineComponent(componentOptions) {
         options = otherOptions;
     }
     options.methods = options.methods || {};
+    /**
+     *
+     * 拦截props,做数据响应
+     */
+    var proxyProps = {};
+    options.properties && Object.keys(options.properties).forEach(function (KEY) {
+        var prop = options.properties[KEY];
+        var proxy_prop;
+        if (typeof prop === 'function' || prop === null) {
+            proxy_prop = {
+                type: prop,
+                value: null
+            };
+        }
+        else {
+            proxy_prop = prop;
+        }
+        var ref = miniprogram_reactivity_1.useRef(proxy_prop.value || null);
+        proxy_prop.observer = function (newValue, oldValue) {
+            ref.set(newValue);
+        };
+        proxyProps[KEY] = ref;
+        options.properties[KEY] = proxy_prop;
+    });
     var __context;
     /**
      *
@@ -42,7 +68,7 @@ function defineComponent(componentOptions) {
         var _this = this;
         instance_1.overCurrentModule(function () {
             __context = context_1.createContext(_this);
-            var binds = setupFun.call(_this, _this.properties, __context);
+            var binds = setupFun.call(_this, proxyProps, __context);
             if (binds instanceof Promise) {
                 return console.error("\n                setup\u8FD4\u56DE\u503C\u4E0D\u652F\u6301promise\n            ");
             }

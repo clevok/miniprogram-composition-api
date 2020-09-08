@@ -7,9 +7,9 @@ import { overCurrentModule } from './instance'
 export function definePage (
 	pageOptions:
 		| ({} & {
-				setup?: ISetup<WechatMiniprogram.Component.AllProperty>
+				setup?: ISetup<any>
 			})
-		| ISetup<WechatMiniprogram.Component.AllProperty>
+		| ISetup<any>
 ): any{
 	let setupFun: Function
 

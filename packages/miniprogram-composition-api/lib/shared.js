@@ -83,10 +83,3 @@ function createLifecycleMethods(lifecycle, options) {
     };
 }
 exports.createLifecycleMethods = createLifecycleMethods;
-/** 将数据注入到视图中 */
-function useSetup(setup) {
-    return function (target) {
-        var _binds = setup.apply(target);
-    };
-}
-exports.useSetup = useSetup;

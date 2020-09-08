@@ -12,9 +12,13 @@
 ### 注意
 1. ref对象的值必须通过ref.set方式更改值,类似小程序中必须通过setData更改视图值一样的,没有采用Proxy和Object.defineProperty
     原因 1: 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api了](https://github.com/yangmingshan/vue-mini)
-    原先 2: Object.defineProperty毕竟还存对对象操作上问题,于是想简单点,通过set传入修改后的对象来直接变值
+    原先 2: Object.defineProperty毕竟还存对对象操作上问题,于是想简单点,参考了mobx4,通过set传入修改后的对象来直接变值
 
 2. 采用[westore](https://github.com/Tencent/westore) 的 json diff, 视图层上的数据,会出乎你意料之外,详情后面会将
+
+### 慎重考虑
+1. 采用 @vue/reactivity 会带来版本兼容问题, 之前红版回退问题
+2. 用了.set 这一套, 意味着和市场脱轨, 无法和市场上vue3的共享hooks, 意味着你得自己独立运营
 
 ### 解决什么
 1. 带来新的代码复用方案(比mixins更友好)

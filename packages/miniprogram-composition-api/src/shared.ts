@@ -1,4 +1,4 @@
-import { isRef, IRef, isObserve } from 'miniprogram-reactivity'
+import { isRef, IRef, isObserve, useRef } from 'miniprogram-reactivity'
 import { isPlainObject, isArray, isFunction } from './utils'
 import { diff } from './diff'
 import { overCloneDeep } from './over'
@@ -100,17 +100,10 @@ export function createLifecycleMethods(
     }
 }
 
-/** 将数据注入到视图中 */
-export function useSetup(setup: () => { [key: string]: any }) {
-    return (target: ICurrentModuleInstance) => {
-        const _binds = setup.apply(target)
-    }
-}
-
 export type IBindings = { [key: string]: any }
 
-type IAnyObject = Record<string, any>
 
+type IAnyObject = Record<string, any>
 type PropertyType =
     | StringConstructor
     | NumberConstructor
@@ -129,9 +122,45 @@ type ValueType<T extends PropertyType> = T extends StringConstructor
     : T extends ObjectConstructor
     ? IAnyObject
     : any
+type FullProperty<T extends PropertyType> = {
+    /** 属性类型 */
+    type: T
+    /** 默认值 */
+    value?: ValueType<T>
+}
+type AllFullProperty =
+    | FullProperty<StringConstructor>
+    | FullProperty<NumberConstructor>
+    | FullProperty<BooleanConstructor>
+    | FullProperty<ArrayConstructor>
+    | FullProperty<ObjectConstructor>
+    | FullProperty<null>
+type ShortProperty =
+    | StringConstructor
+    | NumberConstructor
+    | BooleanConstructor
+    | ArrayConstructor
+    | ObjectConstructor
+    | null
 
-export type ISetup<Props extends Object> = (
+export type AllProperty = AllFullProperty | ShortProperty
+
+interface IProps {
+    [keyName: string]: AllProperty
+}
+
+type PropertyToData<T extends AllProperty> = T extends ShortProperty
+    ? ValueType<T>
+    : T extends AllFullProperty
+    ? ValueType<T['type']>
+    : any
+
+type PropertyOptionToData<P extends IProps> = {
+    [name in keyof P]: IRef<PropertyToData<P[name]>>
+}
+
+export type ISetup<P extends IProps> = (
     this: ICurrentModuleInstance,
-    props: Props,
+    props: PropertyOptionToData<P>,
     context: IContext
 ) => IBindings
