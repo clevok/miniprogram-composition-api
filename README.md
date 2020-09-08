@@ -212,17 +212,20 @@ count.set(2)
 ---
 
 ### 声明周期函数
-可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：
+可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：自定义组件和page都是onLoad, onUnLoad, onReady
 ```js
-import { onMounted, onUnmounted onHide, onShow } from 'vue'
+import { onLoad, onUnLoad onHide, onReady, onShow } from 'vue'
 
 const MyComponent = {
   setup() {
-    onMounted(() => {
-      console.log('mounted!')
+    onLoad(() => {
+      console.log('onLoad!')
     })
-    onUnmounted(() => {
-      console.log('onUnmounted!')
+    onUnLoad(() => {
+      console.log('onUnLoad!')
+    })
+    onReady(() => {
+      console.log('onReady!')
     })
     onHide(() => {
       console.log('updated!')
