@@ -25,7 +25,7 @@ declare type FullProperty<T extends PropertyType> = {
     /** 默认值 */
     value?: ValueType<T>;
 };
-declare type AllFullProperty = FullProperty<StringConstructor> | FullProperty<NumberConstructor> | FullProperty<BooleanConstructor> | FullProperty<ArrayConstructor> | FullProperty<ObjectConstructor> | FullProperty<null>;
+export declare type AllFullProperty = FullProperty<StringConstructor> | FullProperty<NumberConstructor> | FullProperty<BooleanConstructor> | FullProperty<ArrayConstructor> | FullProperty<ObjectConstructor> | FullProperty<null>;
 declare type ShortProperty = StringConstructor | NumberConstructor | BooleanConstructor | ArrayConstructor | ObjectConstructor | null;
 export declare type AllProperty = AllFullProperty | ShortProperty;
 interface IProps {

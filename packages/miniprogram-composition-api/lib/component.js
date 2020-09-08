@@ -35,46 +35,56 @@ function defineComponent(componentOptions) {
         options = otherOptions;
     }
     options.methods = options.methods || {};
-    /**
-     *
-     * 拦截props,做数据响应
-     */
-    var proxyProps = {};
-    options.properties && Object.keys(options.properties).forEach(function (KEY) {
-        var prop = options.properties[KEY];
-        var proxy_prop;
-        if (typeof prop === 'function' || prop === null) {
-            proxy_prop = {
-                type: prop,
-                value: null
+    options.properties &&
+        Object.keys(options.properties).forEach(function (KEY) {
+            var prop = options.properties[KEY];
+            var proxy_prop;
+            if (typeof prop === 'function' || prop === null) {
+                proxy_prop = {
+                    type: prop,
+                    value: null,
+                };
+            }
+            else {
+                proxy_prop = prop;
+            }
+            proxy_prop.observer = function (newValue) {
+                var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
+                this[sortName] &&
+                    this[sortName][KEY] &&
+                    this[sortName][KEY](newValue);
             };
-        }
-        else {
-            proxy_prop = prop;
-        }
-        var ref = miniprogram_reactivity_1.useRef(proxy_prop.value || null);
-        proxy_prop.observer = function (newValue, oldValue) {
-            ref.set(newValue);
-        };
-        proxyProps[KEY] = ref;
-        options.properties[KEY] = proxy_prop;
-    });
+            options.properties[KEY] = proxy_prop;
+        });
     var __context;
+    function createProxyProperty() {
+        var _this = this;
+        var proxy = {};
+        options.properties && Object.keys(options.properties).forEach(function (KEY) {
+            proxy[KEY] = miniprogram_reactivity_1.useRef(_this.properties[KEY]);
+            var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
+            if (!_this[sortName]) {
+                _this[sortName] = {};
+            }
+            _this[sortName][KEY] = function (value) {
+                proxy[KEY].set(value);
+            };
+        });
+        return proxy;
+    }
+    options["created" /* CREATED */] = function () { };
     /**
      *
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
-    options["attached" /* ATTACHED */] = utils_1.wrapFuns(function () {
-        var _this = this;
-        instance_1.overCurrentModule(function () {
-            __context = context_1.createContext(_this);
-            var binds = setupFun.call(_this, proxyProps, __context);
-            if (binds instanceof Promise) {
-                return console.error("\n                setup\u8FD4\u56DE\u503C\u4E0D\u652F\u6301promise\n            ");
-            }
-            __context.setData(binds);
-        })(this);
-    }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["attached" /* ATTACHED */]));
+    options["attached" /* ATTACHED */] = instance_1.overCurrentModule(utils_1.wrapFuns(function () {
+        __context = context_1.createContext(this);
+        var binds = setupFun.call(this, createProxyProperty.call(this), __context);
+        if (binds instanceof Promise) {
+            return console.error("\n                setup\u8FD4\u56DE\u503C\u4E0D\u652F\u6301promise\n            ");
+        }
+        __context.setData(binds);
+    }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["attached" /* ATTACHED */])));
     options["ready" /* READY */] = shared_1.createLifecycleMethods("onReady" /* ON_READY */, options["ready" /* READY */]);
     options["detached" /* DETACHED */] = utils_1.wrapFuns(function () {
         lifecycle_1.conductHook(this, "effect" /* EFFECT */, []);

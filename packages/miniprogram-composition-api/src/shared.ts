@@ -128,7 +128,7 @@ type FullProperty<T extends PropertyType> = {
     /** 默认值 */
     value?: ValueType<T>
 }
-type AllFullProperty =
+export type AllFullProperty =
     | FullProperty<StringConstructor>
     | FullProperty<NumberConstructor>
     | FullProperty<BooleanConstructor>

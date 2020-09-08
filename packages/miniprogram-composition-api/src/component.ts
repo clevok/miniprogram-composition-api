@@ -1,4 +1,4 @@
-import { isFunction, wrapFuns } from './utils'
+import { isFunction, wrapFuns, createShortName } from './utils'
 import {
     ComponentLifecycle,
     PageLifecycle,
@@ -8,8 +8,12 @@ import {
 } from './lifecycle'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext, IContext } from './context'
-import { createLifecycleMethods, ISetup, AllProperty } from './shared'
+import { createLifecycleMethods, ISetup, AllProperty, AllFullProperty } from './shared'
 import { useRef, IRef } from 'miniprogram-reactivity'
+
+const enum ComponentExtendProperty {
+    WATCH_PROPERTY = 'watchProperty',
+}
 
 export function defineComponent<
     PROPS extends {
@@ -53,55 +57,73 @@ export function defineComponent<
 
     options.methods = options.methods || {}
 
-    /**
-     * 
-     * 拦截props,做数据响应
-     */
-    const proxyProps: {
-        [key: string]: IRef<any>
-    } = {}
-    options.properties && Object.keys(options.properties).forEach((KEY) => {
-        let prop = options.properties[KEY];
-        let proxy_prop;
-        if (typeof prop === 'function' || prop === null) {
-            proxy_prop = {
-                type: prop,
-                value: null
+    options.properties &&
+        Object.keys(options.properties).forEach((KEY) => {
+            let prop = options.properties[KEY]
+            let proxy_prop
+            if (typeof prop === 'function' || prop === null) {
+                proxy_prop = {
+                    type: prop,
+                    value: null,
+                }
+            } else {
+                proxy_prop = prop
             }
-        } else {
-            proxy_prop = prop
-        }
-        let ref = useRef(proxy_prop.value || null)
 
-        proxy_prop.observer = function (newValue, oldValue) {
-            ref.set(newValue)
-        }
+            proxy_prop.observer = function (newValue) {
+                const sortName = createShortName(ComponentExtendProperty.WATCH_PROPERTY)
 
-        proxyProps[KEY] = ref
-        options.properties[KEY] = proxy_prop
-    })
+                this[sortName] &&
+                    this[sortName][KEY] &&
+                    this[sortName][KEY](newValue)
+            }
+
+            options.properties[KEY] = proxy_prop
+        })
 
     let __context: IContext
+
+    function createProxyProperty(this: ICurrentModuleInstance) {
+        const proxy: {
+            [key: string]: IRef<any>
+        } = {}
+
+        options.properties && Object.keys(options.properties).forEach(KEY => {
+            proxy[KEY] = useRef( this.properties[KEY] )
+
+            const sortName = createShortName(ComponentExtendProperty.WATCH_PROPERTY)
+            if (!this[sortName]) {
+                this[sortName] = {}
+            }
+            this[sortName][KEY] = function (value) {
+                proxy[KEY].set(value)
+            }
+        })
+
+        return proxy
+    }
+
+    options[ComponentLifecycle.CREATED] = function () {}
 
     /**
      *
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
-    options[ComponentLifecycle.ATTACHED] = wrapFuns(function (
-        this: ICurrentModuleInstance
-    ) {
-        overCurrentModule(() => {
+    options[ComponentLifecycle.ATTACHED] = overCurrentModule(
+        wrapFuns(function (this: ICurrentModuleInstance) {
             __context = createContext(this)
-            const binds = setupFun.call(this, proxyProps, __context)
+            const binds = setupFun.call(this, createProxyProperty.call(this), __context)
             if (binds instanceof Promise) {
                 return console.error(`
                 setup返回值不支持promise
             `)
             }
             __context.setData(binds)
-        })(this)
-    },
-    createLifecycleMethods(CommonLifecycle.ON_LOAD, options[ComponentLifecycle.ATTACHED]))
+        }, createLifecycleMethods(
+            CommonLifecycle.ON_LOAD,
+            options[ComponentLifecycle.ATTACHED]
+        ))
+    )
 
     options[ComponentLifecycle.READY] = createLifecycleMethods(
         CommonLifecycle.ON_READY,

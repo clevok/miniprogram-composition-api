@@ -39,17 +39,14 @@ function definePage(pageOptions) {
         options = otherOptions;
     }
     var __context;
-    options["onLoad" /* ON_LOAD */] = utils_1.wrapFuns(function (params) {
-        var _this = this;
-        instance_1.overCurrentModule(function () {
-            __context = context_1.createContext(_this);
-            var binds = setupFun.call(_this, params, __context);
-            if (binds instanceof Promise) {
-                return console.error("\n                setup\u4E0D\u652F\u6301\u8FD4\u56DEpromise\n            ");
-            }
-            __context.setData(binds);
-        })(this);
-    }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["onLoad" /* ON_LOAD */]));
+    options["onLoad" /* ON_LOAD */] = instance_1.overCurrentModule(utils_1.wrapFuns(function (params) {
+        __context = context_1.createContext(this);
+        var binds = setupFun.call(this, params, __context);
+        if (binds instanceof Promise) {
+            return console.error("\n                setup\u4E0D\u652F\u6301\u8FD4\u56DEpromise\n            ");
+        }
+        __context.setData(binds);
+    }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["onLoad" /* ON_LOAD */])));
     options["onReady" /* ON_READY */] = shared_1.createLifecycleMethods("onReady" /* ON_READY */, options["onReady" /* ON_READY */]);
     options["onUnload" /* ON_UNLOAD */] = utils_1.wrapFuns(function () {
         lifecycle_1.conductHook(this, "effect" /* EFFECT */, []);

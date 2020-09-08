@@ -6,13 +6,13 @@ var currentModule = null;
  * @param callback
  */
 function overCurrentModule(callback) {
-    return function (target) {
+    return function () {
         var arg = [];
-        for (var _i = 1; _i < arguments.length; _i++) {
-            arg[_i - 1] = arguments[_i];
+        for (var _i = 0; _i < arguments.length; _i++) {
+            arg[_i] = arguments[_i];
         }
-        currentModule = target;
-        var reuslt = callback.apply(target, arg);
+        currentModule = this;
+        var reuslt = callback.apply(this, arg);
         currentModule = null;
         return reuslt;
     };

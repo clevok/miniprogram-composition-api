@@ -15,10 +15,10 @@ export type ICurrentModuleInstance =
  * @param callback
  */
 export function overCurrentModule<T> (callback: () => T){
-	return function (target: ICurrentModuleInstance, ...arg: any[]): T{
-		currentModule = target
+	return function (this: ICurrentModuleInstance, ...arg: any[]): T{
+		currentModule = this
 
-		const reuslt = callback.apply(target, arg)
+		const reuslt = callback.apply(this, arg)
 
 		currentModule = null
 
