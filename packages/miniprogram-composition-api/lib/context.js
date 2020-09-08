@@ -3,6 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 var shared_1 = require("./shared");
 var mitt_1 = require("./mitt");
 var utils_1 = require("./utils");
+var router_1 = require("./router");
 function createContext(target) {
     function setData(binding) {
         var _this = this;
@@ -26,10 +27,10 @@ function createContext(target) {
             });
         };
     }
-    return Object.assign({
-        setData: setData.bind(target)
-    }, {
-        event: mitt_1.mitt()
-    });
+    return {
+        setData: setData.bind(target),
+        event: mitt_1.mitt(),
+        router: router_1.router
+    };
 }
 exports.createContext = createContext;
