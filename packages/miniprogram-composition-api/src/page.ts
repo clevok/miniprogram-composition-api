@@ -11,9 +11,13 @@ import { overCurrentModule } from './instance'
 
 export function definePage(
     pageOptions:
-        | ({} & {
+        | {
+              /** 静态属性,可以被覆盖,初始化显示更快 */
+              data?: {
+                  [key: string]: any
+              }
               setup?: ISetup<any>
-          })
+          }
         | ISetup<any>
 ): any {
     let setupFun: Function

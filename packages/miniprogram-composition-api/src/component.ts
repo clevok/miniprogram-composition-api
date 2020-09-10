@@ -8,7 +8,7 @@ import {
 } from './lifecycle'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext, IContext } from './context'
-import { createLifecycleMethods, ISetup, AllProperty, AllFullProperty } from './shared'
+import { createLifecycleMethods, ISetup, AllProperty } from './shared'
 import { useRef, IRef } from 'miniprogram-reactivity'
 
 const enum ComponentExtendProperty {
@@ -24,6 +24,10 @@ export function defineComponent<
         | {
               props?: PROPS
               setup?: ISetup<PROPS>
+              /** 静态属性,可以被覆盖,初始化显示更快 */
+              data?: {
+                  [key: string]: any
+              }
               [key: string]: any
           }
         | ISetup<PROPS>
@@ -71,7 +75,9 @@ export function defineComponent<
             }
 
             proxy_prop.observer = function (newValue) {
-                const sortName = createShortName(ComponentExtendProperty.WATCH_PROPERTY)
+                const sortName = createShortName(
+                    ComponentExtendProperty.WATCH_PROPERTY
+                )
 
                 this[sortName] &&
                     this[sortName][KEY] &&
@@ -88,17 +94,20 @@ export function defineComponent<
             [key: string]: IRef<any>
         } = {}
 
-        options.properties && Object.keys(options.properties).forEach(KEY => {
-            proxy[KEY] = useRef( this.properties[KEY] )
+        options.properties &&
+            Object.keys(options.properties).forEach((KEY) => {
+                proxy[KEY] = useRef(this.properties[KEY])
 
-            const sortName = createShortName(ComponentExtendProperty.WATCH_PROPERTY)
-            if (!this[sortName]) {
-                this[sortName] = {}
-            }
-            this[sortName][KEY] = function (value) {
-                proxy[KEY].set(value)
-            }
-        })
+                const sortName = createShortName(
+                    ComponentExtendProperty.WATCH_PROPERTY
+                )
+                if (!this[sortName]) {
+                    this[sortName] = {}
+                }
+                this[sortName][KEY] = function (value) {
+                    proxy[KEY].set(value)
+                }
+            })
 
         return proxy
     }
@@ -112,7 +121,11 @@ export function defineComponent<
     options[ComponentLifecycle.ATTACHED] = overCurrentModule(
         wrapFuns(function (this: ICurrentModuleInstance) {
             __context = createContext(this)
-            const binds = setupFun.call(this, createProxyProperty.call(this), __context)
+            const binds = setupFun.call(
+                this,
+                createProxyProperty.call(this),
+                __context
+            )
             if (binds instanceof Promise) {
                 return console.error(`
                 setup返回值不支持promise
