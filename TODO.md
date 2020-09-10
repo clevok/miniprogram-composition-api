@@ -14,6 +14,27 @@
 14. 自定义get,set ref, 实现set转意, get也能格式化
 15. 事件传递很麻烦,例如input基础上又来了个inputCacle, inputCacle需要把input所有的事件再统一传递出去,很烦人, 该怎么解决没想好
 
+### 共享空间
+这个目前打算创建一个单例工程模式useConstate,用于在setup期间创建单例
+注意了,单例模式的声明周期,都会挂载到第一个创建它的那个页面组件
+
+```js
+function useName (params) {
+    const name = useRef(1)
+    onLoad(() => {
+        name.set(2)
+    })
+
+    return name
+}
+
+// 因为考虑到很多业务的情况, 有些空间都带有一些异步请求后的参数才能被加载, 对于那些需要难搞的参数才能初始化的api,于是用异步的injectContext来实现加载
+// 也就是说采用了 injectContext, 将意味着 无法通过setup注入(setup不允许异步这是铁板钉钉上的事情)
+// 要不展示不考虑?
+const { useContext, injectContext } = useConstate(useName)
+
+```
+
 connect,内部无法使用声明周期
 ```js
 export const useConnectUseInfo = connect(() => {

@@ -9,6 +9,14 @@
 
 > [仓库地址](https://github.com/clevok/miniprogram-composition-api)
 
+### 必读
+1. 更新useRef对象的值必须通过 `.set`方法, `读取`必须是 `.value`才是储存的值
+2. 所有更新的数据, 都会通过 `westore.diff` 转换到 视图层, 因此, 在更新对象, 数组上会有以下问题
+    1. 删除数组中的某一项, 其实会把 这个项目变成 null, 例如 [1,2,3] => [1,null,3]
+    2. 删除对象某个属性, 会把这个属性设置成null 例如 { name: 'along' } => {name: null}
+    3. 之后会尝试优化westore的diff, 如果设置成了空 数组 或者空对象, 就直接变成 全部复制, 以及提供 diff: false, 不经过他的diff, 直接整个赋值
+    4. 将会建立自己一套diff树,目前更新颗粒度只有一层..
+
 ### 注意
 1. ref对象的值必须通过ref.set方式更改值,类似小程序中必须通过setData更改视图值一样的,没有采用Proxy和Object.defineProperty
     原因 1: 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api了](https://github.com/yangmingshan/vue-mini)

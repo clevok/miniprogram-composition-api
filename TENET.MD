@@ -36,3 +36,33 @@ function useUpdate(info) {
 
 3. 当遇到需要公用的模块,可以提取到 [page.name].services.ts中
 小程序中import 页面/组件的 会出现不可预料的问题
+
+4. 提取到services下的代码尽量不要使用`onPullDownRefresh`生命周期
+避免最后发现数据莫名加载问题,可以使用onLoad作为初始化数据使用,这些声明周期应该放在index, action层做
+可以index下在进行组合
+但是感觉有点啰嗦
+
+```js
+setup() {
+    const {} = useDemo()
+}
+function useDemo() {
+    const { renderList, pageList } = useJJJ()
+
+    onPullDownRefresh(() => {
+        renderList()
+    })
+
+    return pageList
+}
+
+```
+```js
+export function useJJJ () {
+
+    return {
+        pageList: ref([]),
+        renderList: () => {}
+    }
+}
+```
