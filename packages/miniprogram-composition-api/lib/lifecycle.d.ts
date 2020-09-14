@@ -24,6 +24,7 @@ export declare const enum CommonLifecycle {
     ON_READY = "onReady"
 }
 export declare const enum ExtendLefecycle {
+    /** 页面被销毁时候执行 */
     EFFECT = "effect",
     WATCH_PROPERTY = "watchProperty"
 }

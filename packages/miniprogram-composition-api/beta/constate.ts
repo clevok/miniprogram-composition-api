@@ -1,5 +1,5 @@
-import { injectHook, ExtendLefecycle } from './lifecycle'
-import { overInCurrentModule } from './instance'
+import { injectHook, ExtendLefecycle } from '../src/lifecycle'
+import { overInCurrentModule } from '../src/instance'
 
 const isEqual = require('lodash/isEqual')
 const cloneDeep = require('lodash/cloneDeep')
