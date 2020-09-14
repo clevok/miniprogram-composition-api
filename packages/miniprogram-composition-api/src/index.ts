@@ -12,7 +12,7 @@ export { definePage } from './page'
 
 export { router } from './router'
 
-export { useConstate } from './constate'
+export { createConstate } from './constate'
 
 export {
     onLoad,
