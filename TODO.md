@@ -16,7 +16,6 @@
 
 ### 共享空间
 这个目前打算创建一个单例工程模式useConstate,用于在setup期间创建单例
-注意了,单例模式的声明周期,都会挂载到第一个创建它的那个页面组件
 
 ```js
 function useName (params) {
@@ -31,27 +30,59 @@ function useName (params) {
 // 因为考虑到很多业务的情况, 有些空间都带有一些异步请求后的参数才能被加载, 对于那些需要难搞的参数才能初始化的api,于是用异步的injectContext来实现加载
 // 也就是说采用了 injectContext, 将意味着 无法通过setup注入(setup不允许异步这是铁板钉钉上的事情)
 // 要不展示不考虑?
-const { useContext, injectContext } = useConstate(useName)
 
 ```
-
-connect,内部无法使用声明周期
 ```js
-export const useConnectUseInfo = connect(() => {
-    const name = useRef(1)
-    const age = useRef(1)
+// A页面
+defineComponent(() => {
+    const a = useConstate(useName)()
 
-    return {
-        name,
-        age
-    }
+    onReachBottom(() => {
+        a.renderList()
+    })
 })
 
-useSetup({
-    userInfo: useUserInof()
-}, this)
+// B页面
+defineComponent(() => {
+    const b = useConstate(useName)
+
+    return {
+        ...b
+    }
+})
+```
+这样,对a进行更改,b也会同步修改了,原本是想,后来发现，这样和依赖注入没啥区别,不能很好的找到, 都有谁共享了我
+```js
+setup(() => {
+    const a = useConstate(useName);
+})
+```
+
+### 依赖注入
+
+```js
+function useName() {
+    return {
+        renderList
+    }
+}
+
+// pageA
+setup(() => {
+    const { renderList } = useProvied(useName)
+})
+// pageA component
+setup(() => {
+    const { renderList } = useInject(useName) // 提取最近的依赖注入
+})
+
+// pageB
+setup(() => {
+    const { renderList } = useProvied(useName)
+})
 
 ```
+
 
 ### 下一版本将支持router带方法传递
 
