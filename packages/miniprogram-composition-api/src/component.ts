@@ -11,10 +11,6 @@ import { createContext, IContext } from './context'
 import { createLifecycleMethods, ISetup, AllProperty } from './shared'
 import { useRef, IRef } from 'miniprogram-reactivity'
 
-const enum ComponentExtendProperty {
-    WATCH_PROPERTY = 'watchProperty',
-}
-
 export function defineComponent<
     PROPS extends {
         [key: string]: AllProperty
@@ -75,9 +71,7 @@ export function defineComponent<
             }
 
             proxy_prop.observer = function (newValue) {
-                const sortName = createShortName(
-                    ComponentExtendProperty.WATCH_PROPERTY
-                )
+                const sortName = createShortName(ExtendLefecycle.WATCH_PROPERTY)
 
                 this[sortName] &&
                     this[sortName][KEY] &&
@@ -98,9 +92,7 @@ export function defineComponent<
             Object.keys(options.properties).forEach((KEY) => {
                 proxy[KEY] = useRef(this.properties[KEY])
 
-                const sortName = createShortName(
-                    ComponentExtendProperty.WATCH_PROPERTY
-                )
+                const sortName = createShortName(ExtendLefecycle.WATCH_PROPERTY)
                 if (!this[sortName]) {
                     this[sortName] = {}
                 }

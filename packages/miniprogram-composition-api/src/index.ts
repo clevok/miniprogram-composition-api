@@ -6,6 +6,8 @@ export { definePage } from './page'
 
 export { router } from './router'
 
+export { createConstate } from './constate'
+
 export {
 	onLoad,
 	onReady,

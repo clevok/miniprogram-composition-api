@@ -60,16 +60,17 @@ function defineComponent(componentOptions) {
     function createProxyProperty() {
         var _this = this;
         var proxy = {};
-        options.properties && Object.keys(options.properties).forEach(function (KEY) {
-            proxy[KEY] = miniprogram_reactivity_1.useRef(_this.properties[KEY]);
-            var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
-            if (!_this[sortName]) {
-                _this[sortName] = {};
-            }
-            _this[sortName][KEY] = function (value) {
-                proxy[KEY].set(value);
-            };
-        });
+        options.properties &&
+            Object.keys(options.properties).forEach(function (KEY) {
+                proxy[KEY] = miniprogram_reactivity_1.useRef(_this.properties[KEY]);
+                var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
+                if (!_this[sortName]) {
+                    _this[sortName] = {};
+                }
+                _this[sortName][KEY] = function (value) {
+                    proxy[KEY].set(value);
+                };
+            });
         return proxy;
     }
     options["created" /* CREATED */] = function () { };

@@ -24,7 +24,8 @@ export declare const enum CommonLifecycle {
     ON_READY = "onReady"
 }
 export declare const enum ExtendLefecycle {
-    EFFECT = "effect"
+    EFFECT = "effect",
+    WATCH_PROPERTY = "watchProperty"
 }
 /**注入hooks */
 export declare function injectHook(currentInstance: ICurrentModuleInstance, lifecycle: PageLifecycle | ComponentLifecycle | ExtendLefecycle | CommonLifecycle, hook: Function): void;

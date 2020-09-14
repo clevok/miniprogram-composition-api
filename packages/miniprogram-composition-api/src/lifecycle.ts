@@ -29,7 +29,8 @@ export const enum CommonLifecycle {
 }
 
 export const enum ExtendLefecycle {
-	EFFECT = 'effect'
+    EFFECT = 'effect',
+    WATCH_PROPERTY = 'watchProperty'
 }
 
 /**注入hooks */
