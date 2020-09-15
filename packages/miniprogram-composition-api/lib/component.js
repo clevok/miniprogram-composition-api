@@ -34,7 +34,6 @@ function defineComponent(componentOptions) {
         setupFun = setupOption;
         options = otherOptions;
     }
-    options.methods = options.methods || {};
     options.properties &&
         Object.keys(options.properties).forEach(function (KEY) {
             var prop = options.properties[KEY];
@@ -49,7 +48,7 @@ function defineComponent(componentOptions) {
                 proxy_prop = prop;
             }
             proxy_prop.observer = function (newValue) {
-                var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
+                var sortName = "__watchProperty__" /* WATCH_PROPERTY */;
                 this[sortName] &&
                     this[sortName][KEY] &&
                     this[sortName][KEY](newValue);
@@ -63,22 +62,28 @@ function defineComponent(componentOptions) {
         options.properties &&
             Object.keys(options.properties).forEach(function (KEY) {
                 proxy[KEY] = miniprogram_reactivity_1.useRef(_this.properties[KEY]);
-                var sortName = utils_1.createShortName("watchProperty" /* WATCH_PROPERTY */);
-                if (!_this[sortName]) {
-                    _this[sortName] = {};
+                if (!_this["__watchProperty__" /* WATCH_PROPERTY */]) {
+                    _this["__watchProperty__" /* WATCH_PROPERTY */] = {};
                 }
-                _this[sortName][KEY] = function (value) {
+                _this["__watchProperty__" /* WATCH_PROPERTY */][KEY] = function (value) {
                     proxy[KEY].set(value);
                 };
             });
         return proxy;
     }
-    options["created" /* CREATED */] = function () { };
+    options.methods = options.methods || {};
+    /** 绑定上下文 */
+    options.methods['$'] = function (_a) {
+        var detail = _a.detail;
+        detail["__parent__" /* PARENT */] = this;
+    };
     /**
      *
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
     options["attached" /* ATTACHED */] = instance_1.overCurrentModule(utils_1.wrapFuns(function () {
+        this.triggerEvent('component', this);
+    }, function () {
         __context = context_1.createContext(this);
         var binds = setupFun.call(this, createProxyProperty.call(this), __context);
         if (binds instanceof Promise) {

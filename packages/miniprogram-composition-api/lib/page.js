@@ -39,7 +39,15 @@ function definePage(pageOptions) {
         options = otherOptions;
     }
     var __context;
-    options["onLoad" /* ON_LOAD */] = instance_1.overCurrentModule(utils_1.wrapFuns(function (params) {
+    /** 绑定上下文 */
+    options['$'] = function (_a) {
+        var detail = _a.detail;
+        detail["__parent__" /* PARENT */] = this;
+    };
+    options["onLoad" /* ON_LOAD */] = instance_1.overCurrentModule(utils_1.wrapFuns(function () {
+        typeof this.triggerEvent === 'function' &&
+            this.triggerEvent('component', this);
+    }, function (params) {
         __context = context_1.createContext(this);
         var binds = setupFun.call(this, params, __context);
         if (binds instanceof Promise) {

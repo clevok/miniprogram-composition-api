@@ -77,7 +77,7 @@ function createRef<T> (viewDate: T){
 			value: (value: ((params: T) => T) | T, config = { notify: false }) => {
 				let updateValue: T
 				if (isFunction(value)) {
-					updateValue = value(cloneDeep(viewDate))
+					updateValue = value(cloneDeep(outDate))
 				} else {
 					updateValue = value
 				}

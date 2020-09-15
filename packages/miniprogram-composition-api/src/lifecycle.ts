@@ -29,9 +29,13 @@ export const enum CommonLifecycle {
 }
 
 export const enum ExtendLefecycle {
-    /** 页面被销毁时候执行 */
+    /** 副作用 */
     EFFECT = 'effect',
-    WATCH_PROPERTY = 'watchProperty'
+    /** props代理 */
+    WATCH_PROPERTY = '__watchProperty__',
+    /** 父实例 */
+    PARENT = '__parent__',
+    LOC_INJECT = '__loc_inject__'
 }
 
 /**注入hooks */

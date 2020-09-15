@@ -102,7 +102,6 @@ export function createLifecycleMethods(
 
 export type IBindings = { [key: string]: any }
 
-
 type IAnyObject = Record<string, any>
 type PropertyType =
     | StringConstructor

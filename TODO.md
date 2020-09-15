@@ -14,6 +14,22 @@
 14. 自定义get,set ref, 实现set转意, get也能格式化
 15. 事件传递很麻烦,例如input基础上又来了个inputCacle, inputCacle需要把input所有的事件再统一传递出去,很烦人, 该怎么解决没想好
 
+
+### 获取父亲的声明周期
+```js
+
+onPageLife(() => {
+    onReachBottom(() => {
+        
+    })
+
+    onPullDownRefresh(() => {
+
+    })
+})
+
+```
+
 ### 共享空间
 这个目前打算创建一个单例工程模式useConstate,用于在setup期间创建单例
 

@@ -55,8 +55,6 @@ export function defineComponent<
         options = otherOptions
     }
 
-    options.methods = options.methods || {}
-
     options.properties &&
         Object.keys(options.properties).forEach((KEY) => {
             let prop = options.properties[KEY]
@@ -70,8 +68,11 @@ export function defineComponent<
                 proxy_prop = prop
             }
 
-            proxy_prop.observer = function (newValue) {
-                const sortName = createShortName(ExtendLefecycle.WATCH_PROPERTY)
+            proxy_prop.observer = function (
+                this: ICurrentModuleInstance,
+                newValue
+            ) {
+                const sortName = ExtendLefecycle.WATCH_PROPERTY
 
                 this[sortName] &&
                     this[sortName][KEY] &&
@@ -92,11 +93,10 @@ export function defineComponent<
             Object.keys(options.properties).forEach((KEY) => {
                 proxy[KEY] = useRef(this.properties[KEY])
 
-                const sortName = createShortName(ExtendLefecycle.WATCH_PROPERTY)
-                if (!this[sortName]) {
-                    this[sortName] = {}
+                if (!this[ExtendLefecycle.WATCH_PROPERTY]) {
+                    this[ExtendLefecycle.WATCH_PROPERTY] = {}
                 }
-                this[sortName][KEY] = function (value) {
+                this[ExtendLefecycle.WATCH_PROPERTY][KEY] = function (value) {
                     proxy[KEY].set(value)
                 }
             })
@@ -104,30 +104,44 @@ export function defineComponent<
         return proxy
     }
 
-    options[ComponentLifecycle.CREATED] = function () {}
+    options.methods = options.methods || {}
+
+    /** 绑定上下文 */
+    options.methods['$'] = function (
+        this: ICurrentModuleInstance,
+        { detail }: { detail: ICurrentModuleInstance }
+    ) {
+        detail[ExtendLefecycle.PARENT] = this
+    }
 
     /**
      *
      * TODO 下一个版本将props转化为ref对象,进行监听
      */
     options[ComponentLifecycle.ATTACHED] = overCurrentModule(
-        wrapFuns(function (this: ICurrentModuleInstance) {
-            __context = createContext(this)
-            const binds = setupFun.call(
-                this,
-                createProxyProperty.call(this),
-                __context
-            )
-            if (binds instanceof Promise) {
-                return console.error(`
+        wrapFuns(
+            function (this: ICurrentModuleInstance) {
+                this.triggerEvent('component', this)
+            },
+            function (this: ICurrentModuleInstance) {
+                __context = createContext(this)
+                const binds = setupFun.call(
+                    this,
+                    createProxyProperty.call(this),
+                    __context
+                )
+                if (binds instanceof Promise) {
+                    return console.error(`
                 setup返回值不支持promise
             `)
-            }
-            __context.setData(binds)
-        }, createLifecycleMethods(
-            CommonLifecycle.ON_LOAD,
-            options[ComponentLifecycle.ATTACHED]
-        ))
+                }
+                __context.setData(binds)
+            },
+            createLifecycleMethods(
+                CommonLifecycle.ON_LOAD,
+                options[ComponentLifecycle.ATTACHED]
+            )
+        )
     )
 
     options[ComponentLifecycle.READY] = createLifecycleMethods(

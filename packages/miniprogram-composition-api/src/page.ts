@@ -1,4 +1,4 @@
-import { isFunction, wrapFuns } from './utils'
+import { createShortName, isFunction, wrapFuns } from './utils'
 import {
     PageLifecycle,
     conductHook,
@@ -7,7 +7,7 @@ import {
 } from './lifecycle'
 import { createContext, IContext } from './context'
 import { createLifecycleMethods, ISetup } from './shared'
-import { overCurrentModule } from './instance'
+import { ICurrentModuleInstance, overCurrentModule } from './instance'
 
 export function definePage(
     pageOptions:
@@ -44,20 +44,35 @@ export function definePage(
 
     let __context: IContext
 
+    /** 绑定上下文 */
+    options['$'] = function (
+        this: ICurrentModuleInstance,
+        { detail }: { detail: ICurrentModuleInstance }
+    ) {
+        detail[ExtendLefecycle.PARENT] = this
+    }
+
     options[PageLifecycle.ON_LOAD] = overCurrentModule(
-        wrapFuns(function (params) {
-            __context = createContext(this)
-            const binds = setupFun.call(this, params, __context)
-            if (binds instanceof Promise) {
-                return console.error(`
+        wrapFuns(
+            function (this: ICurrentModuleInstance) {
+                typeof this.triggerEvent === 'function' &&
+                    this.triggerEvent('component', this)
+            },
+            function (params) {
+                __context = createContext(this)
+                const binds = setupFun.call(this, params, __context)
+                if (binds instanceof Promise) {
+                    return console.error(`
                 setup不支持返回promise
             `)
-            }
-            __context.setData(binds)
-        }, createLifecycleMethods(
-            CommonLifecycle.ON_LOAD,
-            options[PageLifecycle.ON_LOAD]
-        ))
+                }
+                __context.setData(binds)
+            },
+            createLifecycleMethods(
+                CommonLifecycle.ON_LOAD,
+                options[PageLifecycle.ON_LOAD]
+            )
+        )
     )
 
     options[PageLifecycle.ON_READY] = createLifecycleMethods(

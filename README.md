@@ -246,6 +246,17 @@ const MyComponent = {
 
 ```
 
+### 建立上下文对象
+
+需要开发者主动, 在组件上写 `bind:component="$"` 建立上下文关系, 因为目前小程序api问题
+
+```js
+<template>
+    <customer-component bind:component="$"></customer-component>
+    <customer-component bind:component="$"></customer-component>
+<template>
+```
+
 ### 不要这样做
 1. setup 不能是异步
 

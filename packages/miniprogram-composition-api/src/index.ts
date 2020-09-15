@@ -1,10 +1,4 @@
-export {
-    useRef,
-    isRef,
-    IRef,
-    useProvide,
-    useInject,
-} from 'miniprogram-reactivity'
+export { useRef, isRef, IRef } from 'miniprogram-reactivity'
 
 export { defineComponent } from './component'
 
@@ -29,3 +23,5 @@ export {
 export { useEffect } from './watch'
 
 export { useComputed } from './computed'
+
+export { useInject, useProvide } from './inject'
