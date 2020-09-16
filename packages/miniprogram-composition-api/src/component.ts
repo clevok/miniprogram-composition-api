@@ -82,8 +82,6 @@ export function defineComponent<
             options.properties[KEY] = proxy_prop
         })
 
-    let __context: IContext
-
     function createProxyProperty(this: ICurrentModuleInstance) {
         const proxy: {
             [key: string]: IRef<any>
@@ -124,18 +122,24 @@ export function defineComponent<
                 this.triggerEvent('component', this)
             },
             function (this: ICurrentModuleInstance) {
-                __context = createContext(this)
-                const binds = setupFun.call(
-                    this,
-                    createProxyProperty.call(this),
-                    __context
-                )
+                const context = createContext(this)
+                const props = createProxyProperty.call(this)
+                const binds = setupFun.call(this, props, context)
                 if (binds instanceof Promise) {
                     return console.error(`
                 setup返回值不支持promise
             `)
                 }
-                __context.setData(binds)
+
+                const calcKeys = Object.keys(binds).filter(function (val) {
+                    return Object.keys(props).indexOf(val) > -1
+                });
+
+                if (calcKeys.length) {
+                    console.error(`注意!${calcKeys}已存在props中,setup期间返回同名属性,将会触发props值改变`)
+                }
+
+                context.setData(binds)
             },
             createLifecycleMethods(
                 CommonLifecycle.ON_LOAD,

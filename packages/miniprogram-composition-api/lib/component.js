@@ -55,7 +55,6 @@ function defineComponent(componentOptions) {
             };
             options.properties[KEY] = proxy_prop;
         });
-    var __context;
     function createProxyProperty() {
         var _this = this;
         var proxy = {};
@@ -84,12 +83,19 @@ function defineComponent(componentOptions) {
     options["attached" /* ATTACHED */] = instance_1.overCurrentModule(utils_1.wrapFuns(function () {
         this.triggerEvent('component', this);
     }, function () {
-        __context = context_1.createContext(this);
-        var binds = setupFun.call(this, createProxyProperty.call(this), __context);
+        var context = context_1.createContext(this);
+        var props = createProxyProperty.call(this);
+        var binds = setupFun.call(this, props, context);
         if (binds instanceof Promise) {
             return console.error("\n                setup\u8FD4\u56DE\u503C\u4E0D\u652F\u6301promise\n            ");
         }
-        __context.setData(binds);
+        var calcKeys = Object.keys(binds).filter(function (val) {
+            return Object.keys(props).indexOf(val) > -1;
+        });
+        if (calcKeys.length) {
+            console.error("\u6CE8\u610F!" + calcKeys + "\u5DF2\u5B58\u5728props\u4E2D,setup\u671F\u95F4\u8FD4\u56DE\u540C\u540D\u5C5E\u6027,\u5C06\u4F1A\u89E6\u53D1props\u503C\u6539\u53D8");
+        }
+        context.setData(binds);
     }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["attached" /* ATTACHED */])));
     options["ready" /* READY */] = shared_1.createLifecycleMethods("onReady" /* ON_READY */, options["ready" /* READY */]);
     options["detached" /* DETACHED */] = utils_1.wrapFuns(function () {
