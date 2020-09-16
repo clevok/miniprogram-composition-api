@@ -1,16 +1,32 @@
-import { overInCurrentModule, ICurrentModuleInstance } from './instance'
-import { ExtendLefecycle } from './lifecycle'
-
 const isEqual = require('lodash/isEqual')
 const cloneDeep = require('lodash/cloneDeep')
+
+import { overInCurrentModule, ICurrentModuleInstance } from './instance'
+import { ExtendLefecycle } from './lifecycle'
 
 const provides = Object.create(null)
 
 /**
+ * Obtain the parameters of a function type in a tuple
+ */
+type Parameters<T extends (...args: any) => any> = T extends (
+    ...args: infer P
+) => any
+    ? P
+    : never
+
+/**
+ * Obtain the return type of a function type
+ */
+type ReturnType<T extends (...args: any) => any> = T extends (
+    ...args: any
+) => infer R
+    ? R
+    : any
+
+/**
  *
- * 注册
- * @param key
- * @param value
+ * create and use point
  */
 export function useProvide<T extends (...args: any[]) => any>(
     callback: T,
@@ -59,8 +75,7 @@ export function useProvide<T extends (...args: any[]) => any>(
 
 /**
  *
- * 注入
- * @param key
+ * use point
  */
 export function useInject<T extends (...args: any[]) => any>(
     callback: T,

@@ -1,14 +1,12 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var instance_1 = require("./instance");
 var isEqual = require('lodash/isEqual');
 var cloneDeep = require('lodash/cloneDeep');
+var instance_1 = require("./instance");
 var provides = Object.create(null);
 /**
  *
- * 注册
- * @param key
- * @param value
+ * create and use point
  */
 function useProvide(callback) {
     var args = [];
@@ -49,8 +47,7 @@ function useProvide(callback) {
 exports.useProvide = useProvide;
 /**
  *
- * 注入
- * @param key
+ * use point
  */
 function useInject(callback) {
     var args = [];
