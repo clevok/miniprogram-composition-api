@@ -36,39 +36,45 @@
 
 ## 使用入门
 
+### 基础概念
+将`响应式对象` *注入* 到 `视图层` 中, `响应式对象`的值更改, 将同步更新视图层, 不需要调用`setData`更新视图层数据(这就是现有页面数据呈现的方式)。
+
+将 `同一个响应式对象`注入到`多个页面`的中, 就实现了 多个页面的的数据保持一致(`状态管理`), (将这个响应式对象放在app中,每个页面拿过来注入到视图层中,就实现了`全局状态`)
+
+
 ### setup入口
-以前都是在Componets.data定义属性,methods下定义方法这样写,现在呢
-现在变成了 setup期间将 你想在视图层中显示的 数据或者方法 `return回去`, 或者叫 `注入到视图层`中
+setup 函数是一个新声明周期, 在onLoad期间调用, 它会起到将`返回值`*注入*到`视图层`中的作用
+
+`函数`也同样也可以`return`回去，便成了页面点击回调事件
 > 也就是只有需要在视图层上需要渲染的变量/方法,才需 return回去, 否者将不会会渲染到视图中
 
-```js
-<template>
+```html
+<template bind:tap="onClick">
     {{name}}
 </template>
+<script>
 import { definePage } from 'miniprogram-composition-api'
 definePage({
     setup() {
-
+        const name = useRef('along')
+        const onClick = () => {
+            console.log('试图层点击事件')
+        }
         return {
-            name: '123'
+            name,
+            onClick
         }
     }
 })
-
+</script>
 ```
-name这个字段将会被注入到视图层里了,这么一看似乎也还好,只是以前配置到data,现在变成了js书写方法将你想要的东西`return|注入`到视图层
-但是如果搭配`ref`响应式对象,那就能实现状态管理了
 
 ### useRef对象
-这是一套响应式数据,`setup`可以将`响应式对象``注入`到`视图层`中,只要这个`响应式对象`值变化了,那么注入到的视图层里的值都会变,(也就是说定义一个叫cart的ref对象,A页面注入了cart,B页面也注入了cart, 只要cart值变了, A页面和B页面的对应的值都会变化)
+这是一套响应式数据
+通过`setup`可以将`响应式对象`*`注入`*到`视图层`中,只要这个`响应式对象`值变化了,那么注入到的视图层里的值都会变,(也就是说定义一个叫cart的ref对象,A页面注入了cart,B页面也注入了cart, 只要cart值变了, A页面和B页面的对应的值都会变化)
 ```js
 // global.js
 export const cart = useRef({name: '小兰'})
-export const updateCart = () => {
-    cart.set({
-        name: '小明'
-    })
-}
 ```
 ```html
 // A页面和B页面都这样写
@@ -89,32 +95,22 @@ definePage({
 })
 </script>
 ```
-以上,只有某个地方调用 updateCart,所有页面上的name值都会变化！这就是响应式对象
+A页面和B页面注入了 同一个响应式对象, 只要 `cart`发送了变化, 所有页面上的name值都会变化！这就是响应式对象
 
-## API文档
-
-### setup
-
-setup 函数是一个新声明周期,在onLoad期间调用, 将返回值注入到视图中
-
-```js
-definePage({
-    setup() {
-        return {
-            name: '123',
-            updateName () {
-
-            }
-        }
-    }
-})
-```
 
 ### 包裹对象useRef
 
-**`useRef`**
-useRef对象接受一个参数作为初始值,必须通过 .value来访问 ref对象的值, .set来更新值
+**创建ref对象**
+useRef对象接受一个参数作为初始值, 通过 .value获取值
 
+```js
+const count = useRef(0)
+console.log(count.value) // 0
+
+```
+
+**如何更新ref对象的值**
+必须通过`.set`更新ref的值,才能正常使用
 ```js
 const count = useRef(0)
 console.log(count.value) // 0
@@ -124,9 +120,9 @@ count.set(1)
 console.log(count.value) // 1
 ```
 
-`修改ref的值`
-`.set`接受一个一个非方法对象,将会直接改变这个ref的值
-接受一个方法, 将会调用这个方法并传入原来的值, 接受这个方法返回的值作为更改后的值
+.set有两种用法
+1. 接受一个一个非方法对象,将会直接改变这个ref的值
+2. 接受一个方法, 将会调用这个方法并传入原来的值, 接受这个方法返回的值作为更改后的值
 ```js
 const count = useRef(0)
 
@@ -183,11 +179,10 @@ definePage({
 
 ```js
 const count = useRef(1)
-const plusOne = computed(() => count.value + 1, [count])
+const plusOne = useComputed(() => count.value + 1, [count])
 
 console.log(plusOne.value) // 2
 
-setCount(2)
 ```
 
 `参数`
@@ -220,7 +215,8 @@ count.set(2)
 ---
 
 ### 声明周期函数
-可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：自定义组件和page都是onLoad, onUnLoad, onReady
+可以直接导入 `onXXX` 一族的函数来注册生命周期钩子：
+特殊, Component和Page都是onLoad, onUnLoad, onReady
 ```js
 import { onLoad, onUnLoad onHide, onReady, onShow } from 'vue'
 
@@ -246,13 +242,75 @@ const MyComponent = {
 
 ```
 
-### 建立上下文对象
 
-需要开发者主动, 在组件上写 `bind:component="$"` 建立上下文关系, 因为目前小程序api问题
+## 高级功能
+
+### 依赖注入
+依赖注入参考了angular, 这一点和vue的inject,provied有所区别一样
+依赖注入除了逻辑复用外,还实现了组件树上共享数据,不再需要疯狂传递props，疯狂targetEvent事件
+
+这里直接上代码体现它的用处
+####  需求
+有个店铺消息模块,可以更新店铺名字,
+有一个页面,上面需要展示店铺名字，他还有很多页面级别组件，需要修改姓名，也需要显示店铺姓名，传统主页面通过props传下去也可以，修改姓名的话，再通过事件传上来,调用页面上修改店铺姓名的方法。如果层级多就很麻烦，而且还没有ts提示 
+
+#### 改用依赖注入
+可以先创建公共的模块
+
+```js
+function useShopInfo() {
+    const shopInfo = useRef({ name: '店铺名字' });
+    const updateShopName = (name: string) => {
+        shopInfo.set(value => { ...value, name })
+    }
+    
+    return {
+        shopInfo,
+        updateShopName
+    }
+}
+
+```
+页面
+```js
+import { useShopInfo } from 'shopServices';
+definePage({
+    provieds: {useShopInfo},
+    setup(props, { provieds} ) {
+        const useShopInfo = provieds
+        return {
+            shopInfo: useShopInfo.shopInfo
+        }
+    }    
+})
+```
+
+组件
+```js
+
+import { useShopInfo } from 'shopServices';
+defineComponent({
+    inject: {useShopInfo},
+    setup(props, { provieds} ) {
+        const useShopInfo = provieds
+        
+        return {
+            shopInfo: useShopInfo.shopInfo
+            onChangeName() {
+                useShopInfo.updateShopName('along')
+            }
+        }
+    }    
+})
+```
+
+以上代码页面和组件将共用一个数据
+因为inject将会往其父级寻找已经`实例`的该函数,如果组件数上没有找到，那么将会往app上寻找，如果还没有,那么自身将会`主动实例化`,最后一点和vue不一样,因为vue你还得考虑父级没有的情况.
+
+注意了，找上级需要建立组件树, 因为小程序目前的api问题，需要开发者主动通过 在组件上写 `bind:component="$"` 建立上下关系, 因为目前小程序api问题
 
 ```js
 <template>
-    <customer-component bind:component="$"></customer-component>
     <customer-component bind:component="$"></customer-component>
 <template>
 ```
@@ -269,41 +327,3 @@ const MyComponent = {
 
 ### 注意
 1. 暂不支持 ref 嵌套 ref的情况, 也是可以支持的, 而且容易有问题, 就是 更改最外层的ref的值, 是否会能直接更改里面ref的值, 所以不支持这样
-
-
-```js
-import { defineComponent } from '';
-
-defineComponent({
-    setup(props) {
-        /**
-         *  useRef返回是个数组, 数组第一个是 返回的可被监听的 对象, .value访问存储的值, 返回的第二个是个方法,用来触发改变的
-         * 在视图层不需要 .value 来访问
-        */
-        const [ name, setName ] = useRef('along');
-        setName('along1');
-
-        // 计算属性返回的也是个可被观察的对象, .value是值
-        const sayName = useCompute(() => {
-            return '我名字叫' + name.value
-        }, [ name ]);
-
-        // watch,需手动传入要监听的
-        const stopHandle = useEffect(() => {
-            console.log('监听name');            
-        }, [ name ]);
-
-        // 停止监听
-        // stopHandle();
-
-        return {
-            name, setName
-        }
-    }
-})
-
-
-```
-
-### router
-tabbler页面
