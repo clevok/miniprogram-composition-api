@@ -3,26 +3,15 @@ const cloneDeep = require('lodash/cloneDeep')
 
 import { overInCurrentModule, ICurrentModuleInstance } from './instance'
 import { ExtendLefecycle } from './lifecycle'
+import { Parameters, ReturnType } from './interface'
 
-const provides = Object.create(null)
-
-/**
- * Obtain the parameters of a function type in a tuple
- */
-type Parameters<T extends (...args: any) => any> = T extends (
-    ...args: infer P
-) => any
-    ? P
-    : never
-
-/**
- * Obtain the return type of a function type
- */
-type ReturnType<T extends (...args: any) => any> = T extends (
-    ...args: any
-) => infer R
-    ? R
-    : any
+const provides = getApp<{
+    /** loc注册的内容 */
+    [ExtendLefecycle.LOC_INJECT]?: {
+        function_target: Function
+        caches: [args: any, result: any][]
+    }[]
+}>()
 
 /**
  *
@@ -32,10 +21,8 @@ export function useProvide<T extends (...args: any[]) => any>(
     callback: T,
     ...args: Parameters<T>
 ): ReturnType<T> {
-    return overInCurrentModule((current) => {
-        if (!current) {
-            current = provides
-        }
+    return overInCurrentModule((_current) => {
+        let current = _current ? _current : provides
 
         if (!current[ExtendLefecycle.LOC_INJECT]) {
             current[ExtendLefecycle.LOC_INJECT] = []
@@ -83,7 +70,7 @@ export function useInject<T extends (...args: any[]) => any>(
 ): ReturnType<T> {
     const CANT_FIND_KEY = Symbol()
     function getProvide(
-        target: ICurrentModuleInstance
+        target: ICurrentModuleInstance | typeof provides
     ): typeof CANT_FIND_KEY | ReturnType<T> {
         if (!target) {
             return CANT_FIND_KEY
@@ -117,10 +104,8 @@ export function useInject<T extends (...args: any[]) => any>(
         ][1]
     }
 
-    return overInCurrentModule((current) => {
-        if (!current) {
-            current = provides
-        }
+    return overInCurrentModule((_current) => {
+        let current = _current ? _current : provides
 
         const runResult = getProvide(current)
         if (runResult === CANT_FIND_KEY) {

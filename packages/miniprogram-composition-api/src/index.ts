@@ -25,3 +25,5 @@ export { useEffect } from './watch'
 export { useComputed } from './computed'
 
 export { useInject, useProvide } from './inject'
+
+export { defineApp } from './app'

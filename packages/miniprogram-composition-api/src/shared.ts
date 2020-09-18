@@ -158,8 +158,44 @@ type PropertyOptionToData<P extends IProps> = {
     [name in keyof P]: IRef<PropertyToData<P[name]>>
 }
 
-export type ISetup<P extends IProps> = (
+export type ISetup<
+    P extends IProps,
+    PROVIDE extends {
+        [key: string]: () => any
+    },
+    INJECT extends {
+        [key: string]: () => any
+    }
+> = (
     this: ICurrentModuleInstance,
     props: PropertyOptionToData<P>,
-    context: IContext
+    context: IContext & {
+        provide: ParamsCallback<PROVIDE>
+        inject: ParamsCallback<INJECT>
+    }
 ) => IBindings
+
+type ParamsCallback<
+    P extends {
+        [key: string]: () => any
+    }
+> = {
+    [name in keyof P]: ReturnType<P[name]>
+}
+
+export function createDI<
+    P extends {
+        [key: string]: () => any
+    }
+>(params: P, next: (callback: any) => any): ParamsCallback<P> {
+    if (!params) {
+        // @ts-ignore
+        return {}
+    }
+    const result: any = {}
+    Object.keys(params).forEach((KEY) => {
+        result[KEY] = next(params[KEY])
+    })
+
+    return result
+}

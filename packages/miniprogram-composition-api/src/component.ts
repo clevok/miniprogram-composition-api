@@ -1,4 +1,3 @@
-import { isFunction, wrapFuns, createShortName } from './utils'
 import {
     ComponentLifecycle,
     PageLifecycle,
@@ -6,27 +5,39 @@ import {
     ExtendLefecycle,
     CommonLifecycle,
 } from './lifecycle'
+import { isFunction, wrapFuns } from './utils'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
-import { createContext, IContext } from './context'
-import { createLifecycleMethods, ISetup, AllProperty } from './shared'
+import { createContext } from './context'
+import { createLifecycleMethods, ISetup, AllProperty, createDI } from './shared'
 import { useRef, IRef } from 'miniprogram-reactivity'
+import { useInject, useProvide } from './inject'
 
 export function defineComponent<
     PROPS extends {
         [key: string]: AllProperty
+    },
+    PROVIDE extends {
+        [key: string]: () => any
+    },
+    INJECT extends {
+        [key: string]: () => any
     }
 >(
     componentOptions:
         | {
               props?: PROPS
-              setup?: ISetup<PROPS>
+              /** 注册 */
+              provide?: PROVIDE
+              /** 注入 */
+              inject?: INJECT
               /** 静态属性,可以被覆盖,初始化显示更快 */
               data?: {
                   [key: string]: any
               }
+              setup?: ISetup<PROPS, PROVIDE, INJECT>
               [key: string]: any
           }
-        | ISetup<PROPS>
+        | ISetup<any, any, any>
 ): any {
     let setupFun: Function
     let options: {
@@ -123,8 +134,14 @@ export function defineComponent<
             },
             function (this: ICurrentModuleInstance) {
                 const context = createContext(this)
+                const inject = createDI(options.inject, useInject)
+                const provide = createDI(options.provide, useProvide)
                 const props = createProxyProperty.call(this)
-                const binds = setupFun.call(this, props, context)
+                const binds = setupFun.call(
+                    this,
+                    props,
+                    Object.assign(context, { inject, provide })
+                )
                 if (binds instanceof Promise) {
                     return console.error(`
                 setup返回值不支持promise
@@ -133,10 +150,12 @@ export function defineComponent<
 
                 const calcKeys = Object.keys(binds).filter(function (val) {
                     return Object.keys(props).indexOf(val) > -1
-                });
+                })
 
                 if (calcKeys.length) {
-                    console.error(`注意!${calcKeys}已存在props中,setup期间返回同名属性,将会触发props值改变`)
+                    console.error(
+                        `注意!${calcKeys}已存在props中,setup期间返回同名属性,将会触发props值改变`
+                    )
                 }
 
                 context.setData(binds)

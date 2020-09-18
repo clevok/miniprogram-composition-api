@@ -5,20 +5,32 @@ import {
     ExtendLefecycle,
     CommonLifecycle,
 } from './lifecycle'
-import { createContext, IContext } from './context'
-import { createLifecycleMethods, ISetup } from './shared'
+import { createContext } from './context'
+import { createDI, createLifecycleMethods, ISetup } from './shared'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
+import { useInject, useProvide } from './inject'
 
-export function definePage(
+export function definePage<
+    PROVIDE extends {
+        [key: string]: () => any
+    },
+    INJECT extends {
+        [key: string]: () => any
+    }
+>(
     pageOptions:
         | {
+              /** 注册服务 */
+              provide?: PROVIDE
+              /** 注入 */
+              inject?: INJECT
               /** 静态属性,可以被覆盖,初始化显示更快 */
               data?: {
                   [key: string]: any
               }
-              setup?: ISetup<any>
+              setup?: ISetup<any, PROVIDE, INJECT>
           }
-        | ISetup<any>
+        | ISetup<any, any, any>
 ): any {
     let setupFun: Function
 
@@ -42,8 +54,6 @@ export function definePage(
         options = otherOptions
     }
 
-    let __context: IContext
-
     /** 绑定上下文 */
     options['$'] = function (
         this: ICurrentModuleInstance,
@@ -59,14 +69,20 @@ export function definePage(
                     this.triggerEvent('component', this)
             },
             function (params) {
-                __context = createContext(this)
-                const binds = setupFun.call(this, params, __context)
+                const context = createContext(this)
+                const inject = createDI(options.inject, useInject)
+                const provide = createDI(options.provide, useProvide)
+                const binds = setupFun.call(
+                    this,
+                    params,
+                    Object.assign(context, { inject, provide })
+                )
                 if (binds instanceof Promise) {
                     return console.error(`
                 setup不支持返回promise
             `)
                 }
-                __context.setData(binds)
+                context.setData(binds)
             },
             createLifecycleMethods(
                 CommonLifecycle.ON_LOAD,

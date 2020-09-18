@@ -1,19 +1,9 @@
 import { injectHook, ExtendLefecycle } from './lifecycle'
 import { overInCurrentModule } from './instance'
+import { Parameters, ReturnType } from './interface'
 
 const isEqual = require('lodash/isEqual')
 const cloneDeep = require('lodash/cloneDeep')
-
-type Parameters<T extends (...args: any) => any> = T extends (
-    ...args: infer P
-) => any
-    ? P
-    : never
-type ReturnType<T extends (...args: any) => any> = T extends (
-    ...args: any
-) => infer R
-    ? R
-    : any
 
 /**
  *
@@ -60,7 +50,7 @@ export function createConstate<T extends (...args: any[]) => any>(callback: T) {
     let CACHE_PARAMS: { params: any; constate: any }[] = []
 
     return (...args: Parameters<T>): ReturnType<T> => {
-        let findIndex = CACHE_PARAMS.findIndex(({params}) => {
+        let findIndex = CACHE_PARAMS.findIndex(({ params }) => {
             return isEqual(params, args)
         })
 

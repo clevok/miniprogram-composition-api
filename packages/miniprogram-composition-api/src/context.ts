@@ -6,7 +6,7 @@ import { router } from './router'
 
 export type IContext = {
     setData: (params: { [key: string]: any }) => () => void
-    event: Emitter,
+    event: Emitter
     router: typeof router
 }
 
@@ -42,6 +42,6 @@ export function createContext(target: ICurrentModuleInstance): IContext {
     return {
         setData: setData.bind(target),
         event: mitt(),
-        router
+        router,
     }
 }
