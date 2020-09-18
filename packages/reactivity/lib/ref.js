@@ -51,7 +51,7 @@ function createRef(viewDate) {
                 if (config === void 0) { config = { notify: false }; }
                 var updateValue;
                 if (utils_1.isFunction(value)) {
-                    updateValue = value(cloneDeep(viewDate));
+                    updateValue = value(cloneDeep(outDate));
                 }
                 else {
                     updateValue = value;
