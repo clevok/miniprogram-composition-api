@@ -1,8 +1,8 @@
 import { injectHook, ExtendLefecycle } from '../src/lifecycle'
 import { overInCurrentModule } from '../src/instance'
 
-const isEqual = require('lodash.isequal')
-const cloneDeep = require('lodash.clonedeep')
+import { clone } from '@jsmini/clone'
+import { isEqual } from '@jsmini/isequal'
 const RUN_HANDLES: { fun: any; params: { limit: any; done: Function }[] }[] = []
 
 /**
@@ -35,7 +35,7 @@ export function useConstate<F extends (...args: any[]) => any>(
     )
     if (!~findFunParamsIndex) {
         RUN_HANDLES[findFunIndex].params.unshift({
-            limit: cloneDeep(args),
+            limit: clone(args),
             done: initConstate(fun),
         })
         findFunParamsIndex = 0

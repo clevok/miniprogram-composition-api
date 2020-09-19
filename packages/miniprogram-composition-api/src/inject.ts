@@ -1,5 +1,5 @@
-const isEqual = require('lodash.isEqual')
-const cloneDeep = require('lodash.cloneDeep')
+import { clone } from '@jsmini/clone'
+import { isEqual } from '@jsmini/isequal'
 
 import { overInCurrentModule, ICurrentModuleInstance } from './instance'
 import { ExtendLefecycle } from './lifecycle'
@@ -42,7 +42,7 @@ export function useProvide<T extends (...args: any[]) => any>(
 
         if (!~findFunctionResultIndex) {
             targetInject[findFunctionIndex].caches.unshift([
-                cloneDeep(args),
+                clone(args),
                 callback(...args),
             ])
             findFunctionResultIndex = 0

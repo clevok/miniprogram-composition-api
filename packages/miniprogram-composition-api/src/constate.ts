@@ -2,8 +2,8 @@ import { injectHook, ExtendLefecycle } from './lifecycle'
 import { overInCurrentModule } from './instance'
 import { Parameters, ReturnType } from './interface'
 
-const isEqual = require('lodash.isequal')
-const cloneDeep = require('lodash.clonedeep')
+import { clone } from '@jsmini/clone'
+import { isEqual } from '@jsmini/isequal'
 
 /**
  *
@@ -56,7 +56,7 @@ export function createConstate<T extends (...args: any[]) => any>(callback: T) {
 
         if (!~findIndex) {
             CACHE_PARAMS.unshift({
-                params: cloneDeep(args),
+                params: clone(args),
                 constate: useConstate(),
             })
             findIndex = 0

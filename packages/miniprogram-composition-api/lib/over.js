@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var cloneDeep = require('lodash.clonedeep');
+var clone_1 = require("@jsmini/clone");
 function overCloneDeep(callback) {
     // @ts-ignore
     return function () {
@@ -8,7 +8,7 @@ function overCloneDeep(callback) {
         for (var _i = 0; _i < arguments.length; _i++) {
             args[_i] = arguments[_i];
         }
-        return cloneDeep(callback.apply(this, args));
+        return clone_1.clone(callback.apply(this, args));
     };
 }
 exports.overCloneDeep = overCloneDeep;

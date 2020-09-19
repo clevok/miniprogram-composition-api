@@ -1,8 +1,8 @@
-const cloneDeep = require('lodash.clonedeep');
+import { clone } from '@jsmini/clone'
 
 export function overCloneDeep<T extends Function> (callback: T): T{
 	// @ts-ignore
 	return function (...args: any[]){
-		return cloneDeep(callback.apply(this, args))
+		return clone(callback.apply(this, args))
 	}
 }

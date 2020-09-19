@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var lifecycle_1 = require("./lifecycle");
 var instance_1 = require("./instance");
-var isEqual = require('lodash.isequal');
-var cloneDeep = require('lodash.clonedeep');
+var clone_1 = require("@jsmini/clone");
+var isequal_1 = require("@jsmini/isequal");
 /**
  *
  * 存在期间的 单一实例
@@ -46,11 +46,11 @@ function createConstate(callback) {
         }
         var findIndex = CACHE_PARAMS.findIndex(function (_a) {
             var params = _a.params;
-            return isEqual(params, args);
+            return isequal_1.isEqual(params, args);
         });
         if (!~findIndex) {
             CACHE_PARAMS.unshift({
-                params: cloneDeep(args),
+                params: clone_1.clone(args),
                 constate: useConstate(),
             });
             findIndex = 0;

@@ -8,17 +8,17 @@
     "test": "test"
   },
   "dependencies": {
-    "lodash.clonedeep": "^4.5.0",
-    "lodash.isequal": "^4.5.0",
+    "@jsmini/clone": "^0.4.2",
+    "@jsmini/isequal": "^0.4.2",
     "miniprogram-reactivity": "^0.3.1"
   },
   "devDependencies": {
+    "miniprogram-api-typings": "*",
     "rollup-plugin-babel": "^4.4.0",
     "rollup-plugin-commonjs": "^10.1.0",
     "rollup-plugin-node-resolve": "^5.2.0",
-    "typescript": "^4.0.2",
-    "miniprogram-api-typings": "*",
-    "rollup-plugin-typescript2": "^0.27.2"
+    "rollup-plugin-typescript2": "^0.27.2",
+    "typescript": "^4.0.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

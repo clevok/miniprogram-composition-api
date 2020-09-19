@@ -1,7 +1,7 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var isEqual = require('lodash.isEqual');
-var cloneDeep = require('lodash.cloneDeep');
+var clone_1 = require("@jsmini/clone");
+var isequal_1 = require("@jsmini/isequal");
 var instance_1 = require("./instance");
 var provides = getApp();
 /**
@@ -30,11 +30,11 @@ function useProvide(callback) {
             findFunctionIndex = 0;
         }
         var findFunctionResultIndex = targetInject[findFunctionIndex].caches.findIndex(function (cache) {
-            return isEqual(cache[0], args);
+            return isequal_1.isEqual(cache[0], args);
         });
         if (!~findFunctionResultIndex) {
             targetInject[findFunctionIndex].caches.unshift([
-                cloneDeep(args),
+                clone_1.clone(args),
                 callback.apply(void 0, args),
             ]);
             findFunctionResultIndex = 0;
@@ -68,7 +68,7 @@ function useInject(callback) {
             return getProvide(target["__parent__" /* PARENT */]);
         }
         var findFunctionResultIndex = targetInject[findFunctionIndex].caches.findIndex(function (cache) {
-            return isEqual(cache[0], args);
+            return isequal_1.isEqual(cache[0], args);
         });
         if (!~findFunctionResultIndex) {
             return getProvide(target["__parent__" /* PARENT */]);
