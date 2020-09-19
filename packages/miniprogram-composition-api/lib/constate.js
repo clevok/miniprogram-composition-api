@@ -2,8 +2,8 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 var lifecycle_1 = require("./lifecycle");
 var instance_1 = require("./instance");
-var isEqual = require('lodash/isEqual');
-var cloneDeep = require('lodash/cloneDeep');
+var isEqual = require('lodash.isequal');
+var cloneDeep = require('lodash.clonedeep');
 /**
  *
  * 存在期间的 单一实例

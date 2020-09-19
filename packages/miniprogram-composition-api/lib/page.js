@@ -23,6 +23,7 @@ var lifecycle_1 = require("./lifecycle");
 var context_1 = require("./context");
 var shared_1 = require("./shared");
 var instance_1 = require("./instance");
+var inject_1 = require("./inject");
 function definePage(pageOptions) {
     var setupFun;
     var options;
@@ -38,7 +39,6 @@ function definePage(pageOptions) {
         setupFun = setupOption;
         options = otherOptions;
     }
-    var __context;
     /** 绑定上下文 */
     options['$'] = function (_a) {
         var detail = _a.detail;
@@ -48,12 +48,14 @@ function definePage(pageOptions) {
         typeof this.triggerEvent === 'function' &&
             this.triggerEvent('component', this);
     }, function (params) {
-        __context = context_1.createContext(this);
-        var binds = setupFun.call(this, params, __context);
+        var context = context_1.createContext(this);
+        var inject = shared_1.createDI(options.inject, inject_1.useInject);
+        var provide = shared_1.createDI(options.provide, inject_1.useProvide);
+        var binds = setupFun.call(this, params, Object.assign(context, { inject: inject, provide: provide }));
         if (binds instanceof Promise) {
             return console.error("\n                setup\u4E0D\u652F\u6301\u8FD4\u56DEpromise\n            ");
         }
-        __context.setData(binds);
+        context.setData(binds);
     }, shared_1.createLifecycleMethods("onLoad" /* ON_LOAD */, options["onLoad" /* ON_LOAD */])));
     options["onReady" /* ON_READY */] = shared_1.createLifecycleMethods("onReady" /* ON_READY */, options["onReady" /* ON_READY */]);
     options["onUnload" /* ON_UNLOAD */] = utils_1.wrapFuns(function () {

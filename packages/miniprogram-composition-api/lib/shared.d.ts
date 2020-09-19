@@ -35,5 +35,20 @@ declare type PropertyToData<T extends AllProperty> = T extends ShortProperty ? V
 declare type PropertyOptionToData<P extends IProps> = {
     [name in keyof P]: IRef<PropertyToData<P[name]>>;
 };
-export declare type ISetup<P extends IProps> = (this: ICurrentModuleInstance, props: PropertyOptionToData<P>, context: IContext) => IBindings;
+export declare type ISetup<P extends IProps, PROVIDE extends {
+    [key: string]: () => any;
+}, INJECT extends {
+    [key: string]: () => any;
+}> = (this: ICurrentModuleInstance, props: PropertyOptionToData<P>, context: IContext & {
+    provide: ParamsCallback<PROVIDE>;
+    inject: ParamsCallback<INJECT>;
+}) => IBindings;
+declare type ParamsCallback<P extends {
+    [key: string]: () => any;
+}> = {
+    [name in keyof P]: ReturnType<P[name]>;
+};
+export declare function createDI<P extends {
+    [key: string]: () => any;
+}>(params: P, next: (callback: any) => any): ParamsCallback<P>;
 export {};

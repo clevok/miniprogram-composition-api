@@ -2,8 +2,8 @@ import { injectHook, ExtendLefecycle } from './lifecycle'
 import { overInCurrentModule } from './instance'
 import { Parameters, ReturnType } from './interface'
 
-const isEqual = require('lodash/isEqual')
-const cloneDeep = require('lodash/cloneDeep')
+const isEqual = require('lodash.isequal')
+const cloneDeep = require('lodash.clonedeep')
 
 /**
  *

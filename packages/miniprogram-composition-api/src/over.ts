@@ -1,4 +1,4 @@
-const cloneDeep = require('lodash/cloneDeep');
+const cloneDeep = require('lodash.clonedeep');
 
 export function overCloneDeep<T extends Function> (callback: T): T{
 	// @ts-ignore

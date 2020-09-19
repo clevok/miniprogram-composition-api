@@ -9,8 +9,8 @@ import { isFunction, wrapFuns } from './utils'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext } from './context'
 import { createLifecycleMethods, ISetup, AllProperty, createDI } from './shared'
-import { useRef, IRef } from 'miniprogram-reactivity'
 import { useInject, useProvide } from './inject'
+import { useRef, IRef } from 'miniprogram-reactivity'
 
 export function defineComponent<
     PROPS extends {

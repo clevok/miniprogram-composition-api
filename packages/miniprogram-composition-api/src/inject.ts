@@ -1,17 +1,11 @@
-const isEqual = require('lodash/isEqual')
-const cloneDeep = require('lodash/cloneDeep')
+const isEqual = require('lodash.isEqual')
+const cloneDeep = require('lodash.cloneDeep')
 
 import { overInCurrentModule, ICurrentModuleInstance } from './instance'
 import { ExtendLefecycle } from './lifecycle'
 import { Parameters, ReturnType } from './interface'
 
-const provides = getApp<{
-    /** loc注册的内容 */
-    [ExtendLefecycle.LOC_INJECT]?: {
-        function_target: Function
-        caches: [args: any, result: any][]
-    }[]
-}>()
+const provides = getApp()
 
 /**
  *

@@ -30,7 +30,7 @@ function createContext(target) {
     return {
         setData: setData.bind(target),
         event: mitt_1.mitt(),
-        router: router_1.router
+        router: router_1.router,
     };
 }
 exports.createContext = createContext;

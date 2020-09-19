@@ -1,9 +1,9 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var isEqual = require('lodash/isEqual');
-var cloneDeep = require('lodash/cloneDeep');
+var isEqual = require('lodash.isEqual');
+var cloneDeep = require('lodash.cloneDeep');
 var instance_1 = require("./instance");
-var provides = Object.create(null);
+var provides = getApp();
 /**
  *
  * create and use point
@@ -13,10 +13,8 @@ function useProvide(callback) {
     for (var _i = 1; _i < arguments.length; _i++) {
         args[_i - 1] = arguments[_i];
     }
-    return instance_1.overInCurrentModule(function (current) {
-        if (!current) {
-            current = provides;
-        }
+    return instance_1.overInCurrentModule(function (_current) {
+        var current = _current ? _current : provides;
         if (!current["__loc_inject__" /* LOC_INJECT */]) {
             current["__loc_inject__" /* LOC_INJECT */] = [];
         }
@@ -77,10 +75,8 @@ function useInject(callback) {
         }
         return targetInject[findFunctionIndex].caches[findFunctionResultIndex][1];
     }
-    return instance_1.overInCurrentModule(function (current) {
-        if (!current) {
-            current = provides;
-        }
+    return instance_1.overInCurrentModule(function (_current) {
+        var current = _current ? _current : provides;
         var runResult = getProvide(current);
         if (runResult === CANT_FIND_KEY) {
             return callback.apply(void 0, args);

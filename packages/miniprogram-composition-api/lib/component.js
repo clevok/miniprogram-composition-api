@@ -11,11 +11,12 @@ var __rest = (this && this.__rest) || function (s, e) {
     return t;
 };
 Object.defineProperty(exports, "__esModule", { value: true });
-var utils_1 = require("./utils");
 var lifecycle_1 = require("./lifecycle");
+var utils_1 = require("./utils");
 var instance_1 = require("./instance");
 var context_1 = require("./context");
 var shared_1 = require("./shared");
+var inject_1 = require("./inject");
 var miniprogram_reactivity_1 = require("miniprogram-reactivity");
 function defineComponent(componentOptions) {
     var setupFun;
@@ -84,8 +85,10 @@ function defineComponent(componentOptions) {
         this.triggerEvent('component', this);
     }, function () {
         var context = context_1.createContext(this);
+        var inject = shared_1.createDI(options.inject, inject_1.useInject);
+        var provide = shared_1.createDI(options.provide, inject_1.useProvide);
         var props = createProxyProperty.call(this);
-        var binds = setupFun.call(this, props, context);
+        var binds = setupFun.call(this, props, Object.assign(context, { inject: inject, provide: provide }));
         if (binds instanceof Promise) {
             return console.error("\n                setup\u8FD4\u56DE\u503C\u4E0D\u652F\u6301promise\n            ");
         }

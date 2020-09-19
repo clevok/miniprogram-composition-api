@@ -28,3 +28,5 @@ exports.useComputed = computed_1.useComputed;
 var inject_1 = require("./inject");
 exports.useInject = inject_1.useInject;
 exports.useProvide = inject_1.useProvide;
+var app_1 = require("./app");
+exports.defineApp = app_1.defineApp;

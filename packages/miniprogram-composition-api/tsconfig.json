@@ -1,17 +1,16 @@
 {
 	"compilerOptions": {
-		"target": "es5",
-		"module": "commonjs",
+        "target": "es5",
+        "module": "CommonJS",
+        "moduleResolution": "node",
 		"declaration": true,
 		"outDir": "./lib",
 		"strict": false,
-		"experimentalDecorators": true,
-        "lib": ["ES2015", "DOM"],
+        "experimentalDecorators": true,
         "typeRoots": [
             "./node_modules/@types",
             "./node_modules/miniprogram-api-typings"
         ]
     },
-    "include": ["src"],
-	"exclude": ["dist", "example", "test"]
+	"exclude": ["dist", "example", "test", "beta"]
 }

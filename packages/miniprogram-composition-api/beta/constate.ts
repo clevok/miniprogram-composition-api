@@ -1,8 +1,8 @@
 import { injectHook, ExtendLefecycle } from '../src/lifecycle'
 import { overInCurrentModule } from '../src/instance'
 
-const isEqual = require('lodash/isEqual')
-const cloneDeep = require('lodash/cloneDeep')
+const isEqual = require('lodash.isequal')
+const cloneDeep = require('lodash.clonedeep')
 const RUN_HANDLES: { fun: any; params: { limit: any; done: Function }[] }[] = []
 
 /**

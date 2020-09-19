@@ -83,3 +83,15 @@ function createLifecycleMethods(lifecycle, options) {
     };
 }
 exports.createLifecycleMethods = createLifecycleMethods;
+function createDI(params, next) {
+    if (!params) {
+        // @ts-ignore
+        return {};
+    }
+    var result = {};
+    Object.keys(params).forEach(function (KEY) {
+        result[KEY] = next(params[KEY]);
+    });
+    return result;
+}
+exports.createDI = createDI;

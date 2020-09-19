@@ -1,6 +1,6 @@
 {
-  "name": "@wx/miniprogram-composition-api",
-  "version": "0.3.4",
+  "name": "miniprogram-composition-api",
+  "version": "0.3.5",
   "description": "类 vue3 composition-api 写法写小程序 小程序mixins替代方案, 计算属性, watch",
   "main": "lib/index.js",
   "directories": {
@@ -8,11 +8,17 @@
     "test": "test"
   },
   "dependencies": {
-    "miniprogram-reactivity": "^0.3.1",
-    "lodash": "^4.17.20"
+    "lodash.clonedeep": "^4.5.0",
+    "lodash.isequal": "^4.5.0",
+    "miniprogram-reactivity": "^0.3.1"
   },
   "devDependencies": {
-    "miniprogram-api-typings": "*"
+    "rollup-plugin-babel": "^4.4.0",
+    "rollup-plugin-commonjs": "^10.1.0",
+    "rollup-plugin-node-resolve": "^5.2.0",
+    "typescript": "^4.0.2",
+    "miniprogram-api-typings": "*",
+    "rollup-plugin-typescript2": "^0.27.2"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

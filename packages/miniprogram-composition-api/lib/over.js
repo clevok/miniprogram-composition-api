@@ -1,6 +1,6 @@
 "use strict";
 Object.defineProperty(exports, "__esModule", { value: true });
-var cloneDeep = require('lodash/cloneDeep');
+var cloneDeep = require('lodash.clonedeep');
 function overCloneDeep(callback) {
     // @ts-ignore
     return function () {
