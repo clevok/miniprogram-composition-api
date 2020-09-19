@@ -1,5 +1,5 @@
-const isEqual = require('lodash/isEqual');
-const cloneDeep = require('lodash/cloneDeep');
+import { clone } from '@jsmini/clone'
+import { isEqual } from '@jsmini/isequal'
 
 import { Dep } from './dep'
 import { isFunction } from './utils'
@@ -47,9 +47,9 @@ export function useRef<T> (value: T): IRef<T>{
 
 function createRef<T> (viewDate: T){
 	/** 视图层的数据,只有在set的时候才能被获取更改 */
-	viewDate = cloneDeep(viewDate)
+	viewDate = clone(viewDate)
 	/** 对外的数据,允许更改 */
-	let outDate = cloneDeep(viewDate)
+	let outDate = clone(viewDate)
 
 	const dep = new Dep()
 	const ref = Object.create(null)
@@ -77,16 +77,16 @@ function createRef<T> (viewDate: T){
 			value: (value: ((params: T) => T) | T, config = { notify: false }) => {
 				let updateValue: T
 				if (isFunction(value)) {
-					updateValue = value(cloneDeep(outDate))
+					updateValue = value(clone(outDate))
 				} else {
 					updateValue = value
 				}
 
 				if (config.notify || !isEqual(viewDate, updateValue)) {
-					let beforeViewDate = cloneDeep(viewDate)
+					let beforeViewDate = clone(viewDate)
 
-					viewDate = cloneDeep(updateValue)
-					outDate = cloneDeep(updateValue)
+					viewDate = clone(updateValue)
+					outDate = clone(updateValue)
 
 					dep.notify(updateValue, beforeViewDate)
 				}
