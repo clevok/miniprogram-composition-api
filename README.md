@@ -12,15 +12,16 @@
 
 1. 通过 `westore.diff` 转换到 视图层, 视图层中的数据, 会与逻辑层中不一致, 详情看 `必读.2`
 2. 之后如果可以不考虑 `proxy兼容性`问题 的话, 将直接采用 [vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
-3. 目前采用的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 方案, 也就是说, 目前只有一个 响应式对象, 也就是 `observable.box`, 但是还没有实现普通 `reactive`对象
-4. 此框架主要目的是尝试, 使用 `composition api`写小程序, 解决数据状态,代码复用问题, `useRef`, `useEffect`等api是实现的这种写法过程产物
+3. 目前只有一个响应式对象叫`useRef`采用的是 [mobx box方案](https://cn.mobx.js.org/refguide/boxed.html) 方案, 其他的都没有！！,也就是说, useRef, 我应该命名成useBox 才对
+4. 此框架主要目的是尝试, 使用 `composition api`写小程序, 解决数据状态,代码复用问题, `useRef`, `useEffect`等 api 是实现的这种写法过程产物
 
 ### 必读
 
 1. 比较别扭的是, 更新 useRef 对象的值必须通过 `.set`方法, `读取`必须是 `.value`或者`.get()`
-    1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini) 因为兼容性问题太严重, 支持proxy的机型没有那么乐观
-    2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点
-    3. 参考的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
+
+      1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini) 因为兼容性问题太严重, 支持 proxy 的机型没有那么乐观
+      2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点
+      3. 参考的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
 
 2. 所有更新的数据, 都会通过 `westore.diff` 转换到 视图层, 因此, 在更新对象, 数组上会有以下问题
       1. 删除数组中的某一项, 其实会把 这个项目变成 null, 例如 [1,2,3] => [1,null,3]
@@ -29,6 +30,7 @@
       4. 将会建立自己一套 diff 树,目前更新颗粒度只有一层..
 
 ### 注意
+
 1. 采用[westore](https://github.com/Tencent/westore) 的 json diff, 视图层上的数据,会出乎你意料之外,详情后面会将
 
 ### 慎重考虑
@@ -340,47 +342,50 @@ defineComponent({
 ```
 
 #### 我设想的结构
+
 hooks
+
 ```js
 // 用户信息
 function useUserInfo() {
-    return {
-        userInfo: useRef()
-    }
+      return {
+            userInfo: useRef(),
+      }
 }
 function useShopInfo() {
-    return {
-        shopInfo: useRef()
-    }
+      return {
+            shopInfo: useRef(),
+      }
 }
 ```
 
 app
+
 ```js
 defineApp({
-    provide: { useUserInfo, useShopInfo }
+      provide: { useUserInfo, useShopInfo },
 })
 ```
 
 pageA
+
 ```js
 defineComponent({
-    inject: { useUserInfo, useShopInfo },
-    setup(props, { inject }) {
-        const { useUserInfo, useShopInfo } = inject
+      inject: { useUserInfo, useShopInfo },
+      setup(props, { inject }) {
+            const { useUserInfo, useShopInfo } = inject
 
-        const onUpdate = () => {
-            useUserInfo.update()
-        }
+            const onUpdate = () => {
+                  useUserInfo.update()
+            }
 
-        return {
-            userInfo: useUserInfo.userInfo,
-            onUpdate
-        }
-    }
+            return {
+                  userInfo: useUserInfo.userInfo,
+                  onUpdate,
+            }
+      },
 })
 ```
-
 
 ### 不要这样做
 
