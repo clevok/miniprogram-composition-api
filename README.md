@@ -15,7 +15,7 @@
 ### 必读
 
 1. 更新 useRef 对象的值必须通过 `.set`方法, `读取`必须是 `.value`或者`.get()`才是储存的值
-    1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini)
+    1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini) 因为兼容性问题太严重, 支持proxy的机型没有那么乐观
     2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点,参考了 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
 
 2. 所有更新的数据, 都会通过 `westore.diff` 转换到 视图层, 因此, 在更新对象, 数组上会有以下问题
