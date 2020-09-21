@@ -8,35 +8,31 @@
 > npm install miniprogram-composition-api --save
 > [仓库地址](https://github.com/clevok/miniprogram-composition-api)
 
-### 致命问题
+### 使用前请考虑
 
-1. 通过 `westore.diff` 转换到 视图层, 视图层中的数据, 会与逻辑层中不一致, 详情看 `必读.2`
-2. 之后如果可以不考虑 `proxy兼容性`问题 的话, 将直接采用 [vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
-3. 目前只有一个响应式对象叫`useRef`采用的是 [mobx box方案](https://cn.mobx.js.org/refguide/boxed.html) 方案, 其他的都没有！！,也就是说, useRef, 我应该命名成useBox 才对
-4. 此框架主要目的是尝试, 使用 `composition api`写小程序, 解决数据状态,代码复用问题, `useRef`, `useEffect`等 api 是实现的这种写法过程产物
+这个框架并不是vue composition api写法, 因为得考虑到 `IOS10` 以下的客户无法使用Proxy, 处于这个原因, 3个核心api都不一致
+
+1. 它是过度产品, 是因为我想使用`function api`的方式写小程序, 但是可能会面临`兼容性问题`可能会被上司要求解决,除非可以让用户升级系统版本(曾经考虑过`Object.defineProperty`和脏检查)
+
+2. 最终ref对象采用的是[mobx box方案](https://cn.mobx.js.org/refguide/boxed.html)方案, 意味着要通过`.set`读取值, `.get/.value`获取值, 有些人可能会很不喜欢, 因为`.set`方式 和 直接修改`.value`值的方式, 直觉上的相差太多, 并且常常会忘记需要 `.value` 来获取真正的值
+
+3. 已经有真正使用`@vue/reactivity` 的[小程序框架 了](https://github.com/yangmingshan/vue-mini) 直接采用了[@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity) 做响应式数据, 不考虑proxy问题,可以考虑这个框架
+
+**请慎重考虑, 毕竟非主流, 非标准**
+
+
+---
 
 ### 必读
 
 1. 比较别扭的是, 更新 useRef 对象的值必须通过 `.set`方法, `读取`必须是 `.value`或者`.get()`
 
-      1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini) 因为兼容性问题太严重, 支持 proxy 的机型没有那么乐观
-      2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点
-      3. 参考的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
-
-2. 所有更新的数据, 都会通过 `westore.diff` 转换到 视图层, 因此, 在更新对象, 数组上会有以下问题
+2. 响应式数据, 会通过 `westore.diff` 转换到 视图层, 某些情况下, 视图层数据 会与逻辑层中不一致
       1. 删除数组中的某一项, 其实会把 这个项目变成 null, 例如 [1,2,3] => [1,null,3]
       2. 删除对象某个属性, 会把这个属性设置成 null 例如 { name: 'along' } => {name: null}
       3. 之后会尝试优化 westore 的 diff, 如果设置成了空 数组 或者空对象, 就直接变成 全部复制, 以及提供 diff: false, 不经过他的 diff, 直接整个赋值
       4. 将会建立自己一套 diff 树,目前更新颗粒度只有一层..
 
-### 注意
-
-1. 采用[westore](https://github.com/Tencent/westore) 的 json diff, 视图层上的数据,会出乎你意料之外,详情后面会将
-
-### 慎重考虑
-
-1. 采用 @vue/reactivity 会带来版本兼容问题, 之前红版回退问题
-2. 用了.set 这一套, 意味着和市场脱轨, 无法和市场上 vue3 的共享 hooks, 意味着你得自己独立运营
 
 ### 解决什么
 
