@@ -11,12 +11,15 @@
 ### 致命问题
 
 1. 通过 `westore.diff` 转换到 视图层, 视图层中的数据, 会与逻辑层中不一致, 详情看 `必读.2`
+2. 之后如果可以不考虑 `proxy兼容性`问题 的话, 将直接采用 [vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
+    1. 保留 useRef, useCompute, useEffect 新增 `ref`, `compute`, `watch`等vue自带的api 等`vue/reactivity`包的模板
 
 ### 必读
 
-1. 更新 useRef 对象的值必须通过 `.set`方法, `读取`必须是 `.value`或者`.get()`才是储存的值
+1. 比较别扭的是, 更新 useRef 对象的值必须通过 `.set`方法, `读取`必须是 `.value`或者`.get()`
     1. 已经有一个人采用 @vue/reactivity 做了[小程序版 composition api 了](https://github.com/yangmingshan/vue-mini) 因为兼容性问题太严重, 支持proxy的机型没有那么乐观
-    2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点,参考了 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
+    2. Object.defineProperty 毕竟还存对对象操作上问题,于是想简单点
+    3. 参考的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 使用 .set, .get
 
 2. 所有更新的数据, 都会通过 `westore.diff` 转换到 视图层, 因此, 在更新对象, 数组上会有以下问题
       1. 删除数组中的某一项, 其实会把 这个项目变成 null, 例如 [1,2,3] => [1,null,3]
