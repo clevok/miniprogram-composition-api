@@ -12,8 +12,8 @@
 
 1. 通过 `westore.diff` 转换到 视图层, 视图层中的数据, 会与逻辑层中不一致, 详情看 `必读.2`
 2. 之后如果可以不考虑 `proxy兼容性`问题 的话, 将直接采用 [vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity)
-    1. 保留 useRef, useCompute, useEffect 新增 `ref`, `compute`, `watch`等vue自带的api 等`vue/reactivity`包的模板
-3. 考虑直接采用 `mobx4 方案`, 此框架主要目的是尝试, 使用 `composition api`写小程序, 解决数据状态,代码复用问题, `useRef`, `useEffect`等api是实现的这种写法过程产物, 不太标准吧, 之后会大改
+3. 目前采用的是 [mobx4 box](https://cn.mobx.js.org/refguide/boxed.html) 方案, 也就是说, 目前只有一个 响应式对象, 也就是 `observable.box`, 但是还没有实现普通 `reactive`对象
+4. 此框架主要目的是尝试, 使用 `composition api`写小程序, 解决数据状态,代码复用问题, `useRef`, `useEffect`等api是实现的这种写法过程产物
 
 ### 必读
 
