@@ -10,7 +10,7 @@
 
 ### 使用前请考虑
 
-这个框架并不是vue composition api写法, 因为得考虑到 `IOS10` 以下的客户无法使用Proxy, 处于这个原因, 3个核心api都不一致
+这个框架只是参考vue composition api思路, 因为得考虑到 `IOS10` 以下的客户无法使用Proxy, 出于这个原因, 没有采用`@vue/reactivity`做响应式数据, 所以api是不一致的
 
 1. 它是过度产品, 是因为我想使用`function api`的方式写小程序, 但是可能会面临`兼容性问题`可能会被上司要求解决,除非可以让用户升级系统版本(曾经考虑过`Object.defineProperty`和脏检查)
 
