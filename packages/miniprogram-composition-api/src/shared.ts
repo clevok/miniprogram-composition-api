@@ -175,9 +175,11 @@ export type ISetup<
     }
 ) => IBindings
 
+type ParamsFunDI = () => any
+
 type ParamsCallback<
     P extends {
-        [key: string]: () => any
+        [key: string]: ParamsFunDI
     }
 > = {
     [name in keyof P]: ReturnType<P[name]>
@@ -185,7 +187,7 @@ type ParamsCallback<
 
 export function createDI<
     P extends {
-        [key: string]: () => any
+        [key: string]: ParamsFunDI
     }
 >(params: P, next: (callback: any) => any): ParamsCallback<P> {
     if (!params) {
