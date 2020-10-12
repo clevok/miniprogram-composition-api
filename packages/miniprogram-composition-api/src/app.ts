@@ -38,3 +38,7 @@
 export function defineApp<T>(params: WechatMiniprogram.App.Options<T>) {
     App(params)
 }
+
+export function getApp() {
+    
+}

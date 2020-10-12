@@ -15,21 +15,21 @@ export function isObserve (value): value is IRef{
  */
 export function useEffect<T> (callback: (newValue: T, oldValue: T) => any, refs: IRef<T>[]){
 	if (!isFunction(callback)) {
-		return void console.warn(`
+		return void console.error(`
         useEffect callback must be functions
         `)
 	}
 	if (!refs || !refs.length) {
-		return void console.warn(`
+		return void console.error(`
         refs must be Ref[]
         `)
 	}
 
 	const handles = refs.map((ref) => {
 		if (!isObserve(ref)) {
-			return void console.warn(`useEffect refs incloud cant Observe object`)
+			return void console.error(`useEffect refs incloud cant Observe object`)
 		}
-		return ref.__v_change((newValue, oldValue) => {
+		return ref.observe((newValue, oldValue) => {
 			callback(newValue, oldValue)
 		})
 	})

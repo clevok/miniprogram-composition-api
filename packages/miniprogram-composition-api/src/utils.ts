@@ -18,11 +18,11 @@ export function isPlainObject (x: unknown): x is Record<string, unknown>{
 
 export function wrapFuns (...args: Function[]){
 	return function (...params: any[]){
-		return args.map((fun) => {
+		return args.forEach((fun) => {
 			try {
 				fun && fun.apply(this, params)
-            } catch (e) {
-                console.error(e);
+			} catch (e) {
+				console.error(e)
 				/** ignore */
 			}
 		})

@@ -4,7 +4,8 @@ const FUNCTIONTYPE = '[object Function]'
 
 export function diff (current, pre){
 	const result = {}
-	syncKeys(current, pre)
+    syncKeys(current, pre)
+    console.log(current, pre)
 	_diff(current, pre, '', result)
 	return result
 }
@@ -14,16 +15,16 @@ function syncKeys (current, pre){
 	const rootCurrentType = type(current)
 	const rootPreType = type(pre)
 	if (rootCurrentType == OBJECTTYPE && rootPreType == OBJECTTYPE) {
-		//if(Object.keys(current).length >= Object.keys(pre).length){
-		for (let key in pre) {
-			const currentValue = current[key]
-			if (currentValue === undefined) {
-				current[key] = null
-			} else {
-				syncKeys(currentValue, pre[key])
+		// if (Object.keys(current).length >= Object.keys(pre).length) {
+			for (let key in pre) {
+				const currentValue = current[key]
+				if (currentValue === undefined) {
+					current[key] = null
+				} else {
+					syncKeys(currentValue, pre[key])
+				}
 			}
-		}
-		//}
+		// }
 	} else if (rootCurrentType == ARRAYTYPE && rootPreType == ARRAYTYPE) {
 		if (current.length >= pre.length) {
 			pre.forEach((item, index) => {

@@ -5,107 +5,113 @@ import { overInCurrentModule, ICurrentModuleInstance } from './instance'
 import { ExtendLefecycle } from './lifecycle'
 import { Parameters, ReturnType } from './interface'
 
-const provides = getApp()
-
 /**
  *
- * create and use point
+ * create new (function block) if not init that
  */
-export function useProvide<T extends (...args: any[]) => any>(
-    callback: T,
-    ...args: Parameters<T>
-): ReturnType<T> {
-    return overInCurrentModule((_current) => {
-        let current = _current ? _current : provides
+export function useProvide<T extends (...args: any[]) => any> (
+	callback: T,
+	...args: Parameters<T>
+): ReturnType<T>{
+	const that = this || {}
 
-        if (!current[ExtendLefecycle.LOC_INJECT]) {
-            current[ExtendLefecycle.LOC_INJECT] = []
-        }
+	return overInCurrentModule((current) => {
+		current = current ? current : that
 
-        let targetInject = current[ExtendLefecycle.LOC_INJECT]
-        let findFunctionIndex = targetInject.findIndex((target) => {
-            return target.function_target === callback
-        })
-        if (!~findFunctionIndex) {
-            targetInject.unshift({
-                function_target: callback,
-                caches: [],
-            })
-            findFunctionIndex = 0
-        }
+		if (!current[ExtendLefecycle.LOC_INJECT]) {
+			current[ExtendLefecycle.LOC_INJECT] = []
+		}
 
-        let findFunctionResultIndex = targetInject[
-            findFunctionIndex
-        ].caches.findIndex((cache) => {
-            return isEqual(cache[0], args)
-        })
+		let targetInject = current[ExtendLefecycle.LOC_INJECT]
+		let findFunctionIndex = targetInject.findIndex((target) => {
+			return target.function_target === callback
+		})
+		if (!~findFunctionIndex) {
+			targetInject.unshift({
+				function_target: callback,
+				caches: []
+			})
+			findFunctionIndex = 0
+		}
 
-        if (!~findFunctionResultIndex) {
-            targetInject[findFunctionIndex].caches.unshift([
-                clone(args),
-                callback(...args),
-            ])
-            findFunctionResultIndex = 0
-        }
+		let findFunctionResultIndex = targetInject[
+			findFunctionIndex
+		].caches.findIndex((cache) => {
+			return isEqual(cache[0], args)
+		})
 
-        return targetInject[findFunctionIndex].caches[
-            findFunctionResultIndex
-        ][1]
-    })
+		if (!~findFunctionResultIndex) {
+			targetInject[findFunctionIndex].caches.unshift([ clone(args), callback(...args) ])
+			findFunctionResultIndex = 0
+		}
+
+		return targetInject[findFunctionIndex].caches[findFunctionResultIndex][1]
+	})
 }
 
 /**
  *
- * use point
+ * find and use (function block) if created
+ * if not find, run useProvide
  */
-export function useInject<T extends (...args: any[]) => any>(
-    callback: T,
-    ...args: Parameters<T>
-): ReturnType<T> {
-    const CANT_FIND_KEY = Symbol()
-    function getProvide(
-        target: ICurrentModuleInstance | typeof provides
-    ): typeof CANT_FIND_KEY | ReturnType<T> {
-        if (!target) {
-            return CANT_FIND_KEY
-        }
+export function useInject<T extends (...args: any[]) => any> (
+	callback: T,
+	...args: Parameters<T>
+): ReturnType<T>{
+	const that = this || {}
+	const CANT_FIND_KEY = Symbol()
 
-        const targetInject = target[ExtendLefecycle.LOC_INJECT] || []
-        if (!targetInject.length) {
-            return getProvide(target[ExtendLefecycle.PARENT])
-        }
+	/** find (function block) */
+	function getProvide (target: ICurrentModuleInstance): typeof CANT_FIND_KEY | ReturnType<T>{
+		if (!target) {
+			return CANT_FIND_KEY
+		}
 
-        let findFunctionIndex = targetInject.findIndex((target) => {
-            return target.function_target === callback
-        })
+        /** if not find parent, return app */
+		function getParent (target: ICurrentModuleInstance){
+			const app = getApp() as ICurrentModuleInstance
 
-        if (!~findFunctionIndex) {
-            return getProvide(target[ExtendLefecycle.PARENT])
-        }
+			if (target === app) {
+				return null
+			}
 
-        let findFunctionResultIndex = targetInject[
-            findFunctionIndex
-        ].caches.findIndex((cache) => {
-            return isEqual(cache[0], args)
-        })
+			return target[ExtendLefecycle.PARENT] || app
+		}
 
-        if (!~findFunctionResultIndex) {
-            return getProvide(target[ExtendLefecycle.PARENT])
-        }
+		const targetInject = target[ExtendLefecycle.LOC_INJECT] || []
+		if (!targetInject.length) {
+			return getProvide(getParent(target))
+		}
 
-        return targetInject[findFunctionIndex].caches[
-            findFunctionResultIndex
-        ][1]
-    }
+		const findFunctionIndex = targetInject.findIndex((target) => {
+			return target.function_target === callback
+		})
 
-    return overInCurrentModule((_current) => {
-        let current = _current ? _current : provides
+		if (!~findFunctionIndex) {
+			return getProvide(getParent(target))
+		}
 
-        const runResult = getProvide(current)
-        if (runResult === CANT_FIND_KEY) {
-            return callback(...args)
-        }
+		const findFunctionResultIndex = targetInject[
+			findFunctionIndex
+		].caches.findIndex((cache) => {
+			return isEqual(cache[0], args)
+		})
 
-        return runResult
-    })
+		if (!~findFunctionResultIndex) {
+			return getProvide(getParent(target))
+		}
+
+		return targetInject[findFunctionIndex].caches[findFunctionResultIndex][1]
+	}
+
+	return overInCurrentModule((current) => {
+		current = current ? current : that
+
+		const runResult = getProvide(current)
+		if (runResult === CANT_FIND_KEY) {
+			return useProvide(callback, ...args)
+		}
+
+		return runResult
+	})
 }

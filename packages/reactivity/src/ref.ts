@@ -19,7 +19,7 @@ export interface IRef<T = any> {
 	/**
      * 更新通知
      */
-	__v_change: (callback: (newValue: T, oldValue: T) => any) => /** 清除句柄 */ () => any
+	observe: (callback: (newValue: T, oldValue: T) => any) => /** 清除句柄 */ () => any
 	/**
      * 清除所有的监听
      */
@@ -107,7 +107,7 @@ function createRef<T> (viewDate: T){
 			writable: false,
 			enumerable: false
 		},
-		__v_change: {
+		observe: {
 			value: (callback: Function) => {
 				return dep.depend(callback)
 			},
