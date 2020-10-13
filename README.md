@@ -29,7 +29,7 @@
       2. 删除对象某个属性, 会把这个属性设置成 null 例如 { name: 'along' } => {name: null}
       3. 之后会尝试优化 westore 的 diff, 如果设置成了空 数组 或者空对象, 就直接变成 全部复制, 以及提供 diff: false, 不经过他的 diff, 直接整个赋值
       4. 将会建立自己一套 diff 树,目前更新颗粒度只有一层..
-
+3. `useRef`将改名为`useBox`,ref对象将和vue3保持一致
 
 ### 解决什么
 
