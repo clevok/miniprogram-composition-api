@@ -29,8 +29,8 @@ export const enum PageLifecycle {
 	ON_SHARE_APP_MESSAGE = 'onShareAppMessage',
 	ON_RESIZE = 'onResize',
 	ON_TAB_ITEM_TAP = 'onTabItemTap',
-    ON_ADD_TO_FAVORITES = 'onAddToFavorites',
-    ON_SHARE_TIME_LINE = 'onShareTimeline'
+	ON_ADD_TO_FAVORITES = 'onAddToFavorites',
+	ON_SHARE_TIME_LINE = 'onShareTimeline'
 }
 
 export const enum CommonLifecycle {
@@ -112,6 +112,9 @@ export const onReachBottom = createCurrentModuleHook(PageLifecycle.ON_REACH_BOTT
 /** 页面滚动 */
 export const onPageScroll = createCurrentModuleHook(PageLifecycle.ON_PAGE_SCROLL)
 
+/** 小程序屏幕旋转时触发 */
+export const onResize = createCurrentModuleHook(PageLifecycle.ON_RESIZE)
+
 /** tab页面点击时触发 */
 export const onTabItemTap = createCurrentModuleHook<
 	(
@@ -144,3 +147,12 @@ export const onShareAppMessage = createCurrentModuleHook<
 		imageUrl?: string
 	}
 >(PageLifecycle.ON_SHARE_APP_MESSAGE)
+
+/** 用户点击右上角转发到朋友圈 */
+export const onShareTimeline = createCurrentModuleHook<
+	() => {
+		title?: string
+		query?: string
+		imageUrl?: string
+	}
+>(PageLifecycle.ON_SHARE_TIME_LINE)

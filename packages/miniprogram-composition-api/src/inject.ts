@@ -13,10 +13,14 @@ export function useProvide<T extends (...args: any[]) => any> (
 	callback: T,
 	...args: Parameters<T>
 ): ReturnType<T>{
-	const that = this || {}
+	const that = this
 
 	return overInCurrentModule((current) => {
 		current = current ? current : that
+
+		if (!current) {
+			throw new Error('useProvide 缺少 页面实例, 或者你想 useProvide.call(this)?')
+		}
 
 		if (!current[ExtendLefecycle.LOC_INJECT]) {
 			current[ExtendLefecycle.LOC_INJECT] = []
@@ -58,7 +62,7 @@ export function useInject<T extends (...args: any[]) => any> (
 	callback: T,
 	...args: Parameters<T>
 ): ReturnType<T>{
-	const that = this || {}
+	const that = this
 	const CANT_FIND_KEY = Symbol()
 
 	/** find (function block) */
@@ -67,7 +71,7 @@ export function useInject<T extends (...args: any[]) => any> (
 			return CANT_FIND_KEY
 		}
 
-        /** if not find parent, return app */
+		/** if not find parent, return app */
 		function getParent (target: ICurrentModuleInstance){
 			const app = getApp() as ICurrentModuleInstance
 
@@ -107,11 +111,15 @@ export function useInject<T extends (...args: any[]) => any> (
 	return overInCurrentModule((current) => {
 		current = current ? current : that
 
-		const runResult = getProvide(current)
-		if (runResult === CANT_FIND_KEY) {
-			return useProvide(callback, ...args)
+		if (!current) {
+			throw new Error('useInject 缺少 页面实例, 或者你想 useInject.call(this)?')
 		}
 
-		return runResult
+		const runResult = getProvide(current)
+		if (runResult !== CANT_FIND_KEY) {
+			return runResult
+		}
+
+		return useProvide.call(current, callback, ...args)
 	})
 }

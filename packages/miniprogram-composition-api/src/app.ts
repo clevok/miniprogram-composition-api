@@ -35,10 +35,22 @@
 //     }
 // })
 
-export function defineApp<T>(params: WechatMiniprogram.App.Options<T>) {
-    App(params)
+export function defineApp<T> (
+	params: WechatMiniprogram.App.Options<T> & {
+		/** 尝试引入 */
+		use?: ((app: T) => any)[]
+	}
+){
+	App(params)
 }
 
-export function getApp() {
-    
-}
+defineApp({
+    use: [(APP) => {
+        APP
+    }],
+    onLaunch() {
+
+    }
+})
+
+export function getApp (){}

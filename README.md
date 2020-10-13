@@ -10,16 +10,13 @@
 
 ### 使用前请考虑
 
-这个框架只是参考vue composition api思路, 因为得考虑到 `IOS10` 以下的客户无法使用Proxy, 出于这个原因, 没有采用`@vue/reactivity`做响应式数据, 所以api是不一致的
+这个框架只是参考vue composition api思路, 因为得考虑到 `IOS10` 以下的客户无法使用Proxy, 出于这个原因, 没有采用`@vue/reactivity`做响应式数据, 所以api是不一致的, 最后的如果不再考虑Proxy兼容性, 将不维护这个了
 
 1. 它是过度产品, 是因为我想使用`function api`的方式写小程序, 但是可能会面临`兼容性问题`可能会被上司要求解决,除非可以让用户升级系统版本(曾经考虑过`Object.defineProperty`和脏检查)
 
 2. 最终ref对象采用的是[mobx box方案](https://cn.mobx.js.org/refguide/boxed.html)方案, 意味着要通过`.set`读取值, `.get/.value`获取值, 有些人可能会很不喜欢, 因为`.set`方式 和 直接修改`.value`值的方式, 直觉上的相差太多, 并且常常会忘记需要 `.value` 来获取真正的值
 
 3. 已经有真正使用`@vue/reactivity` 的[小程序框架 了](https://github.com/yangmingshan/vue-mini) 直接采用了[@vue/reactivity](https://github.com/vuejs/vue-next/tree/master/packages/reactivity) 做响应式数据, 不考虑proxy问题,可以考虑这个框架
-
-**请慎重考虑, 毕竟非主流, 非标准**
-
 
 ---
 

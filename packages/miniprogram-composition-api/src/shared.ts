@@ -76,27 +76,43 @@ export function deepWatch(target: any, key: string, value: any) {
 }
 
 /**
- * 执行注册的生命周期
+ * 
+ * 执行注册的声明周期
+ * @param {string} lifecycle 需要执行的某个生命周期
+ * @param {string} extendFunction 额外需要追加执行的方法
+ * @return {function} 返回一个方法, 调用时, 执行该this下所有指定的生命周期
  */
 export function createLifecycleMethods(
     lifecycle: ComponentLifecycle | PageLifecycle | CommonLifecycle,
-    options: Object | Function | undefined
+    extendFunction?: Function | undefined
 ): (...args: any[]) => any[] {
-    const lifeMethod: Function | undefined =
-        typeof options === 'function'
-            ? options
-            : typeof options === 'undefined'
-            ? undefined
-            : options[lifecycle]
 
     return function (this: ICurrentModuleInstance, ...args: any[]) {
         const injectLifes: any[] = conductHook(this, lifecycle, args)
 
-        if (lifeMethod) {
-            injectLifes.push(lifeMethod.call(this, args))
+        if (extendFunction) {
+            injectLifes.push(extendFunction.call(this, args))
         }
 
         return injectLifes
+    }
+}
+
+
+/**
+ * 
+ * 适配于需要一个返回值
+ * @param lifecycle 
+ * @param extendFunction 
+ */
+export function createSingleCallbackResultLifecycle (
+    lifecycle: PageLifecycle,
+    extendFunction: Function | undefined
+){
+    const lifecycleMethod = createLifecycleMethods(lifecycle, extendFunction)
+    return function (...args: any){
+        const runResults = lifecycleMethod.apply(this, ...args)
+        return runResults[runResults.length - 1]
     }
 }
 

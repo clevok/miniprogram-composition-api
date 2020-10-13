@@ -8,7 +8,13 @@ import {
 import { isFunction, wrapFuns } from './utils'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { createContext } from './context'
-import { createLifecycleMethods, ISetup, AllProperty, createDI } from './shared'
+import {
+	createLifecycleMethods,
+	createSingleCallbackResultLifecycle,
+	ISetup,
+	AllProperty,
+	createDI
+} from './shared'
 import { useInject, useProvide } from './inject'
 import { useRef, IRef } from 'miniprogram-reactivity'
 
@@ -66,6 +72,8 @@ export function defineComponent<
 		options = otherOptions
 	}
 
+	options.methods = options.methods || {}
+
 	options.properties &&
 		Object.keys(options.properties).forEach((KEY) => {
 			let prop = options.properties[KEY]
@@ -107,8 +115,6 @@ export function defineComponent<
 
 		return proxy
 	}
-
-	options.methods = options.methods || {}
 
 	/** 子组件通知 */
 	options.methods['$'] = function (
@@ -171,39 +177,53 @@ export function defineComponent<
 
 	options.methods[PageLifecycle.ON_SHOW] = createLifecycleMethods(
 		PageLifecycle.ON_SHOW,
-		options[PageLifecycle.ON_SHOW]
+		options.methods[PageLifecycle.ON_SHOW]
 	)
 
 	options.methods[PageLifecycle.ON_HIDE] = createLifecycleMethods(
 		PageLifecycle.ON_HIDE,
-		options[PageLifecycle.ON_HIDE]
+		options.methods[PageLifecycle.ON_HIDE]
+	)
+
+	options.methods[PageLifecycle.ON_RESIZE] = createLifecycleMethods(
+		PageLifecycle.ON_RESIZE,
+		options.methods[PageLifecycle.ON_RESIZE]
+	)
+
+	options.methods[PageLifecycle.ON_TAB_ITEM_TAP] = createLifecycleMethods(
+		PageLifecycle.ON_TAB_ITEM_TAP,
+		options.methods[PageLifecycle.ON_TAB_ITEM_TAP]
 	)
 
 	options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycleMethods(
 		PageLifecycle.ON_PULL_DOWN_REFRESH,
-		options[PageLifecycle.ON_PULL_DOWN_REFRESH]
+		options.methods[PageLifecycle.ON_PULL_DOWN_REFRESH]
 	)
 
 	options.methods[PageLifecycle.ON_REACH_BOTTOM] = createLifecycleMethods(
 		PageLifecycle.ON_REACH_BOTTOM,
-		options[PageLifecycle.ON_REACH_BOTTOM]
+		options.methods[PageLifecycle.ON_REACH_BOTTOM]
 	)
 
 	options.methods[PageLifecycle.ON_PAGE_SCROLL] = createLifecycleMethods(
 		PageLifecycle.ON_PAGE_SCROLL,
-		options[PageLifecycle.ON_PAGE_SCROLL]
+		options.methods[PageLifecycle.ON_PAGE_SCROLL]
 	)
 
-	options.methods[PageLifecycle.ON_SHARE_APP_MESSAGE] = (() => {
-		const lifecycleMethod = createLifecycleMethods(
-			PageLifecycle.ON_SHARE_APP_MESSAGE,
-			options[PageLifecycle.ON_SHARE_APP_MESSAGE]
-		)
-		return function (...params: any[]){
-			const runResults = lifecycleMethod.apply(this, params)
-			return runResults[runResults.length - 1]
-		}
-	})()
+	options.methods[PageLifecycle.ON_ADD_TO_FAVORITES] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_ADD_TO_FAVORITES,
+		options.methods[PageLifecycle.ON_ADD_TO_FAVORITES]
+	)
+
+	options.methods[PageLifecycle.ON_SHARE_APP_MESSAGE] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_SHARE_APP_MESSAGE,
+		options.methods[PageLifecycle.ON_SHARE_APP_MESSAGE]
+	)
+
+	options.methods[PageLifecycle.ON_SHARE_TIME_LINE] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_SHARE_TIME_LINE,
+		options.methods[PageLifecycle.ON_SHARE_TIME_LINE]
+	)
 
 	return Component(options)
 }

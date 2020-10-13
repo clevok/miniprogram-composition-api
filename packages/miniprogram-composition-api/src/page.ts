@@ -1,7 +1,12 @@
-import { createShortName, isFunction, wrapFuns } from './utils'
+import { isFunction, wrapFuns } from './utils'
 import { PageLifecycle, conductHook, ExtendLefecycle, CommonLifecycle } from './lifecycle'
 import { createContext } from './context'
-import { createDI, createLifecycleMethods, ISetup } from './shared'
+import {
+	createDI,
+	createLifecycleMethods,
+	createSingleCallbackResultLifecycle,
+	ISetup
+} from './shared'
 import { ICurrentModuleInstance, overCurrentModule } from './instance'
 import { useInject, useProvide } from './inject'
 
@@ -92,46 +97,54 @@ export function definePage<
 		conductHook(this, ExtendLefecycle.EFFECT, [])
 	}, createLifecycleMethods(CommonLifecycle.ON_UN_LOAD, options[PageLifecycle.ON_UNLOAD]))
 
-	options[PageLifecycle.ON_SHOW] = createLifecycleMethods(PageLifecycle.ON_SHOW, options)
+	options[PageLifecycle.ON_SHOW] = createLifecycleMethods(
+		PageLifecycle.ON_SHOW,
+		options[PageLifecycle.ON_SHOW]
+	)
 
-	options[PageLifecycle.ON_HIDE] = createLifecycleMethods(PageLifecycle.ON_HIDE, options)
+	options[PageLifecycle.ON_HIDE] = createLifecycleMethods(
+		PageLifecycle.ON_HIDE,
+		options[PageLifecycle.ON_HIDE]
+	)
 
-	options[PageLifecycle.ON_RESIZE] = createLifecycleMethods(PageLifecycle.ON_RESIZE, options)
+	options[PageLifecycle.ON_RESIZE] = createLifecycleMethods(
+		PageLifecycle.ON_RESIZE,
+		options[PageLifecycle.ON_RESIZE]
+	)
 
 	options[PageLifecycle.ON_TAB_ITEM_TAP] = createLifecycleMethods(
 		PageLifecycle.ON_TAB_ITEM_TAP,
-		options
+		options[PageLifecycle.ON_TAB_ITEM_TAP]
 	)
 
 	options[PageLifecycle.ON_PULL_DOWN_REFRESH] = createLifecycleMethods(
 		PageLifecycle.ON_PULL_DOWN_REFRESH,
-		options
+		options[PageLifecycle.ON_PULL_DOWN_REFRESH]
 	)
 
 	options[PageLifecycle.ON_REACH_BOTTOM] = createLifecycleMethods(
 		PageLifecycle.ON_REACH_BOTTOM,
-		options
+		options[PageLifecycle.ON_REACH_BOTTOM]
 	)
 
 	options[PageLifecycle.ON_PAGE_SCROLL] = createLifecycleMethods(
 		PageLifecycle.ON_PAGE_SCROLL,
-		options
+		options[PageLifecycle.ON_PAGE_SCROLL]
 	)
 
-	function createSingleCallbackLifecycle (lifecycle: PageLifecycle){
-		const lifecycleMethod = createLifecycleMethods(lifecycle, options)
-		return function (...args: any){
-			const runResults = lifecycleMethod.apply(this, ...args)
-			return runResults[runResults.length - 1]
-		}
-	}
-
-	options[PageLifecycle.ON_ADD_TO_FAVORITES] = createSingleCallbackLifecycle(
-		PageLifecycle.ON_ADD_TO_FAVORITES
+	options[PageLifecycle.ON_ADD_TO_FAVORITES] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_ADD_TO_FAVORITES,
+		options[PageLifecycle.ON_ADD_TO_FAVORITES]
 	)
 
-	options[PageLifecycle.ON_SHARE_APP_MESSAGE] = createSingleCallbackLifecycle(
-		PageLifecycle.ON_SHARE_APP_MESSAGE
+	options[PageLifecycle.ON_SHARE_APP_MESSAGE] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_SHARE_APP_MESSAGE,
+		options[PageLifecycle.ON_SHARE_APP_MESSAGE]
+	)
+
+	options[PageLifecycle.ON_SHARE_TIME_LINE] = createSingleCallbackResultLifecycle(
+		PageLifecycle.ON_SHARE_TIME_LINE,
+		options[PageLifecycle.ON_SHARE_TIME_LINE]
 	)
 
 	return Page(options)
